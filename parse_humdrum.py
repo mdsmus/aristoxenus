@@ -4,6 +4,8 @@ from __future__ import print_function
 from __future__ import absolute_import, division
 import re
 
+# classes definitions
+
 
 class Score():
     def append(self, item):
@@ -86,14 +88,8 @@ class NullToken():
     def __repr__(self):
         return "#<.>"
 
-
-def parse_global_comment(line):
-    return Comment(line)
-
-
-def parse_reference_record(line):
-    s = line.split(":", 1)
-    return Record(s[0][3:], s[1])
+
+# Utilities
 
 
 def regexp(reg, string):
@@ -101,22 +97,8 @@ def regexp(reg, string):
     if tmp:
         return tmp.group()
 
-
-def parse_bar(string):
-    repeat_begin = regexp(":\\||:!", string)
-    repeat_end = regexp("\\|:|!:", string)
-    double = regexp("==", string)
-    number = regexp("[0-9]+([a-z]+)?", string)
-
-    return Bar(number, repeat_begin, repeat_end, double)
-
-
-def parse_exclusive_interpretation(string):
-    return ExclusiveInterpretation(string)
-
-
-def parse_tandem(string):
-    return Tandem(string, None)
+
+# parse humdrum types
 
 
 def parse_kern(string, line_number, item_number):
@@ -130,12 +112,31 @@ def parse_dynam(string, line_number, item_number):
 def unknown_data_type(item, line_number, item_number):
     return item
 
+
+# parse elements
+
+
+def parse_bar(string):
+    repeat_begin = regexp(":\\||:!", string)
+    repeat_end = regexp("\\|:|!:", string)
+    double = regexp("==", string)
+    number = regexp("[0-9]+([a-z]+)?", string)
+
+    return Bar(number, repeat_begin, repeat_end, double)
+
+
+def parse_tandem(string):
+    return Tandem(string, None)
+
 
 def parse_data(item, line_number, item_number, data_type):
     dic = {"kern": parse_kern,
            "dynam": parse_dynam}
 
     return dic.get(data_type, unknown_data_type)(item, line_number, item_number)
+
+
+# basic parser
 
 
 def parse_spine_item(item, line_number, item_number, score):
@@ -144,7 +145,7 @@ def parse_spine_item(item, line_number, item_number, score):
     elif item.startswith("**"):
         spine_type = item[2:]
         score.spine_types.append(spine_type)
-        return parse_exclusive_interpretation(spine_type)
+        return ExclusiveInterpretation(spine_type)
     elif item.startswith("*"):
         return parse_tandem(item)
     elif item.startswith("!"):
@@ -154,6 +155,15 @@ def parse_spine_item(item, line_number, item_number, score):
     else:
         data_type = score.spine_types[item_number]
         return parse_data(item, line_number, item_number, data_type)
+
+
+def parse_reference_record(line):
+    s = line.split(":", 1)
+    return Record(s[0][3:], s[1])
+
+
+def parse_global_comment(line):
+    return Comment(line)
 
 
 def parse_spine(line, line_number, score):
@@ -185,6 +195,8 @@ def parse_humdrum_file(file):
             else:
                 score.append(parse_spine(line, line_number, score))
         return score
+
+# test usage
 
 f = parse_humdrum_file("/home/kroger/Documents/xenophilus/test.krn")
 #f = parse_humdrum_file("/home/kroger/Documents/xenophilus/k160-02.krn")
