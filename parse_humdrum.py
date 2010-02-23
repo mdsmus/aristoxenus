@@ -4,7 +4,7 @@ from __future__ import print_function
 from __future__ import absolute_import, division
 import re
 
-# classes definitions
+## classes definitions
 
 
 class Score():
@@ -89,7 +89,7 @@ class NullToken():
         return "#<.>"
 
 
-# Utilities
+## Utilities
 
 
 def regexp(reg, string):
@@ -98,7 +98,7 @@ def regexp(reg, string):
         return tmp.group()
 
 
-# parse humdrum types
+## parse humdrum types
 
 
 def parse_kern(string, line_number, item_number):
@@ -113,7 +113,7 @@ def unknown_data_type(item, line_number, item_number):
     return item
 
 
-# parse elements
+## parse elements
 
 
 def parse_bar(string):
@@ -136,7 +136,7 @@ def parse_data(item, line_number, item_number, data_type):
     return dic.get(data_type, unknown_data_type)(item, line_number, item_number)
 
 
-# basic parser
+## basic parser
 
 
 def parse_spine_item(item, line_number, item_number, score):
@@ -196,7 +196,7 @@ def parse_humdrum_file(file):
                 score.append(parse_spine(line, line_number, score))
         return score
 
-# test usage
+## test usage
 
 f = parse_humdrum_file("/home/kroger/Documents/xenophilus/test.krn")
 #f = parse_humdrum_file("/home/kroger/Documents/xenophilus/k160-02.krn")
