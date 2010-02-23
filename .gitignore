@@ -1,0 +1,10 @@
+*.aux
+*.dvi
+*.log
+auto/
+*.toc
+*.toc.old
+*~
+*.pdf
+*.ps
+*.pyc

@@ -4,7 +4,7 @@ check:
 clean:
 	rm -f *.out parsetab.py
 
-print: humdrum-parser.ps
+print: parse_humdrum.ps
 
 %.ps: %.py
 	a2ps -o $@ $<
