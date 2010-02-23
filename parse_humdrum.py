@@ -4,6 +4,7 @@ from __future__ import print_function
 from __future__ import absolute_import, division
 import re
 
+
 class Score():
     def append(self, item):
         self.data.append(item)
@@ -14,6 +15,7 @@ class Score():
         self.data = []
         self.filename = ""
         self.spine_number = 0
+        self.spine_types = []
 
 
 class Record():
@@ -34,6 +36,9 @@ class Comment():
 
 
 class Tandem():
+    def __repr__(self):
+        return "#<*" + self.type + ">"
+
     def __init__(self, type, data):
         self.type = type
         self.data = data
@@ -43,7 +48,7 @@ class ExclusiveInterpretation():
     def __repr__(self):
         return "#<**" + self.name + ">"
 
-    def __init__(self,name):
+    def __init__(self, name):
         self.name = name
 
 
@@ -63,12 +68,13 @@ class Bar():
     def __repr__(self):
         return "#<Bar " + self.number + ">"
 
-    def __init__(self, number, repeat_begin=False, repeat_end=False, double=False):
-        self.number = number
+    def __init__(self, number, repeat_begin=False,
+                 repeat_end=False, double=False):
+        self.number = number or ""
         self.repeat_begin = repeat_begin
         self.repeat_end = repeat_end
         self.double = double
-        
+
 
 class Rest():
     def __init__(self):
@@ -78,7 +84,7 @@ class Rest():
 
 class NullToken():
     def __repr__(self):
-        return "#<NullToken>"
+        return "#<.>"
 
 
 def parse_global_comment(line):
@@ -86,7 +92,7 @@ def parse_global_comment(line):
 
 
 def parse_reference_record(line):
-    s = line.split(":",1)
+    s = line.split(":", 1)
     return Record(s[0][3:], s[1])
 
 
@@ -94,6 +100,7 @@ def regexp(reg, string):
     tmp = re.search(reg, string)
     if tmp:
         return tmp.group()
+
 
 def parse_bar(string):
     repeat_begin = regexp(":\\||:!", string)
@@ -103,19 +110,41 @@ def parse_bar(string):
 
     return Bar(number, repeat_begin, repeat_end, double)
 
+
 def parse_exclusive_interpretation(string):
-    return ExclusiveInterpretation(string[2:])
+    return ExclusiveInterpretation(string)
 
 
 def parse_tandem(string):
-    return Tandem(string,None)
+    return Tandem(string, None)
 
 
-def parse_spine(item, line_number):
+def parse_kern(string, line_number, item_number):
+    return string
+
+
+def parse_dynam(string, line_number, item_number):
+    return string
+
+
+def unknown_data_type(item, line_number, item_number):
+    return item
+
+
+def parse_data(item, line_number, item_number, data_type):
+    dic = {"kern": parse_kern,
+           "dynam": parse_dynam}
+
+    return dic.get(data_type, unknown_data_type)(item, line_number, item_number)
+
+
+def parse_spine_item(item, line_number, item_number, score):
     if item.startswith("="):
         return parse_bar(item)
     elif item.startswith("**"):
-        return parse_exclusive_interpretation(item)
+        spine_type = item[2:]
+        score.spine_types.append(spine_type)
+        return parse_exclusive_interpretation(spine_type)
     elif item.startswith("*"):
         return parse_tandem(item)
     elif item.startswith("!"):
@@ -123,7 +152,18 @@ def parse_spine(item, line_number):
     elif item == ".":
         return NullToken()
     else:
-        return item
+        data_type = score.spine_types[item_number]
+        return parse_data(item, line_number, item_number, data_type)
+
+
+def parse_spine(line, line_number, score):
+    list = []
+    item_number = 0
+    for item in line.split("\t"):
+        list.append(parse_spine_item(item, line_number, item_number, score))
+        item_number += 1
+    return(list)
+
 
 def parse_humdrum_file(file):
     blank_line = re.compile("^[ \t]*$")
@@ -143,9 +183,10 @@ def parse_humdrum_file(file):
             elif global_comment.match(line):
                 score.append(parse_global_comment(line))
             else:
-                split = line.split("\t")
-                score.append([parse_spine(item, line_number) for item in split])
+                score.append(parse_spine(line, line_number, score))
         return score
 
 f = parse_humdrum_file("/home/kroger/Documents/xenophilus/test.krn")
-print(f.data)
+#f = parse_humdrum_file("/home/kroger/Documents/xenophilus/k160-02.krn")
+for item in f.data:
+    print(item)
