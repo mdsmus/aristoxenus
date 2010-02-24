@@ -3,6 +3,7 @@
 from __future__ import print_function
 from __future__ import absolute_import, division
 import re
+import pyparsing
 
 ## classes definitions
 
@@ -91,6 +92,12 @@ class BlankLine(Base):
     pass
 
 
+## Exceptions
+
+class KernError(Exception):
+    pass
+
+
 ## Utilities
 
 
@@ -100,22 +107,76 @@ def regexp(reg, string):
         return tmp.group()
 
 
-## parse humdrum types
+## Parse kern
+
+kern_articulations = {
+    'n': "natural",
+    '/': "up-stem",
+    '\\': "down-stem",
+    'o': "harmonic",
+    't': "trill-st",
+    'T': "trill-wt",
+    'S': "turn",
+    '$': "inverted-turn",
+    'R': "end-with-turn",
+    'u': "down-bow",
+    'v': "up-bow",
+    'z': "sforzando",
+    'H': "glissando-start",
+    'h': "glissando-end",
+    ';': "fermata",
+    'Q': "gruppetto",
+    'p': "appoggiatura-main-note",
+    'U': "mute",
+    '[': "tie-start",
+    ']': "tie-end",
+    '_': "tie-midle",
+    '(': "slur-start",
+    ')': "slur-end",
+    '{': "phrase-start",
+    '}': "phrase-end",
+    '\'': "staccato",
+    's': "spiccato",
+    '\\': "pizzicato", 
+    '`': "staccatissimo",
+    '~': "tenuto",
+    '^': "accent",
+    ':': "arpeggiation",
+    ',': "breath",
+    'm': "mordent-st",
+    'w': "inverted-mordent-st",
+    'M': "mordent-wt",
+    'W': "inverted-mordent-wt"}
 
 
-def parse_kern(string, line_number, item_number):
+def kern_tokenizer(string, linen):
     return string
 
+
+def parse_kern_item(string, line_number, item_number):
+    return string
+
+
+def parse_kern(string, linen, itemn):
+    s = string.split(" ")
+    if not string:
+        raise KernError("Kern string shoudn't be empty.")
+    elif len(s) == 1:
+        return parse_kern_item(string, linen, itemn)
+    else:
+        return [parse_kern_item(item, linen, itemn) for item in s]
+
+
+## Parse dynam
 
 def parse_dynam(string, line_number, item_number):
     return string
 
+
+## parse elements
 
 def unknown_type(item, line_number, item_number):
     return item
-
-
-## parse elements
 
 
 def parse_bar(string):
