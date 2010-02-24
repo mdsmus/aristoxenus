@@ -7,7 +7,12 @@ import re
 ## classes definitions
 
 
-class Score():
+class Base(object):
+    def __repr__(self):
+        return "<" + self.__class__.__name__ + ">"
+
+
+class Score(Base):
     def append(self, item):
         self.data.append(item)
 
@@ -20,41 +25,35 @@ class Score():
         self.spine_types = []
 
 
-class Record():
-    def __repr__(self):
-        return "#<Record>"
-
+class Record(Base):
     def __init__(self, name, data):
         self.name = name
         self.data = data
 
 
-class Comment():
-    def __repr__(self):
-        return "#<Comment>"
-
+class Comment(Base):
     def __init__(self, data):
         self.data = data
 
 
-class Tandem():
+class Tandem(Base):
     def __repr__(self):
-        return "#<*" + self.type + ">"
+        return "<*" + self.type + ">"
 
     def __init__(self, type, data):
         self.type = type
         self.data = data
 
 
-class ExclusiveInterpretation():
+class ExclusiveInterpretation(Base):
     def __repr__(self):
-        return "#<**" + self.name + ">"
+        return "<**" + self.name + ">"
 
     def __init__(self, name):
         self.name = name
 
 
-class Note():
+class Note(Base):
     def __init__(self):
         self.name = name
         self.duration = None
@@ -66,9 +65,9 @@ class Note():
         self.type = ""
 
 
-class Bar():
+class Bar(Base):
     def __repr__(self):
-        return "#<Bar " + self.number + ">"
+        return "<Bar " + self.number + ">"
 
     def __init__(self, number, repeat_begin=False,
                  repeat_end=False, double=False):
@@ -78,15 +77,18 @@ class Bar():
         self.double = double
 
 
-class Rest():
+class Rest(Base):
     def __init__(self):
         self.duration = None
         self.print_as_whole = False
 
 
-class NullToken():
-    def __repr__(self):
-        return "#<.>"
+class NullToken(Base):
+    pass
+
+
+class BlankLine(Base):
+    pass
 
 
 ## Utilities
@@ -109,7 +111,7 @@ def parse_dynam(string, line_number, item_number):
     return string
 
 
-def unknown_data_type(item, line_number, item_number):
+def unknown_type(item, line_number, item_number):
     return item
 
 
@@ -133,7 +135,7 @@ def parse_data(item, line_number, item_number, data_type):
     dic = {"kern": parse_kern,
            "dynam": parse_dynam}
 
-    return dic.get(data_type, unknown_data_type)(item, line_number, item_number)
+    return dic.get(data_type, unknown_type)(item, line_number, item_number)
 
 
 ## basic parser
@@ -176,21 +178,17 @@ def parse_spine(line, line_number, score):
 
 
 def parse_humdrum_file(file):
-    blank_line = re.compile("^[ \t]*$")
-    reference_record = re.compile("^!{3,3}[a-zA-Z ]+")
-    global_comment = re.compile("^(!{2,2})|(!{4})[a-zA-Z ]+")
-
     line_number = 0
     score = Score()
 
     with open(file) as f:
         for line in f.read().split('\n'):
             line_number += 1
-            if blank_line.match(line):
-                score.append("")
-            elif reference_record.match(line):
+            if regexp(r"^[ \t]*$", line) is not None:
+                score.append(BlankLine())
+            elif regexp(r"^!{3}[a-zA-Z ]+", line):
                 score.append(parse_reference_record(line))
-            elif global_comment.match(line):
+            elif regexp(r"^(!{2})|(!{4,})[a-zA-Z ]+", line):
                 score.append(parse_global_comment(line))
             else:
                 score.append(parse_spine(line, line_number, score))
