@@ -3,14 +3,21 @@
 from __future__ import print_function
 from __future__ import absolute_import, division
 import re
-import pyparsing
 
 ## classes definitions
 
 
 class Base(object):
+    repr = ''
+
+    def space(self):
+        if self.repr:
+            return ' '
+        else:
+            return ''
+
     def __repr__(self):
-        return "<" + self.__class__.__name__ + ">"
+        return "<" + self.__class__.__name__ + self.space() + self.repr + ">"
 
 
 class Score(Base):
@@ -38,12 +45,10 @@ class Comment(Base):
 
 
 class Tandem(Base):
-    def __repr__(self):
-        return "<*" + self.type + ">"
-
     def __init__(self, type, data):
         self.type = type
         self.data = data
+        self.repr = type
 
 
 class ExclusiveInterpretation(Base):
@@ -52,7 +57,6 @@ class ExclusiveInterpretation(Base):
 
     def __init__(self, name):
         self.name = name
-
 
 class Note(Base):
     def __init__(self):
@@ -67,15 +71,13 @@ class Note(Base):
 
 
 class Bar(Base):
-    def __repr__(self):
-        return "<Bar " + self.number + ">"
-
     def __init__(self, number, repeat_begin=False,
                  repeat_end=False, double=False):
         self.number = number or ""
         self.repeat_begin = repeat_begin
         self.repeat_end = repeat_end
         self.double = double
+        self.repr = self.number
 
 
 class Rest(Base):
@@ -259,5 +261,4 @@ def parse_humdrum_file(file):
 
 f = parse_humdrum_file("/home/kroger/Documents/xenophilus/test.krn")
 #f = parse_humdrum_file("/home/kroger/Documents/xenophilus/k160-02.krn")
-for item in f.data:
-    print(item)
+for item in f.data: print(item)
