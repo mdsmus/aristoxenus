@@ -1,8 +1,9 @@
 #!/usr/bin/env python2.6
 
-from __future__ import print_function
+from __future__ import print_function, unicode_literals
 from __future__ import absolute_import, division
 import re
+import sys
 
 ## classes definitions
 
@@ -70,6 +71,11 @@ class Note(Base):
         self.type = ""
 
 
+class MultipleStop(list):
+    def __repr__(self):
+        return '<MS: ' + str(self.__getslice__(0,self.__sizeof__())) + '>'
+
+
 class Bar(Base):
     def __init__(self, number, repeat_begin=False,
                  repeat_end=False, double=False):
@@ -103,7 +109,10 @@ class KernError(Exception):
 ## Utilities
 
 
-def regexp(reg, string):
+def isPython3():
+    return sys.version[:1] == '3'
+
+def isMatch(reg, string):
     tmp = re.search(reg, string)
     if tmp:
         return tmp.group()
@@ -112,50 +121,31 @@ def regexp(reg, string):
 ## Parse kern
 
 kern_articulations = {
-    'n': "natural",
-    '/': "up-stem",
-    '\\': "down-stem",
-    'o': "harmonic",
-    't': "trill-st",
-    'T': "trill-wt",
-    'S': "turn",
-    '$': "inverted-turn",
-    'R': "end-with-turn",
-    'u': "down-bow",
-    'v': "up-bow",
-    'z': "sforzando",
-    'H': "glissando-start",
-    'h': "glissando-end",
-    ';': "fermata",
-    'Q': "gruppetto",
-    'p': "appoggiatura-main-note",
-    'U': "mute",
-    '[': "tie-start",
-    ']': "tie-end",
-    '_': "tie-midle",
-    '(': "slur-start",
-    ')': "slur-end",
-    '{': "phrase-start",
-    '}': "phrase-end",
-    '\'': "staccato",
-    's': "spiccato",
-    '\\': "pizzicato", 
-    '`': "staccatissimo",
-    '~': "tenuto",
-    '^': "accent",
-    ':': "arpeggiation",
-    ',': "breath",
-    'm': "mordent-st",
-    'w': "inverted-mordent-st",
-    'M': "mordent-wt",
+    'n': "natural", '/': "up-stem", '\\': "down-stem", 'o': "harmonic",
+    't': "trill-st", 'T': "trill-wt", 'S': "turn", '$': "inverted-turn",
+    'R': "end-with-turn", 'u': "down-bow", 'v': "up-bow", 'z': "sforzando",
+    'H': "glissando-start", 'h': "glissando-end", ';': "fermata", 'Q': "gruppetto",
+    'p': "appoggiatura-main-note", 'U': "mute", '[': "tie-start", ']': "tie-end",
+    '_': "tie-midle", '(': "slur-start", ')': "slur-end", '{': "phrase-start",
+    '}': "phrase-end", '\'': "staccato", 's': "spiccato", '\\': "pizzicato", 
+    '`': "staccatissimo", '~': "tenuto", '^': "accent", ':': "arpeggiation",
+    ',': "breath", 'm': "mordent-st", 'w': "inverted-mordent-st", 'M': "mordent-wt",
     'W': "inverted-mordent-wt"}
 
 
 def kern_tokenizer(string, linen):
-    return string
+    char = ""
+    pchar = ""
+    if isPython3():
+        myrange = range
+    else:
+        myrange = xrange
+    for i in myrange(0, len(string)):
+        print(i)
 
 
-def parse_kern_item(string, line_number, item_number):
+def parse_kern_item(string, lineno, item_number):
+    kern_tokenizer(string, lineno)
     return string
 
 
@@ -166,7 +156,7 @@ def parse_kern(string, linen, itemn):
     elif len(s) == 1:
         return parse_kern_item(string, linen, itemn)
     else:
-        return [parse_kern_item(item, linen, itemn) for item in s]
+        return MultipleStop([parse_kern_item(item, linen, itemn) for item in s])
 
 
 ## Parse dynam
@@ -182,10 +172,10 @@ def unknown_type(item, line_number, item_number):
 
 
 def parse_bar(string):
-    repeat_begin = regexp(":\\||:!", string)
-    repeat_end = regexp("\\|:|!:", string)
-    double = regexp("==", string)
-    number = regexp("[0-9]+([a-z]+)?", string)
+    repeat_begin = isMatch(":\\||:!", string)
+    repeat_end = isMatch("\\|:|!:", string)
+    double = isMatch("==", string)
+    number = isMatch("[0-9]+([a-z]+)?", string)
 
     return Bar(number, repeat_begin, repeat_end, double)
 
@@ -247,11 +237,11 @@ def parse_humdrum_file(file):
     with open(file) as f:
         for line in f.read().split('\n'):
             line_number += 1
-            if regexp(r"^[ \t]*$", line) is not None:
+            if isMatch(r"^[ \t]*$", line) is not None:
                 score.append(BlankLine())
-            elif regexp(r"^!{3}[a-zA-Z ]+", line):
+            elif isMatch(r"^!{3}[a-zA-Z ]+", line):
                 score.append(parse_reference_record(line))
-            elif regexp(r"^(!{2})|(!{4,})[a-zA-Z ]+", line):
+            elif isMatch(r"^(!{2})|(!{4,})[a-zA-Z ]+", line):
                 score.append(parse_global_comment(line))
             else:
                 score.append(parse_spine(line, line_number, score))
