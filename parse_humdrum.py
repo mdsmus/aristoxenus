@@ -132,16 +132,45 @@ kern_articulations = {
     ',': "breath", 'm': "mordent-st", 'w': "inverted-mordent-st", 'M': "mordent-wt",
     'W': "inverted-mordent-wt"}
 
+def isDuration(char):
+    if "0123456789".find(char) >= 0:
+        True
+    else:
+        False
+
+def isNote(char):
+    if "0123456789".find(char) >= 0:
+        True
+    else:
+        False
+
+def isDot(char):
+    if "0123456789".find(char) >= 0:
+        True
+    else:
+        False
 
 def kern_tokenizer(string, linen):
-    char = ""
-    pchar = ""
+    durs = []
     if isPython3():
         myrange = range
     else:
         myrange = xrange
     for i in myrange(0, len(string)):
-        print(i)
+        pchar = string[i-1]
+        char = string[i]
+        if isDuration(char):
+            if pchar == '' or durs == [] or isDuration(pchar):
+                durs.append(char)
+            else:
+                raise KernError("Duration numbers must be together.")
+        elif isNote(char):
+            if pchar == '' or notes == [] or isNote(pchar):
+                notes.append(char)
+            else:
+                raise KernError("Notes must be together.")
+        elif isDot(char):
+            pass
 
 
 def parse_kern_item(string, lineno, item_number):
