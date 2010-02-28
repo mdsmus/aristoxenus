@@ -130,34 +130,77 @@ kern_articulations = {
     '}': "phrase-end", '\'': "staccato", 's': "spiccato", '\\': "pizzicato", 
     '`': "staccatissimo", '~': "tenuto", '^': "accent", ':': "arpeggiation",
     ',': "breath", 'm': "mordent-st", 'w': "inverted-mordent-st", 'M': "mordent-wt",
-    'W': "inverted-mordent-wt"}
+    'W': "inverted-mordent-wt"
+}
+
+kern_beams = {
+    'L': 'beam-start',
+    'J': 'beam-end',
+    'K': 'beam-partial-right',
+    'k': 'beam-partial-left'
+    }
+
+
+def findChar(char, string):
+    if string.find(char) >= 0:
+        return True
+    else:
+        return False
+
 
 def isDuration(char):
-    if "0123456789".find(char) >= 0:
-        True
-    else:
-        False
+    return findChar(char, "0123456789")
+
 
 def isNote(char):
-    if "0123456789".find(char) >= 0:
-        True
-    else:
-        False
+    return findChar(char, "abcdefg")
+
 
 def isDot(char):
-    if "0123456789".find(char) >= 0:
-        True
-    else:
-        False
+    return char == '.'
+
+def isAccidental(char):
+    return findChar(char, "#-")
+
+def isArticulation(char):
+    return kern_articulations.__contains__(char)
+
+
+def isBeam(char):
+    return kern_beams.__contains__(char)
+
+
+def isRest(char):
+    return char == 'r'
+
+
+def isAcciacatura(char):
+    return char == 'q'
+
+
+def isAppoggiatura(char):
+    return char == 'P'
+
 
 def kern_tokenizer(string, linen):
     durs = []
+    articulations = []
+    beams = []
+    dots = []
+    notes = []
+    rests = []
+    accidentals = []
+    acciaccatura = []
+    appoggiatura = []
     if isPython3():
         myrange = range
     else:
         myrange = xrange
     for i in myrange(0, len(string)):
-        pchar = string[i-1]
+        if i - 1 < 0:
+            pchar = ''
+        else:
+            pchar = string[i - 1]
         char = string[i]
         if isDuration(char):
             if pchar == '' or durs == [] or isDuration(pchar):
@@ -170,7 +213,33 @@ def kern_tokenizer(string, linen):
             else:
                 raise KernError("Notes must be together.")
         elif isDot(char):
+            if isDuration(pchar) or isDot(pchar):
+                dots.append(char)
+            else:
+                raise KernError("Dots must be together or after a number.")
+        elif isAccidental(char):
+            if isNote(pchar) or (isAccidental(pchar) and char == pchar):
+                accidentals.append(char)
+            else:
+                raise KernError("Accidentals.")
+        elif isRest(char):
+            if isRest(pchar) or rests == '':
+                rests.append(char)
+            else:
+                raise KernError("Rest")
+        elif isArticulation(char):
             pass
+        elif isBeam(char):
+            pass
+        elif isAcciacatura(char):
+            pass
+        elif isAppoggiatura(char):
+            if notes and durs:
+                appoggiatura.append(char)
+            else:
+                raise KernError("Appoggiatura")
+        else:
+            print("Humdrum character not recognized: " + char)
 
 
 def parse_kern_item(string, lineno, item_number):
@@ -278,6 +347,6 @@ def parse_humdrum_file(file):
 
 ## test usage
 
-f = parse_humdrum_file("/home/kroger/Documents/xenophilus/test.krn")
+f = parse_humdrum_file("/home/kroger/Documents/xenophilus/data/test.krn")
 #f = parse_humdrum_file("/home/kroger/Documents/xenophilus/k160-02.krn")
 for item in f.data: print(item)
