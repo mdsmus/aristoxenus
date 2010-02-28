@@ -163,11 +163,11 @@ def isAccidental(char):
     return findChar(char, "#-")
 
 def isArticulation(char):
-    return kern_articulations.__contains__(char)
+    return char in kern_articulations
 
 
 def isBeam(char):
-    return kern_beams.__contains__(char)
+    return char in kern_beams
 
 
 def isRest(char):
@@ -182,64 +182,56 @@ def isAppoggiatura(char):
     return char == 'P'
 
 
-def kern_tokenizer(string, linen):
-    durs = []
-    articulations = []
-    beams = []
-    dots = []
-    notes = []
-    rests = []
-    accidentals = []
-    acciaccatura = []
-    appoggiatura = []
-    if isPython3():
-        myrange = range
+def ParseChar(char, dic, var, msg, cond):
+    if cond:
+        dic[var].append(char)
     else:
-        myrange = xrange
-    for i in myrange(0, len(string)):
-        if i - 1 < 0:
-            pchar = ''
-        else:
-            pchar = string[i - 1]
+        raise KernError(msg)
+
+
+def prev_string(string, i):
+    previous = i - 1
+    if previous < 0:
+        return ''
+    else:
+        return string[previous]
+            
+def kern_tokenizer(string, linen):
+    dic = {'durs': [], 'notes': [], 'rests': [], 'articulations': [], 
+           'beams': [], 'acciaccatura': [], 'appoggiatura': []}
+
+    for i in range(0, len(string)):
+        pchar = prev_string(string, i)
         char = string[i]
+
         if isDuration(char):
-            if pchar == '' or durs == [] or isDuration(pchar):
-                durs.append(char)
-            else:
-                raise KernError("Duration numbers must be together.")
+            ParseChar(char, dic, 'durs', "Duration must be together.",
+                      (pchar == '' or dic['durs'] == [] or isDuration(pchar)))
         elif isNote(char):
-            if pchar == '' or notes == [] or isNote(pchar):
-                notes.append(char)
-            else:
-                raise KernError("Notes must be together.")
+            ParseChar(char, dic, 'notes', "Notes must be together.",
+                      (pchar == '' or dic['notes'] == [] or isNote(pchar)))
         elif isDot(char):
-            if isDuration(pchar) or isDot(pchar):
-                dots.append(char)
-            else:
-                raise KernError("Dots must be together or after a number.")
+            ParseChar(char, dic, 'dots', "Dots must be together or after a number."
+                      (isDuration(pchar) or isDot(pchar)))
         elif isAccidental(char):
-            if isNote(pchar) or (isAccidental(pchar) and char == pchar):
-                accidentals.append(char)
-            else:
-                raise KernError("Accidentals.")
+            ParseChar(char, dic, 'accidentals', "Accidentals."
+                      (isNote(pchar) or (isAccidental(pchar) and char == pchar)))
         elif isRest(char):
-            if isRest(pchar) or rests == '':
-                rests.append(char)
-            else:
-                raise KernError("Rest")
-        elif isArticulation(char):
-            pass
-        elif isBeam(char):
-            pass
-        elif isAcciacatura(char):
-            pass
+            ParseChar(char, dic, 'rests', "Rest."
+                      (isRest(pchar) or dic['rests'] == ''))
         elif isAppoggiatura(char):
-            if notes and durs:
-                appoggiatura.append(char)
-            else:
-                raise KernError("Appoggiatura")
+            ParseChar(char, dic, 'appoggiatura', "Appoggiatura"
+                      (dic['notes'] and dic['durs']))
+        elif isArticulation(char):
+            dic['articulations'] = kern_articulations[char]
+        elif isBeam(char):
+            dic['beams'] = kern_beams[char]
+        elif isAcciacatura(char):
+            dic['acciaccatura'] = char
         else:
             print("Humdrum character not recognized: " + char)
+    print(dic)
+    return dic
 
 
 def parse_kern_item(string, lineno, item_number):
