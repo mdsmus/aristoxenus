@@ -1,9 +1,10 @@
 #!/usr/bin/env python2.6
 
-from __future__ import print_function, unicode_literals
+from __future__ import print_function
 from __future__ import absolute_import, division
 import re
-import sys
+import math
+import operator
 
 ## classes definitions
 
@@ -46,10 +47,10 @@ class Comment(Base):
 
 
 class Tandem(Base):
-    def __init__(self, type, data):
-        self.type = type
+    def __init__(self, spine_type, data):
+        self.type = spine_type
         self.data = data
-        self.repr = type
+        self.repr = spine_type
 
 
 class ExclusiveInterpretation(Base):
@@ -59,21 +60,23 @@ class ExclusiveInterpretation(Base):
     def __init__(self, name):
         self.name = name
 
-class Note(Base):
-    def __init__(self):
-        self.name = name
-        self.duration = None
-        self.articulations = []
-        self.beams = []
-        self.octave = None
-        self.code = None
-        self.system = "base40"
-        self.type = ""
 
+class Note(Base):
+    def __init__(self, name, dur, art, beams, octave, code, system, spine_type):
+        print("------>", name, dur, art, beams, octave, code, system, spine_type)
+        self.name = name
+        self.duration = dur
+        self.articulations = art
+        self.beams = art
+        self.octave = octave
+        self.code = code
+        self.system = system
+        self.type = spine_type
+        self.repr = "{0}{1}".format(name, dur)
 
 class MultipleStop(list):
     def __repr__(self):
-        return '<MS: ' + str(self.__getslice__(0,self.__sizeof__())) + '>'
+        return '<MS: ' + str(self.__getslice__(0, self.__sizeof__())) + '>'
 
 
 class Bar(Base):
@@ -87,9 +90,10 @@ class Bar(Base):
 
 
 class Rest(Base):
-    def __init__(self):
-        self.duration = None
-        self.print_as_whole = False
+    def __init__(self, dur, wholeNote=False):
+        self.duration = dur
+        self.print_as_whole = wholeNote
+        self.repr = "{0}".format(dur)
 
 
 class NullToken(Base):
@@ -112,6 +116,7 @@ class KernError(Exception):
 def isPython3():
     return sys.version[:1] == '3'
 
+
 def isMatch(reg, string):
     tmp = re.search(reg, string)
     if tmp:
@@ -124,24 +129,23 @@ kern_articulations = {
     'n': "natural", '/': "up-stem", '\\': "down-stem", 'o': "harmonic",
     't': "trill-st", 'T': "trill-wt", 'S': "turn", '$': "inverted-turn",
     'R': "end-with-turn", 'u': "down-bow", 'v': "up-bow", 'z': "sforzando",
-    'H': "glissando-start", 'h': "glissando-end", ';': "fermata", 'Q': "gruppetto",
-    'p': "appoggiatura-main-note", 'U': "mute", '[': "tie-start", ']': "tie-end",
-    '_': "tie-midle", '(': "slur-start", ')': "slur-end", '{': "phrase-start",
-    '}': "phrase-end", '\'': "staccato", 's': "spiccato", '\\': "pizzicato", 
+    'H': "glissando-start", 'h': "glissando-end", ';': "fermata",
+    'Q': "gruppetto", 'p': "appoggiatura-main-note", 'U': "mute",
+    '[': "tie-start", ']': "tie-end", '_': "tie-midle",
+    '(': "slur-start", ')': "slur-end", '{': "phrase-start",
+    '}': "phrase-end", '\'': "staccato", 's': "spiccato", '\\': "pizzicato",
     '`': "staccatissimo", '~': "tenuto", '^': "accent", ':': "arpeggiation",
-    ',': "breath", 'm': "mordent-st", 'w': "inverted-mordent-st", 'M': "mordent-wt",
-    'W': "inverted-mordent-wt"
-}
+    ',': "breath", 'm': "mordent-st", 'w': "inverted-mordent-st",
+    'M': "mordent-wt", 'W': "inverted-mordent-wt"}
 
 kern_beams = {
     'L': 'beam-start',
     'J': 'beam-end',
     'K': 'beam-partial-right',
-    'k': 'beam-partial-left'
-    }
+    'k': 'beam-partial-left'}
 
 
-def findChar(char, string):
+def find_char(char, string):
     if string.find(char) >= 0:
         return True
     else:
@@ -149,18 +153,20 @@ def findChar(char, string):
 
 
 def isDuration(char):
-    return findChar(char, "0123456789")
+    return find_char(char, "0123456789")
 
 
 def isNote(char):
-    return findChar(char, "abcdefg")
+    return find_char(char, "abcdefgABCDEFG")
 
 
 def isDot(char):
     return char == '.'
 
+
 def isAccidental(char):
-    return findChar(char, "#-")
+    return find_char(char, "#-")
+
 
 def isArticulation(char):
     return char in kern_articulations
@@ -182,11 +188,55 @@ def isAppoggiatura(char):
     return char == 'P'
 
 
-def ParseChar(char, dic, var, msg, cond):
+def parse_char(char, dic, var, msg, cond):
     if cond:
         dic[var].append(char)
     else:
         raise KernError(msg)
+
+
+def parse_kern_note(note, accidentals, lineno):
+    return note[0].lower() + "".join(accidentals).replace("-", "b")
+
+
+def parse_kern_octave(note, lineno):
+    n = note[0]
+    if n.islower:
+        return 3 + len(note)
+    else:
+        value = [3, 2, 1, 0][note[-1]]
+        if value:
+            return value
+        else:
+            raise KernError("Octave is too low.")
+
+
+def sum_power(start, end):
+    return reduce(operator.add, [pow(2, x) for x in range(start, end - 1, -1)])
+
+
+## FIXME to work with fractions
+def calculate_duration(durs, dots):
+    d = int("".join(durs))
+    duration = 1/2 if d == 0 else d
+    max = math.floor(math.log(duration, 2)) * -1
+    min = max - len(dots)
+    return sum_power(min, max)
+
+
+def string_to_code(note_name, code):
+    base40 = [None,
+              "cbb", "cb", "c", "c#", "c##", None,
+              "dbb", "db", "d", "d#", "d##", None,
+              "ebb", "eb", "e", "e#", "e##",
+              "fbb", "fb", "f", "f#", "f##", None,
+              "gbb", "gb", "g", "g#", "g##", None,
+              "abb", "ab", "a", "a#", "a##", None,
+              "bbb", "bb", "b", "b#", "b##"]
+
+    dic = {'base40': base40}
+
+    return dic[code].index(note_name)
 
 
 def prev_string(string, i):
@@ -195,48 +245,75 @@ def prev_string(string, i):
         return ''
     else:
         return string[previous]
-            
+
+
 def kern_tokenizer(string, linen):
-    dic = {'durs': [], 'notes': [], 'rests': [], 'articulations': [], 
-           'beams': [], 'acciaccatura': [], 'appoggiatura': []}
+    dic = {'durs': [], 'notes': [], 'rests': [], 'articulations': [],
+           'beams': [], 'acciaccatura': [], 'appoggiatura': [],
+           'accidentals': [], 'dots': []}
 
     for i in range(0, len(string)):
         pchar = prev_string(string, i)
         char = string[i]
 
         if isDuration(char):
-            ParseChar(char, dic, 'durs', "Duration must be together.",
-                      (pchar == '' or dic['durs'] == [] or isDuration(pchar)))
+            parse_char(char, dic, 'durs', "Duration must be together.",
+                       (pchar == '' or dic['durs'] == [] or isDuration(pchar)))
         elif isNote(char):
-            ParseChar(char, dic, 'notes', "Notes must be together.",
-                      (pchar == '' or dic['notes'] == [] or isNote(pchar)))
+            parse_char(char, dic, 'notes', "Notes must be together.",
+                       (pchar == '' or dic['notes'] == [] or isNote(pchar)))
         elif isDot(char):
-            ParseChar(char, dic, 'dots', "Dots must be together or after a number."
-                      (isDuration(pchar) or isDot(pchar)))
+            parse_char(char, dic, 'dots', "Dots must be together or after a number.",
+                       (isDuration(pchar) or isDot(pchar)))
         elif isAccidental(char):
-            ParseChar(char, dic, 'accidentals', "Accidentals."
-                      (isNote(pchar) or (isAccidental(pchar) and char == pchar)))
+            parse_char(char, dic, 'accidentals', "Accidentals.",
+                       (isNote(pchar) or (isAccidental(pchar) and char == pchar)))
         elif isRest(char):
-            ParseChar(char, dic, 'rests', "Rest."
-                      (isRest(pchar) or dic['rests'] == ''))
+            parse_char(char, dic, 'rests', "Rest.",
+                       (isRest(pchar) or not dic['rests']))
         elif isAppoggiatura(char):
-            ParseChar(char, dic, 'appoggiatura', "Appoggiatura"
-                      (dic['notes'] and dic['durs']))
+            parse_char(char, dic, 'appoggiatura', "Appoggiatura",
+                       (dic['notes'] and dic['durs']))
         elif isArticulation(char):
-            dic['articulations'] = kern_articulations[char]
+            dic['articulations'].append(kern_articulations[char])
         elif isBeam(char):
-            dic['beams'] = kern_beams[char]
+            dic['beams'].append(kern_beams[char])
         elif isAcciacatura(char):
-            dic['acciaccatura'] = char
+            dic['acciaccatura'].append(char)
         else:
             print("Humdrum character not recognized: " + char)
-    print(dic)
     return dic
 
 
 def parse_kern_item(string, lineno, item_number):
-    kern_tokenizer(string, lineno)
-    return string
+    dic = kern_tokenizer(string, lineno)
+    if (not dic['durs']) and ((not dic['acciaccatura']) or (not dic['appoggiatura'])):
+        raise KernError("Duration can't be NULL.")
+
+    if (dic['notes'] and dic['rests']):
+        raise KernError("A note can't have a pitch and a rest.")
+
+    if dic['notes']:
+        name = parse_kern_note(dic['notes'], dic['accidentals'], lineno)
+        octave = parse_kern_octave(name, lineno)
+        # FIXME
+        #dur = calculate_duration(dic['durs'], dic['dots'])
+        dur = dic['durs']
+        code = string_to_code(name, "base40")
+        return Note(name, dur, dic['articulations'], dic['beams'], octave,
+                    code, "base40", "kern")
+    elif dic['rests']:
+        # FIXME
+        #dur = calculate_duration(dic['durs'], dic['dots'])
+        dur = dic['durs']
+        if dic['rests'] or len(dic['rests']) >= 1:
+            wholeNote = False
+        else:
+            wholeNote = True
+
+        return Rest(dur, wholeNote)
+    else:
+        raise KernError("Kern data must have a note or rest.")
 
 
 def parse_kern(string, linen, itemn):
@@ -340,5 +417,5 @@ def parse_humdrum_file(file):
 ## test usage
 
 f = parse_humdrum_file("/home/kroger/Documents/xenophilus/data/test.krn")
-#f = parse_humdrum_file("/home/kroger/Documents/xenophilus/k160-02.krn")
+f = parse_humdrum_file("/home/kroger/Documents/xenophilus/data/k160-02.krn")
 for item in f.data: print(item)
