@@ -5,6 +5,8 @@ from __future__ import absolute_import, division
 import re
 import math
 import operator
+from collections import defaultdict
+from fractions import Fraction
 
 ## classes definitions
 
@@ -62,8 +64,8 @@ class ExclusiveInterpretation(Base):
 
 
 class Note(Base):
-    def __init__(self, name, dur, art, beams, octave, code, system, spine_type):
-        print("------>", name, dur, art, beams, octave, code, system, spine_type)
+    def __init__(self, name, dur, art, beams, octave, code, system, spinetype):
+        print("------>", name, dur, art, beams, octave, code, system, spinetype)
         self.name = name
         self.duration = dur
         self.articulations = art
@@ -71,8 +73,9 @@ class Note(Base):
         self.octave = octave
         self.code = code
         self.system = system
-        self.type = spine_type
+        self.type = spinetype
         self.repr = "{0}{1}".format(name, dur)
+
 
 class MultipleStop(list):
     def __repr__(self):
@@ -122,6 +125,13 @@ def isMatch(reg, string):
     if tmp:
         return tmp.group()
 
+
+def find_char(char, string):
+    if string.find(char) >= 0:
+        return True
+    else:
+        return False
+
 
 ## Parse kern
 
@@ -143,13 +153,6 @@ kern_beams = {
     'J': 'beam-end',
     'K': 'beam-partial-right',
     'k': 'beam-partial-left'}
-
-
-def find_char(char, string):
-    if string.find(char) >= 0:
-        return True
-    else:
-        return False
 
 
 def isDuration(char):
@@ -190,7 +193,7 @@ def isAppoggiatura(char):
 
 def parse_char(char, dic, var, msg, cond):
     if cond:
-        dic[var].append(char)
+        return dic[var].append(char)
     else:
         raise KernError(msg)
 
@@ -218,7 +221,7 @@ def sum_power(start, end):
 ## FIXME to work with fractions
 def calculate_duration(durs, dots):
     d = int("".join(durs))
-    duration = 1/2 if d == 0 else d
+    duration = Fraction(1, 2) if d == 0 else d
     max = math.floor(math.log(duration, 2)) * -1
     min = max - len(dots)
     return sum_power(min, max)
@@ -248,9 +251,7 @@ def prev_string(string, i):
 
 
 def kern_tokenizer(string, linen):
-    dic = {'durs': [], 'notes': [], 'rests': [], 'articulations': [],
-           'beams': [], 'acciaccatura': [], 'appoggiatura': [],
-           'accidentals': [], 'dots': []}
+    dic = defaultdict(list)
 
     for i in range(0, len(string)):
         pchar = prev_string(string, i)
@@ -258,10 +259,10 @@ def kern_tokenizer(string, linen):
 
         if isDuration(char):
             parse_char(char, dic, 'durs', "Duration must be together.",
-                       (pchar == '' or dic['durs'] == [] or isDuration(pchar)))
+                       (not pchar or not dic['durs'] or isDuration(pchar)))
         elif isNote(char):
             parse_char(char, dic, 'notes', "Notes must be together.",
-                       (pchar == '' or dic['notes'] == [] or isNote(pchar)))
+                       (not pchar or not dic['notes'] or isNote(pchar)))
         elif isDot(char):
             parse_char(char, dic, 'dots', "Dots must be together or after a number.",
                        (isDuration(pchar) or isDot(pchar)))
@@ -339,12 +340,10 @@ def unknown_type(item, line_number, item_number):
 
 
 def parse_bar(string):
-    repeat_begin = isMatch(":\\||:!", string)
-    repeat_end = isMatch("\\|:|!:", string)
-    double = isMatch("==", string)
-    number = isMatch("[0-9]+([a-z]+)?", string)
-
-    return Bar(number, repeat_begin, repeat_end, double)
+    return Bar(isMatch("[0-9]+([a-z]+)?", string),
+               isMatch(":\\||:!", string),
+               isMatch("\\|:|!:", string),
+               isMatch("==", string))
 
 
 def parse_tandem(string):
@@ -417,5 +416,5 @@ def parse_humdrum_file(file):
 ## test usage
 
 f = parse_humdrum_file("/home/kroger/Documents/xenophilus/data/test.krn")
-f = parse_humdrum_file("/home/kroger/Documents/xenophilus/data/k160-02.krn")
+#f = parse_humdrum_file("/home/kroger/Documents/xenophilus/data/k160-02.krn")
 for item in f.data: print(item)
