@@ -1,3 +1,5 @@
+all: test check
+
 test:
 	./tests.py
 

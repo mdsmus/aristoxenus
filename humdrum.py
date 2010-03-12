@@ -66,7 +66,7 @@ class ExclusiveInterpretation(Base):
 
 class Note(Base):
     def __init__(self, name, dur, art, beams, octave, code, system, spinetype):
-        print("------>", name, dur, art, beams, octave, code, system, spinetype)
+        print("----->", name, dur, art, beams, octave, code, system, spinetype)
         self.name = name
         self.duration = dur
         self.articulations = art
@@ -265,11 +265,12 @@ def kern_tokenizer(string, linen):
             parse_char(char, dic, 'notes', "Notes must be together.",
                        (not pchar or not dic['notes'] or isNote(pchar)))
         elif isDot(char):
-            parse_char(char, dic, 'dots', "Dots must be together or after a number.",
+            parse_char(char, dic, 'dots',
+                       "Dots must be together or after a number.",
                        (isDuration(pchar) or isDot(pchar)))
         elif isAccidental(char):
             parse_char(char, dic, 'accidentals', "Accidentals.",
-                       (isNote(pchar) or (isAccidental(pchar) and char == pchar)))
+                       isNote(pchar) or (isAccidental(pchar) and char == pchar))
         elif isRest(char):
             parse_char(char, dic, 'rests', "Rest.",
                        (isRest(pchar) or not dic['rests']))
@@ -416,7 +417,10 @@ def parse_humdrum_file(file):
 
 ## test usage
 
-def test():
-    #f = parse_humdrum_file("/home/kroger/Documents/xenophilus/data/k160-02.krn")
-    f = parse_humdrum_file("/home/kroger/Documents/xenophilus/data/test.krn")
-    for item in f.data: print(item)
+if __name__ == "__main__":
+    if len(sys.argv) > 1:
+        f = parse_humdrum_file("/home/kroger/Documents/xenophilus/data/k160-02.krn")
+    else:
+        f = parse_humdrum_file("/home/kroger/Documents/xenophilus/data/test.krn")
+    for item in f.data:
+        print(item)
