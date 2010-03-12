@@ -7,6 +7,7 @@ import math
 import operator
 from collections import defaultdict
 from fractions import Fraction
+import sys
 
 ## classes definitions
 
@@ -415,6 +416,7 @@ def parse_humdrum_file(file):
 
 ## test usage
 
-f = parse_humdrum_file("/home/kroger/Documents/xenophilus/data/test.krn")
-#f = parse_humdrum_file("/home/kroger/Documents/xenophilus/data/k160-02.krn")
-for item in f.data: print(item)
+def test():
+    #f = parse_humdrum_file("/home/kroger/Documents/xenophilus/data/k160-02.krn")
+    f = parse_humdrum_file("/home/kroger/Documents/xenophilus/data/test.krn")
+    for item in f.data: print(item)
