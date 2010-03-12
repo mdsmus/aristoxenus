@@ -8,3 +8,5 @@ auto/
 *.pdf
 *.ps
 *.pyc
+htmlcov
+.coverage
