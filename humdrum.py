@@ -2,12 +2,13 @@
 
 from __future__ import print_function
 from __future__ import absolute_import, division
-import re
 import math
 import operator
 from collections import defaultdict
 from fractions import Fraction
 import sys
+import utils
+import music
 
 ## classes definitions
 
@@ -16,10 +17,7 @@ class Base(object):
     repr = ''
 
     def space(self):
-        if self.repr:
-            return ' '
-        else:
-            return ''
+        return ' ' if self.repr else ''
 
     def __repr__(self):
         return "<" + self.__class__.__name__ + self.space() + self.repr + ">"
@@ -107,33 +105,12 @@ class NullToken(Base):
 class BlankLine(Base):
     pass
 
-
 ## Exceptions
+
 
 class KernError(Exception):
     pass
 
-
-## Utilities
-
-
-def isPython3():
-    return sys.version[:1] == '3'
-
-
-def isMatch(reg, string):
-    tmp = re.search(reg, string)
-    if tmp:
-        return tmp.group()
-
-
-def find_char(char, string):
-    if string.find(char) >= 0:
-        return True
-    else:
-        return False
-
-
 ## Parse kern
 
 kern_articulations = {
@@ -157,11 +134,11 @@ kern_beams = {
 
 
 def isDuration(char):
-    return find_char(char, "0123456789")
+    return utils.find_char(char, "0123456789")
 
 
 def isNote(char):
-    return find_char(char, "abcdefgABCDEFG")
+    return utils.find_char(char, "abcdefgABCDEFG")
 
 
 def isDot(char):
@@ -169,7 +146,7 @@ def isDot(char):
 
 
 def isAccidental(char):
-    return find_char(char, "#-")
+    return utils.find_char(char, "#-")
 
 
 def isArticulation(char):
@@ -215,47 +192,11 @@ def parse_kern_octave(note, lineno):
             raise KernError("Octave is too low.")
 
 
-def sum_power(start, end):
-    return reduce(operator.add, [pow(2, x) for x in range(start, end - 1, -1)])
-
-
-## FIXME to work with fractions
-def calculate_duration(durs, dots):
-    d = int("".join(durs))
-    duration = Fraction(1, 2) if d == 0 else d
-    max = math.floor(math.log(duration, 2)) * -1
-    min = max - len(dots)
-    return sum_power(min, max)
-
-
-def string_to_code(note_name, code):
-    base40 = [None,
-              "cbb", "cb", "c", "c#", "c##", None,
-              "dbb", "db", "d", "d#", "d##", None,
-              "ebb", "eb", "e", "e#", "e##",
-              "fbb", "fb", "f", "f#", "f##", None,
-              "gbb", "gb", "g", "g#", "g##", None,
-              "abb", "ab", "a", "a#", "a##", None,
-              "bbb", "bb", "b", "b#", "b##"]
-
-    dic = {'base40': base40}
-
-    return dic[code].index(note_name)
-
-
-def prev_string(string, i):
-    previous = i - 1
-    if previous < 0:
-        return ''
-    else:
-        return string[previous]
-
-
 def kern_tokenizer(string, linen):
     dic = defaultdict(list)
 
     for i in range(0, len(string)):
-        pchar = prev_string(string, i)
+        pchar = utils.prev_string(string, i)
         char = string[i]
 
         if isDuration(char):
@@ -288,7 +229,7 @@ def kern_tokenizer(string, linen):
     return dic
 
 
-def parse_kern_item(string, lineno, item_number):
+def parse_kern_item(string, lineno, itemno):
     dic = kern_tokenizer(string, lineno)
     if (not dic['durs']) and ((not dic['acciaccatura']) or (not dic['appoggiatura'])):
         raise KernError("Duration can't be NULL.")
@@ -302,7 +243,7 @@ def parse_kern_item(string, lineno, item_number):
         # FIXME
         #dur = calculate_duration(dic['durs'], dic['dots'])
         dur = dic['durs']
-        code = string_to_code(name, "base40")
+        code = music.string_to_code(name, "base40")
         return Note(name, dur, dic['articulations'], dic['beams'], octave,
                     code, "base40", "kern")
     elif dic['rests']:
@@ -319,50 +260,49 @@ def parse_kern_item(string, lineno, item_number):
         raise KernError("Kern data must have a note or rest.")
 
 
-def parse_kern(string, linen, itemn):
+def parse_kern(string, linen, itemno):
     s = string.split(" ")
     if not string:
         raise KernError("Kern string shoudn't be empty.")
     elif len(s) == 1:
-        return parse_kern_item(string, linen, itemn)
+        return parse_kern_item(string, linen, itemno)
     else:
-        return MultipleStop([parse_kern_item(item, linen, itemn) for item in s])
+        return MultipleStop([parse_kern_item(item, linen, itemno) for item in s])
 
-
 ## Parse dynam
 
-def parse_dynam(string, line_number, item_number):
+
+def parse_dynam(string, lineno, itemno):
     return string
 
-
 ## parse elements
 
-def unknown_type(item, line_number, item_number):
+
+def unknown_type(item, lineno, itemno):
     return item
 
 
 def parse_bar(string):
-    return Bar(isMatch("[0-9]+([a-z]+)?", string),
-               isMatch(":\\||:!", string),
-               isMatch("\\|:|!:", string),
-               isMatch("==", string))
+    return Bar(utils.isMatch("[0-9]+([a-z]+)?", string),
+               utils.isMatch(":\\||:!", string),
+               utils.isMatch("\\|:|!:", string),
+               utils.isMatch("==", string))
 
 
 def parse_tandem(string):
     return Tandem(string, None)
 
 
-def parse_data(item, line_number, item_number, data_type):
+def parse_data(item, lineno, itemno, data_type):
     dic = {"kern": parse_kern,
            "dynam": parse_dynam}
 
-    return dic.get(data_type, unknown_type)(item, line_number, item_number)
+    return dic.get(data_type, unknown_type)(item, lineno, itemno)
 
-
 ## basic parser
 
 
-def parse_spine_item(item, line_number, item_number, score):
+def parse_spine_item(item, lineno, itemno, score):
     if item.startswith("="):
         return parse_bar(item)
     elif item.startswith("**"):
@@ -376,8 +316,8 @@ def parse_spine_item(item, line_number, item_number, score):
     elif item == ".":
         return NullToken()
     else:
-        data_type = score.spine_types[item_number]
-        return parse_data(item, line_number, item_number, data_type)
+        data_type = score.spine_types[itemno]
+        return parse_data(item, lineno, itemno, data_type)
 
 
 def parse_reference_record(line):
@@ -389,30 +329,30 @@ def parse_global_comment(line):
     return Comment(line)
 
 
-def parse_spine(line, line_number, score):
+def parse_spine(line, lineno, score):
     list = []
-    item_number = 0
+    itemno = 0
     for item in line.split("\t"):
-        list.append(parse_spine_item(item, line_number, item_number, score))
-        item_number += 1
+        list.append(parse_spine_item(item, lineno, itemno, score))
+        itemno += 1
     return(list)
 
 
 def parse_humdrum_file(file):
-    line_number = 0
+    lineno = 0
     score = Score()
 
     with open(file) as f:
         for line in f.read().split('\n'):
-            line_number += 1
-            if isMatch(r"^[ \t]*$", line) is not None:
+            lineno += 1
+            if utils.isMatch(r"^[ \t]*$", line) is not None:
                 score.append(BlankLine())
-            elif isMatch(r"^!{3}[a-zA-Z ]+", line):
+            elif utils.isMatch(r"^!{3}[a-zA-Z ]+", line):
                 score.append(parse_reference_record(line))
-            elif isMatch(r"^(!{2})|(!{4,})[a-zA-Z ]+", line):
+            elif utils.isMatch(r"^(!{2})|(!{4,})[a-zA-Z ]+", line):
                 score.append(parse_global_comment(line))
             else:
-                score.append(parse_spine(line, line_number, score))
+                score.append(parse_spine(line, lineno, score))
         return score
 
 ## test usage
