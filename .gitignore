@@ -10,3 +10,6 @@ auto/
 *.pyc
 htmlcov
 .coverage
+.project
+.pydevproject
+
