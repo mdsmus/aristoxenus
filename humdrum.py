@@ -133,12 +133,17 @@ kern_beams = {
     'k': 'beam-partial-left'}
 
 
+kern_types = {
+    'dur': 1
+    }
+
+
 def isDuration(char):
-    return utils.find_char(char, "0123456789")
+    return char in "0123456789"
 
 
 def isNote(char):
-    return utils.find_char(char, "abcdefgABCDEFG")
+    return char in "abcdefgABCDEFG"
 
 
 def isDot(char):
@@ -146,7 +151,7 @@ def isDot(char):
 
 
 def isAccidental(char):
-    return utils.find_char(char, "#-")
+    return char in "#-"
 
 
 def isArticulation(char):
