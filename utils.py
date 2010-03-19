@@ -11,10 +11,6 @@ def isMatch(reg, string):
         return tmp.group()
 
 
-def find_char(char, string):
-    return True if string.find(char) >= 0 else False
-
-
 def prev_string(string, i):
     previous = i - 1
     return '' if previous < 0 else string[previous]

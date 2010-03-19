@@ -2,13 +2,15 @@
 
 from __future__ import print_function
 from __future__ import absolute_import, division
-import math
-import operator
 from collections import defaultdict
 from fractions import Fraction
+import math
+import operator
 import sys
+# import local modules:
 import utils
 import music
+import kern
 
 ## classes definitions
 
@@ -64,7 +66,6 @@ class ExclusiveInterpretation(Base):
 
 class Note(Base):
     def __init__(self, name, dur, art, beams, octave, code, system, spinetype):
-        print("----->", name, dur, art, beams, octave, code, system, spinetype)
         self.name = name
         self.duration = dur
         self.articulations = art
@@ -105,144 +106,96 @@ class NullToken(Base):
 class BlankLine(Base):
     pass
 
-## Exceptions
-
 
 class KernError(Exception):
     pass
 
+def kern_error(message):
+    raise KernError(message)
+
 ## Parse kern
 
-kern_articulations = {
-    'n': "natural", '/': "up-stem", '\\': "down-stem", 'o': "harmonic",
-    't': "trill-st", 'T': "trill-wt", 'S': "turn", '$': "inverted-turn",
-    'R': "end-with-turn", 'u': "down-bow", 'v': "up-bow", 'z': "sforzando",
-    'H': "glissando-start", 'h': "glissando-end", ';': "fermata",
-    'Q': "gruppetto", 'p': "appoggiatura-main-note", 'U': "mute",
-    '[': "tie-start", ']': "tie-end", '_': "tie-midle",
-    '(': "slur-start", ')': "slur-end", '{': "phrase-start",
-    '}': "phrase-end", '\'': "staccato", 's': "spiccato", '\\': "pizzicato",
-    '`': "staccatissimo", '~': "tenuto", '^': "accent", ':': "arpeggiation",
-    ',': "breath", 'm': "mordent-st", 'w': "inverted-mordent-st",
-    'M': "mordent-wt", 'W': "inverted-mordent-wt"}
-
-kern_beams = {
-    'L': 'beam-start',
-    'J': 'beam-end',
-    'K': 'beam-partial-right',
-    'k': 'beam-partial-left'}
-
-
-kern_types = {
-    'dur': "0123456789",
-    'note': "abcdefgABCDEFG",
-    'dot': ".",
-    'accidental': "#-",
-    'articulation': kern_articulations,
-    'beam': kern_beams,
-    'rest': "r",
-    'acciacatura': "q",
-    'appoggiatura': "P"
-    }
-
-
-def parse_kern_note(note, accidentals, lineno):
-    return note[0].lower() + "".join(accidentals).replace("-", "b")
+def parse_kern_note(note, accs, lineno):
+    return note[0].lower() + "".join(accs).replace("-", "b")
 
 
 def parse_kern_octave(note, lineno):
-    n = note[0]
-    if n.islower:
+    if note[0].islower:
         return 3 + len(note)
     else:
         value = [3, 2, 1, 0][note[-1]]
-        if value:
-            return value
-        else:
-            raise KernError("Octave is too low.")
+        return value or kern_error("Octave is too low.")
 
 
 def kern_tokenizer(string, linen):
     dic = defaultdict(list)
 
-    def isCharType(char, type):
-        return char in kern_types[type]
+    def _is(char, type):
+        return char in kern.types[type][0]
 
-    def parse_char(char, dic, var, msg, cond):
-        if cond:
-            return dic[var].append(char)
-        else:
-            raise KernError(msg)
+    def parse(char, key, cond):
+        dic[key].append(char) if cond else kern_error(kern.types[key][0])
 
     for i in range(0, len(string)):
-        pchar = utils.prev_string(string, i)
-        char = string[i]
+        p = utils.prev_string(string, i)
+        c = string[i]
 
-        if isCharType(char, 'dur'):
-            parse_char(char, dic, 'dur', "Duration must be together.",
-                       (not pchar or not dic['dur'] or isCharType(pchar, 'durs')))
-        elif isCharType(char, 'note'):
-            parse_char(char, dic, 'note', "Notes must be together.",
-                       (not pchar or not dic['notes'] or isCharType(pchar, 'notes')))
-        elif isCharType(char, 'dot'):
-            parse_char(char, dic, 'dot',
-                       "Dots must be together or after a number.",
-                       (isCharType(pchar, 'durs') or isCharType(pchar, 'dots')))
-        elif isCharType(char, 'accidental'):
-            parse_char(char, dic, 'accidental', "Accidentals.",
-                       isCharType(pchar, 'note') or (isCharType(pchar, 'accidental') and char == pchar))
-        elif isCharType(char, 'rest'):
-            parse_char(char, dic, 'rest', "Rest.",
-                       (isCharType(pchar, 'rest') or not dic['rest']))
-        elif isCharType(char, 'appoggiatura'):
-            parse_char(char, dic, 'appoggiatura', "Appoggiatura",
-                       (dic['note'] and dic['dur']))
-        elif isCharType(char, 'articulation'):
-            dic['articulation'].append(kern_articulations[char])
-        elif isCharType(char, 'beam'):
-            dic['beam'].append(kern_beams[char])
-        elif isCharType(char, 'acciaccatura'):
-            dic['acciaccatura'].append(char)
+        if _is(c, 'dur'):
+            parse(c, 'dur', (not p or not dic['dur'] or _is(p, 'dur')))
+        elif _is(c, 'note'):
+            parse(c, 'note', (not p or not dic['note'] or _is(p, 'note')))
+        elif _is(c, 'dot'):
+            parse(c, 'dot', (_is(p, 'dur') or _is(p, 'dot')))
+        elif _is(c, 'acc'):
+            parse(c, 'acc', _is(p, 'note') or (_is(p, 'acc') and c == p))
+        elif _is(c, 'rest'):
+            parse(c, 'rest', (_is(p, 'rest') or not dic['rest']))
+        elif _is(c, 'app'):
+            parse(c, 'app', (dic['note'] and dic['dur']))
+        elif _is(c, 'art'):
+            dic['art'].append(kern.art[c])
+        elif _is(c, 'beam'):
+            dic['beam'].append(kern.beams[c])
+        elif _is(c, 'acciac'):
+            dic['acciac'].append(c)
         else:
-            print("Humdrum character not recognized: " + char)
+            print("Humdrum cacter not recognized: " + c)
     return dic
 
 
 def parse_kern_item(string, lineno, itemno):
-    dic = kern_tokenizer(string, lineno)
-    if (not dic['dur']) and ((not dic['acciaccatura']) or (not dic['appoggiatura'])):
-        raise KernError("Duration can't be NULL.")
+    d = kern_tokenizer(string, lineno)
+    
+    if (not d['dur']) and ((not d['acciac']) or (not d['app'])):
+        kern_error("Duration can't be NULL.")
 
-    if (dic['note'] and dic['rest']):
-        raise KernError("A note can't have a pitch and a rest.")
+    if (d['note'] and d['rest']):
+        kern_error("A note can't have a pitch and a rest.")
 
-    if dic['note']:
-        name = parse_kern_note(dic['note'], dic['accidental'], lineno)
+    if d['note']:
+        name = parse_kern_note(d['note'], d['acc'], lineno)
         octave = parse_kern_octave(name, lineno)
         # FIXME
-        #dur = calculate_duration(dic['durs'], dic['dots'])
-        dur = dic['dur']
+        #dur = calculate_duration(d['durs'], d['dots'])
+        dur = d['dur']
         code = music.string_to_code(name, "base40")
-        return Note(name, dur, dic['articulation'], dic['beam'], octave,
+        return Note(name, dur, d['art'], d['beam'], octave,
                     code, "base40", "kern")
-    elif dic['rest']:
+    elif d['rest']:
         # FIXME
-        #dur = calculate_duration(dic['durs'], dic['dots'])
-        dur = dic['dur']
-        if dic['rest'] or len(dic['rest']) >= 1:
-            wholeNote = False
-        else:
-            wholeNote = True
-
+        #dur = calculate_duration(d['durs'], d['dots'])
+        dur = d['dur']
+        wholeNote = False if d['rest'] or len(d['rest']) >= 1 else True
         return Rest(dur, wholeNote)
     else:
-        raise KernError("Kern data must have a note or rest.")
+        kern_error("Kern data must have a note or rest.")
 
 
 def parse_kern(string, linen, itemno):
     s = string.split(" ")
+
     if not string:
-        raise KernError("Kern string shoudn't be empty.")
+        kern_error("Kern string shoudn't be empty.")
     elif len(s) == 1:
         return parse_kern_item(string, linen, itemno)
     else:
@@ -337,6 +290,7 @@ def parse_humdrum_file(file):
 ## test usage
 
 if __name__ == "__main__":
-    f = parse_humdrum_file("/home/kroger/Documents/xenophilus/data/test.krn")
+    f = parse_humdrum_file("/home/kroger/Documents/xenophilus/data/k160-02.krn")
+    #f = parse_humdrum_file("/home/kroger/Documents/xenophilus/data/test.krn")
     for item in f.data:
         print(item)
