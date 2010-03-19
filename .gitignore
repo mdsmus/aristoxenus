@@ -12,4 +12,5 @@ htmlcov
 .coverage
 .project
 .pydevproject
-
+.pythoscope
+TAGS

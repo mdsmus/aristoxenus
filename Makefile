@@ -10,6 +10,9 @@ coverage:
 	coverage run humdrum.py
 	coverage html
 
+TAGS:
+	find /usr/lib/python2.6/ . -name "*.py" | etags --output TAGS -
+
 clean:
 	rm -f *.out parsetab.py
 

@@ -358,9 +358,6 @@ def parse_humdrum_file(file):
 ## test usage
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1:
-        f = parse_humdrum_file("/home/kroger/Documents/xenophilus/data/k160-02.krn")
-    else:
-        f = parse_humdrum_file("/home/kroger/Documents/xenophilus/data/test.krn")
+    f = parse_humdrum_file("/home/kroger/Documents/xenophilus/data/test.krn")
     for item in f.data:
         print(item)
