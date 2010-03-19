@@ -134,51 +134,16 @@ kern_beams = {
 
 
 kern_types = {
-    'dur': 1
+    'dur': "0123456789",
+    'note': "abcdefgABCDEFG",
+    'dot': ".",
+    'accidental': "#-",
+    'articulation': kern_articulations,
+    'beam': kern_beams,
+    'rest': "r",
+    'acciacatura': "q",
+    'appoggiatura': "P"
     }
-
-
-def isDuration(char):
-    return char in "0123456789"
-
-
-def isNote(char):
-    return char in "abcdefgABCDEFG"
-
-
-def isDot(char):
-    return char == '.'
-
-
-def isAccidental(char):
-    return char in "#-"
-
-
-def isArticulation(char):
-    return char in kern_articulations
-
-
-def isBeam(char):
-    return char in kern_beams
-
-
-def isRest(char):
-    return char == 'r'
-
-
-def isAcciacatura(char):
-    return char == 'q'
-
-
-def isAppoggiatura(char):
-    return char == 'P'
-
-
-def parse_char(char, dic, var, msg, cond):
-    if cond:
-        return dic[var].append(char)
-    else:
-        raise KernError(msg)
 
 
 def parse_kern_note(note, accidentals, lineno):
@@ -200,34 +165,43 @@ def parse_kern_octave(note, lineno):
 def kern_tokenizer(string, linen):
     dic = defaultdict(list)
 
+    def isCharType(char, type):
+        return char in kern_types[type]
+
+    def parse_char(char, dic, var, msg, cond):
+        if cond:
+            return dic[var].append(char)
+        else:
+            raise KernError(msg)
+
     for i in range(0, len(string)):
         pchar = utils.prev_string(string, i)
         char = string[i]
 
-        if isDuration(char):
-            parse_char(char, dic, 'durs', "Duration must be together.",
-                       (not pchar or not dic['durs'] or isDuration(pchar)))
-        elif isNote(char):
-            parse_char(char, dic, 'notes', "Notes must be together.",
-                       (not pchar or not dic['notes'] or isNote(pchar)))
-        elif isDot(char):
-            parse_char(char, dic, 'dots',
+        if isCharType(char, 'dur'):
+            parse_char(char, dic, 'dur', "Duration must be together.",
+                       (not pchar or not dic['dur'] or isCharType(pchar, 'durs')))
+        elif isCharType(char, 'note'):
+            parse_char(char, dic, 'note', "Notes must be together.",
+                       (not pchar or not dic['notes'] or isCharType(pchar, 'notes')))
+        elif isCharType(char, 'dot'):
+            parse_char(char, dic, 'dot',
                        "Dots must be together or after a number.",
-                       (isDuration(pchar) or isDot(pchar)))
-        elif isAccidental(char):
-            parse_char(char, dic, 'accidentals', "Accidentals.",
-                       isNote(pchar) or (isAccidental(pchar) and char == pchar))
-        elif isRest(char):
-            parse_char(char, dic, 'rests', "Rest.",
-                       (isRest(pchar) or not dic['rests']))
-        elif isAppoggiatura(char):
+                       (isCharType(pchar, 'durs') or isCharType(pchar, 'dots')))
+        elif isCharType(char, 'accidental'):
+            parse_char(char, dic, 'accidental', "Accidentals.",
+                       isCharType(pchar, 'note') or (isCharType(pchar, 'accidental') and char == pchar))
+        elif isCharType(char, 'rest'):
+            parse_char(char, dic, 'rest', "Rest.",
+                       (isCharType(pchar, 'rest') or not dic['rest']))
+        elif isCharType(char, 'appoggiatura'):
             parse_char(char, dic, 'appoggiatura', "Appoggiatura",
-                       (dic['notes'] and dic['durs']))
-        elif isArticulation(char):
-            dic['articulations'].append(kern_articulations[char])
-        elif isBeam(char):
-            dic['beams'].append(kern_beams[char])
-        elif isAcciacatura(char):
+                       (dic['note'] and dic['dur']))
+        elif isCharType(char, 'articulation'):
+            dic['articulation'].append(kern_articulations[char])
+        elif isCharType(char, 'beam'):
+            dic['beam'].append(kern_beams[char])
+        elif isCharType(char, 'acciaccatura'):
             dic['acciaccatura'].append(char)
         else:
             print("Humdrum character not recognized: " + char)
@@ -236,26 +210,26 @@ def kern_tokenizer(string, linen):
 
 def parse_kern_item(string, lineno, itemno):
     dic = kern_tokenizer(string, lineno)
-    if (not dic['durs']) and ((not dic['acciaccatura']) or (not dic['appoggiatura'])):
+    if (not dic['dur']) and ((not dic['acciaccatura']) or (not dic['appoggiatura'])):
         raise KernError("Duration can't be NULL.")
 
-    if (dic['notes'] and dic['rests']):
+    if (dic['note'] and dic['rest']):
         raise KernError("A note can't have a pitch and a rest.")
 
-    if dic['notes']:
-        name = parse_kern_note(dic['notes'], dic['accidentals'], lineno)
+    if dic['note']:
+        name = parse_kern_note(dic['note'], dic['accidental'], lineno)
         octave = parse_kern_octave(name, lineno)
         # FIXME
         #dur = calculate_duration(dic['durs'], dic['dots'])
-        dur = dic['durs']
+        dur = dic['dur']
         code = music.string_to_code(name, "base40")
-        return Note(name, dur, dic['articulations'], dic['beams'], octave,
+        return Note(name, dur, dic['articulation'], dic['beam'], octave,
                     code, "base40", "kern")
-    elif dic['rests']:
+    elif dic['rest']:
         # FIXME
         #dur = calculate_duration(dic['durs'], dic['dots'])
-        dur = dic['durs']
-        if dic['rests'] or len(dic['rests']) >= 1:
+        dur = dic['dur']
+        if dic['rest'] or len(dic['rest']) >= 1:
             wholeNote = False
         else:
             wholeNote = True
