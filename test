@@ -1,6 +1,7 @@
 #!/usr/bin/env python2.6
+# -*- python -*-
 
-import humdrum
+from xenophilus import humdrum
 
 if __name__ == "__main__":
     #f = humdrum.parse_file("/home/kroger/Documents/xenophilus/data/k160-02.krn")

@@ -1,15 +1,15 @@
-PYTHON_FILES = $(wildcard *.py)
+PYTHON_FILES = $(wildcard xenophilus/*.py)
 
-all: test check coverage
+all: runtest check #coverage
 
-test:
-	./tests.py
+runtest:
+	./test
 
 check:
 	./tools/pep8.py *.py
 
 coverage:
-	coverage run humdrum.py
+	coverage run xenophilus/humdrum.py
 	coverage html
 
 TAGS: $(PYTHON_FILES)

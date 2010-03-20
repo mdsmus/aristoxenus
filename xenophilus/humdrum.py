@@ -6,9 +6,9 @@ import math
 import operator
 import sys
 # import local modules:
-import utils
-import music
-import kern
+from . import utils
+from . import music
+from . import kern
 
 ## classes definitions
 
