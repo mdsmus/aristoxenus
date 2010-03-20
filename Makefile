@@ -1,3 +1,5 @@
+PYTHON_FILES = $(wildcard *.py)
+
 all: test check coverage
 
 test:
@@ -10,7 +12,7 @@ coverage:
 	coverage run humdrum.py
 	coverage html
 
-TAGS:
+TAGS: $(PYTHON_FILES)
 	find /usr/lib/python2.6/ . -name "*.py" | etags --output TAGS -
 
 clean:
