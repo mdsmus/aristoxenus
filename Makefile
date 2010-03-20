@@ -1,9 +1,12 @@
 PYTHON_FILES = $(wildcard xenophilus/*.py)
 
-all: runtest check #coverage
+all: runexample check #coverage
 
-runtest:
-	./test
+tests:
+	nosetests
+
+runexample:
+	./example
 
 check:
 	./tools/pep8.py *.py
