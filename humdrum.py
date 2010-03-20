@@ -1,5 +1,3 @@
-#!/usr/bin/env python2.6
-
 from __future__ import print_function
 from __future__ import absolute_import, division
 from collections import defaultdict
@@ -300,11 +298,3 @@ def parse_file(file):
         for line in f.read().split('\n'):
             parse_line(line, score, lineno)
         return score
-
-## test usage
-
-if __name__ == "__main__":
-    #f = parse_file("/home/kroger/Documents/xenophilus/data/k160-02.krn")
-    f = parse_file("/home/kroger/Documents/xenophilus/data/test.krn")
-    for item in f.data:
-        print(item)
