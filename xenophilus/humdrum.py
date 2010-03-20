@@ -1,14 +1,19 @@
 from __future__ import print_function
-from __future__ import absolute_import, division
+from __future__ import division
 from collections import defaultdict
 from fractions import Fraction
 import math
 import operator
 import sys
-# import local modules:
-from . import utils
-from . import music
-from . import kern
+
+if __name__ == "__main__":
+    import utils
+    import music
+    import kern
+else:
+    from . import utils
+    from . import music
+    from . import kern
 
 ## classes definitions
 
@@ -298,3 +303,9 @@ def parse_file(file):
         for line in f.read().split('\n'):
             parse_line(line, score, lineno)
         return score
+
+if __name__ == "__main__":
+    #f = parse_file("/home/kroger/Documents/xenophilus/data/k160-02.krn")
+    f = parse_file("/home/kroger/Documents/xenophilus/data/test.krn")
+    for item in f.data:
+        print(item)
