@@ -110,10 +110,12 @@ class BlankLine(Base):
 class KernError(Exception):
     pass
 
+
 def kern_error(message):
     raise KernError(message)
 
 ## Parse kern
+
 
 def parse_kern_note(note, accs, lineno):
     return note[0].lower() + "".join(accs).replace("-", "b")
@@ -165,7 +167,7 @@ def kern_tokenizer(string, linen):
 
 def parse_kern_item(string, lineno, itemno):
     d = kern_tokenizer(string, lineno)
-    
+
     if (not d['dur']) and ((not d['acciac']) or (not d['app'])):
         kern_error("Duration can't be NULL.")
 
@@ -199,7 +201,7 @@ def parse_kern(string, linen, itemno):
     elif len(s) == 1:
         return parse_kern_item(string, linen, itemno)
     else:
-        return MultipleStop([parse_kern_item(item, linen, itemno) for item in s])
+        return MultipleStop([parse_kern_item(i, linen, itemno) for i in s])
 
 ## Parse dynam
 
@@ -270,27 +272,39 @@ def parse_spine(line, lineno, score):
     return(list)
 
 
-def parse_humdrum_file(file):
+def parse_line(line, score, lineno):
+    lineno += 1
+    if utils.isMatch(r"^[ \t]*$", line) is not None:
+        score.append(BlankLine())
+    elif utils.isMatch(r"^!{3}[a-zA-Z ]+", line):
+        score.append(parse_reference_record(line))
+    elif utils.isMatch(r"^(!{2})|(!{4,})[a-zA-Z ]+", line):
+        score.append(parse_global_comment(line))
+    else:
+        score.append(parse_spine(line, lineno, score))
+    return score
+
+
+def parse_string(string):
     lineno = 0
     score = Score()
+    for line in string.split('\n'):
+        parse_line(line, score, lineno)
+    return score
 
+
+def parse_file(file):
+    lineno = 0
+    score = Score()
     with open(file) as f:
         for line in f.read().split('\n'):
-            lineno += 1
-            if utils.isMatch(r"^[ \t]*$", line) is not None:
-                score.append(BlankLine())
-            elif utils.isMatch(r"^!{3}[a-zA-Z ]+", line):
-                score.append(parse_reference_record(line))
-            elif utils.isMatch(r"^(!{2})|(!{4,})[a-zA-Z ]+", line):
-                score.append(parse_global_comment(line))
-            else:
-                score.append(parse_spine(line, lineno, score))
+            parse_line(line, score, lineno)
         return score
 
 ## test usage
 
 if __name__ == "__main__":
-    f = parse_humdrum_file("/home/kroger/Documents/xenophilus/data/k160-02.krn")
-    #f = parse_humdrum_file("/home/kroger/Documents/xenophilus/data/test.krn")
+    #f = parse_file("/home/kroger/Documents/xenophilus/data/k160-02.krn")
+    f = parse_file("/home/kroger/Documents/xenophilus/data/test.krn")
     for item in f.data:
         print(item)
