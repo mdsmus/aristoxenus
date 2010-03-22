@@ -132,85 +132,85 @@ def parse_kern_octave(note, lineno):
         return value or kern_error("Octave is too low.")
 
 
-def kern_tokenizer(string, linen):
-    dic = defaultdict(list)
+def kern_tokenizer(token, linen):
+    tokens = defaultdict(list)
 
     def _is(char, type):
         return char in kern.types[type][0]
 
     def parse(char, key, cond):
-        dic[key].append(char) if cond else kern_error(kern.types[key][0])
+        tokens[key].append(char) if cond else kern_error(kern.types[key][0])
 
-    for i in range(0, len(string)):
-        p = utils.prev_string(string, i)
-        c = string[i]
+    for i in range(0, len(token)):
+        p = utils.prev_string(token, i)
+        c = token[i]
 
         if _is(c, 'dur'):
-            parse(c, 'dur', (not p or not dic['dur'] or _is(p, 'dur')))
+            parse(c, 'dur', (not p or not tokens['dur'] or _is(p, 'dur')))
         elif _is(c, 'note'):
-            parse(c, 'note', (not p or not dic['note'] or _is(p, 'note')))
+            parse(c, 'note', (not p or not tokens['note'] or _is(p, 'note')))
         elif _is(c, 'dot'):
             parse(c, 'dot', (_is(p, 'dur') or _is(p, 'dot')))
         elif _is(c, 'acc'):
             parse(c, 'acc', _is(p, 'note') or (_is(p, 'acc') and c == p))
         elif _is(c, 'rest'):
-            parse(c, 'rest', (_is(p, 'rest') or not dic['rest']))
+            parse(c, 'rest', (_is(p, 'rest') or not tokens['rest']))
         elif _is(c, 'app'):
-            parse(c, 'app', (dic['note'] and dic['dur']))
+            parse(c, 'app', (tokens['note'] and tokens['dur']))
         elif _is(c, 'art'):
-            dic['art'].append(kern.art[c])
+            tokens['art'].append(kern.art[c])
         elif _is(c, 'beam'):
-            dic['beam'].append(kern.beams[c])
+            tokens['beam'].append(kern.beams[c])
         elif _is(c, 'acciac'):
-            dic['acciac'].append(c)
+            tokens['acciac'].append(c)
         else:
             print("Humdrum cacter not recognized: " + c)
-    return dic
+    return tokens
 
 
-def parse_kern_item(string, lineno, itemno):
-    d = kern_tokenizer(string, lineno)
+def parse_kern_item(item, lineno, itemno):
+    tokens = kern_tokenizer(item, lineno)
 
-    if (not d['dur']) and ((not d['acciac']) or (not d['app'])):
+    if (not tokens['dur']) and ((not tokens['acciac']) or (not tokens['app'])):
         kern_error("Duration can't be NULL.")
 
-    if (d['note'] and d['rest']):
+    if (tokens['note'] and tokens['rest']):
         kern_error("A note can't have a pitch and a rest.")
 
-    if d['note']:
-        name = parse_kern_note(d['note'], d['acc'], lineno)
+    if tokens['note']:
+        name = parse_kern_note(tokens['note'], tokens['acc'], lineno)
         octave = parse_kern_octave(name, lineno)
         # FIXME
-        #dur = calculate_duration(d['durs'], d['dots'])
-        dur = d['dur']
+        #dur = calculate_duration(tokens['durs'], tokens['dots'])
+        dur = tokens['dur']
         code = music.string_to_code(name, "base40")
-        return Note(name, dur, d['art'], d['beam'], octave,
+        return Note(name, dur, tokens['art'], tokens['beam'], octave,
                     code, "base40", "kern")
-    elif d['rest']:
+    elif tokens['rest']:
         # FIXME
-        #dur = calculate_duration(d['durs'], d['dots'])
-        dur = d['dur']
-        wholeNote = False if d['rest'] or len(d['rest']) >= 1 else True
+        #dur = calculate_duration(tokens['durs'], tokens['dots'])
+        dur = tokens['dur']
+        wholeNote = False if tokens['rest'] or len(tokens['rest']) >= 1 else True
         return Rest(dur, wholeNote)
     else:
         kern_error("Kern data must have a note or rest.")
 
 
-def parse_kern(string, linen, itemno):
-    s = string.split(" ")
+def parse_kern(item, linen, itemno):
+    s = item.split(" ")
 
-    if not string:
-        kern_error("Kern string shoudn't be empty.")
+    if not item:
+        kern_error("Kern item shoudn't be empty.")
     elif len(s) == 1:
-        return parse_kern_item(string, linen, itemno)
+        return parse_kern_item(item, linen, itemno)
     else:
         return MultipleStop([parse_kern_item(i, linen, itemno) for i in s])
 
 ## Parse dynam
 
 
-def parse_dynam(string, lineno, itemno):
-    return string
+def parse_dynam(item, lineno, itemno):
+    return item
 
 ## parse elements
 
@@ -219,15 +219,15 @@ def unknown_type(item, lineno, itemno):
     return item
 
 
-def parse_bar(string):
-    return Bar(utils.isMatch("[0-9]+([a-z]+)?", string),
-               utils.isMatch(":\\||:!", string),
-               utils.isMatch("\\|:|!:", string),
-               utils.isMatch("==", string))
+def parse_bar(item):
+    return Bar(utils.isMatch("[0-9]+([a-z]+)?", item),
+               utils.isMatch(":\\||:!", item),
+               utils.isMatch("\\|:|!:", item),
+               utils.isMatch("==", item))
 
 
-def parse_tandem(string):
-    return Tandem(string, None)
+def parse_tandem(item):
+    return Tandem(item, None)
 
 
 def parse_data(item, lineno, itemno, data_type):
@@ -267,12 +267,12 @@ def parse_global_comment(line):
 
 
 def parse_spine(line, lineno, score):
-    list = []
+    parsed_spine = []
     itemno = 0
     for item in line.split("\t"):
-        list.append(parse_spine_item(item, lineno, itemno, score))
+        parsed_spine.append(parse_spine_item(item, lineno, itemno, score))
         itemno += 1
-    return(list)
+    return(parsed_spine)
 
 
 def parse_line(line, score, lineno):
@@ -296,10 +296,10 @@ def parse_string(string):
     return score
 
 
-def parse_file(file):
+def parse_file(name):
     lineno = 0
     score = Score()
-    with open(file) as f:
+    with open(name) as f:
         for line in f.read().split('\n'):
             parse_line(line, score, lineno)
         return score
