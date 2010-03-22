@@ -2,6 +2,9 @@ PYTHON_FILES = $(wildcard xenophilus/*.py)
 
 all: runexample check #coverage
 
+lint:
+	pylint xenophilus/humdrum.py
+
 tests:
 	nosetests
 
