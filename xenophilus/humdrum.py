@@ -5,6 +5,7 @@ from fractions import Fraction
 import math
 import operator
 import sys
+from itertools import izip, count
 
 if __name__ == "__main__":
     import utils
@@ -239,7 +240,7 @@ def parse_data(item, lineno, itemno, data_type):
 ## basic parser
 
 
-def parse_spine_item(item, lineno, itemno, score):
+def parse_item(item, lineno, itemno, score):
     if item.startswith("="):
         return parse_bar(item)
     elif item.startswith("**"):
@@ -267,16 +268,11 @@ def parse_global_comment(line):
 
 
 def parse_spine(line, lineno, score):
-    parsed_spine = []
-    itemno = 0
-    for item in line.split("\t"):
-        parsed_spine.append(parse_spine_item(item, lineno, itemno, score))
-        itemno += 1
-    return(parsed_spine)
+    s = line.split("\t")
+    return [parse_item(i, lineno, n, score) for i, n in izip(s, count())]
 
 
 def parse_line(line, score, lineno):
-    lineno += 1
     if utils.isMatch(r"^[ \t]*$", line) is not None:
         score.append(BlankLine())
     elif utils.isMatch(r"^!{3}[a-zA-Z ]+", line):
@@ -289,20 +285,19 @@ def parse_line(line, score, lineno):
 
 
 def parse_string(string):
-    lineno = 0
     score = Score()
-    for line in string.split('\n'):
-        parse_line(line, score, lineno)
+    s = string.split('\n')
+    [parse_line(line, score, lineno) for line, lineno in izip(s, count(1))]
     return score
 
 
 def parse_file(name):
-    lineno = 0
     score = Score()
     with open(name) as f:
-        for line in f.read().split('\n'):
-            parse_line(line, score, lineno)
+        s = f.read().split('\n')
+        [parse_line(line, score, lineno) for line, lineno in izip(s, count(1))]
         return score
+
 
 if __name__ == "__main__":
     #f = parse_file("/home/kroger/Documents/xenophilus/data/k160-02.krn")
