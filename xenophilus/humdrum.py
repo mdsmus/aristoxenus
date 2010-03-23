@@ -190,7 +190,7 @@ def parse_kern_item(item, lineno, itemno):
         # FIXME
         #dur = calculate_duration(tokens['durs'], tokens['dots'])
         dur = tokens['dur']
-        wholeNote = False if tokens['rest'] or len(tokens['rest']) >= 1 else True
+        wholeNote = not bool(tokens['rest'] or len(tokens['rest']) >= 1)
         return Rest(dur, wholeNote)
     else:
         kern_error("Kern data must have a note or rest.")
