@@ -20,13 +20,13 @@ else:
 
 
 class Base(object):
-    repr = ''
-
-    def space(self):
-        return ' ' if self.repr else ''
+    __repr = ''
+    
+    def __space(self):
+        return ' ' if self.__repr else ''
 
     def __repr__(self):
-        return "<" + self.__class__.__name__ + self.space() + self.repr + ">"
+        return "<" + self.__class__.__name__ + self.__space() + self.__repr + ">"
 
 
 class Score(Base):
@@ -49,15 +49,16 @@ class Record(Base):
 
 
 class Comment(Base):
-    def __init__(self, data):
+    def __init__(self, data, level=2):
         self.data = data
+        self.level = level
 
 
 class Tandem(Base):
     def __init__(self, spine_type, data):
         self.type = spine_type
         self.data = data
-        self.repr = spine_type
+        self.__repr = spine_type
 
 
 class ExclusiveInterpretation(Base):
@@ -78,7 +79,7 @@ class Note(Base):
         self.code = code
         self.system = system
         self.type = spinetype
-        self.repr = "{0}{1}".format(name, dur)
+        self.__repr = "{0}{1}".format(name, dur)
 
 
 class MultipleStop(list):
@@ -93,14 +94,14 @@ class Bar(Base):
         self.repeat_begin = repeat_begin
         self.repeat_end = repeat_end
         self.double = double
-        self.repr = self.number
+        self.__repr = self.number
 
 
 class Rest(Base):
     def __init__(self, dur, wholeNote=False):
         self.duration = dur
         self.print_as_whole = wholeNote
-        self.repr = "{0}".format(dur)
+        self.__repr = "{0}".format(dur)
 
 
 class NullToken(Base):
@@ -211,6 +212,7 @@ def parse_kern(item, linen, itemno):
 
 
 def parse_dynam(item, lineno, itemno):
+    # FIXME: implement
     return item
 
 ## parse elements
@@ -222,20 +224,21 @@ def unknown_type(item, lineno, itemno):
 
 def parse_bar(item):
     return Bar(utils.isMatch("[0-9]+([a-z]+)?", item),
-               utils.isMatch(":\\||:!", item),
-               utils.isMatch("\\|:|!:", item),
-               utils.isMatch("==", item))
+               bool(utils.isMatch(":\\||:!", item)),
+               bool(utils.isMatch("\\|:|!:", item)),
+               bool(utils.isMatch("==", item)))
 
 
 def parse_tandem(item):
+    # FIXME: implement
     return Tandem(item, None)
 
 
 def parse_data(item, lineno, itemno, data_type):
-    dic = {"kern": parse_kern,
-           "dynam": parse_dynam}
+    types = {"kern": parse_kern,
+             "dynam": parse_dynam}
 
-    return dic.get(data_type, unknown_type)(item, lineno, itemno)
+    return types.get(data_type, unknown_type)(item, lineno, itemno)
 
 ## basic parser
 
@@ -254,22 +257,25 @@ def parse_item(item, lineno, itemno, score):
     elif item == ".":
         return NullToken()
     else:
-        data_type = score.spine_types[itemno]
+        spine_type_list = score.spine_types
+        if len(spine_type_list) == 0:
+            kern_error("Can't parse an item without knowing the spine type.")
+        else:
+            data_type = score.spine_types[itemno]
         return parse_data(item, lineno, itemno, data_type)
 
 
 def parse_reference_record(line):
+    assert line.startswith('!!!'), "A reference record must start with 3 bangs !"
+    assert ":" in line
     s = line.split(":", 1)
-    return Record(s[0][3:], s[1])
+    return Record(s[0][3:].strip(), s[1].strip())
 
 
-def parse_global_comment(line):
-    return Comment(line)
-
-
-def parse_spine(line, lineno, score):
-    s = line.split("\t")
-    return [parse_item(i, lineno, n, score) for i, n in izip(s, count())]
+def parse_comment(line):
+    assert line.startswith('!'), "A comment must start with a bang !"
+    level = line.count('!')
+    return Comment(line.strip('!').strip(), level)
 
 
 def parse_line(line, score, lineno):
@@ -278,13 +284,17 @@ def parse_line(line, score, lineno):
     elif utils.isMatch(r"^!{3}[a-zA-Z ]+", line):
         score.append(parse_reference_record(line))
     elif utils.isMatch(r"^(!{2})|(!{4,})[a-zA-Z ]+", line):
-        score.append(parse_global_comment(line))
+        score.append(parse_comment(line))
     else:
-        score.append(parse_spine(line, lineno, score))
+        s = line.split("\t")
+        parsed = [parse_item(i, lineno, n, score) for i, n in izip(s, count())]
+        score.append(parsed)
     return score
 
 
 def parse_string(string):
+    assert type(string) is str, "argument must be a string, it was %s." % string
+    
     score = Score()
     l = string.split('\n')
     [parse_line(line, score, lineno) for line, lineno in izip(l, count(1))]
@@ -299,5 +309,6 @@ def parse_file(name):
 if __name__ == "__main__":
     #f = parse_file("/home/kroger/Documents/xenophilus/data/k160-02.krn")
     f = parse_file("/home/kroger/Documents/xenophilus/data/test.krn")
-    for item in f.data:
-        print(item)
+    print(f.data)
+    #for item in f.data:
+    #    print(item)
