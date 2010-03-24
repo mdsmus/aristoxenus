@@ -123,10 +123,12 @@ def kern_error(message):
 
 
 def parse_kern_note(note, accs, lineno):
+    assert isinstance(note, list) and isinstance(accs, list)
     return note[0].lower() + "".join(accs).replace("-", "b")
 
 
 def parse_kern_octave(note, lineno):
+    # FIXME: nasty bug with accidentals (see tests)
     if note[0].islower:
         return 3 + len(note)
     else:
