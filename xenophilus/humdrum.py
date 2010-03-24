@@ -286,17 +286,14 @@ def parse_line(line, score, lineno):
 
 def parse_string(string):
     score = Score()
-    s = string.split('\n')
-    [parse_line(line, score, lineno) for line, lineno in izip(s, count(1))]
+    l = string.split('\n')
+    [parse_line(line, score, lineno) for line, lineno in izip(l, count(1))]
     return score
 
 
 def parse_file(name):
-    score = Score()
     with open(name) as f:
-        s = f.read().split('\n')
-        [parse_line(line, score, lineno) for line, lineno in izip(s, count(1))]
-        return score
+        return parse_string(f.read())
 
 
 if __name__ == "__main__":
