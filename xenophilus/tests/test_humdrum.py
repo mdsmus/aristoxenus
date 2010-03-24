@@ -135,14 +135,14 @@ class TestParseLine(TestCase):
         self.assertEqual(expected, h.parse_line(line, score, 1))
          
     def test_parse_line2(self):
-        line = ""
-        score = h.Score()
-        self.assertEqual(expected, h.parse_line(line, score, 1))
+        f = h.parse_line("", h.Score(), 1)
+        self.assertTrue(isinstance(f.data[0], h.BlankLine))
          
     def test_parse_line3(self):
         line = "**kern	**kern"
-        score = h.Score()
-        self.assertEqual(expected, h.parse_line(line, score, 1))
+        f = h.parse_line(line, h.Score(), 1)
+        self.assertTrue(isinstance(f.data[0], h.ExclusiveInterpretation))
+        self.assertTrue(isinstance(f.data[1], h.ExclusiveInterpretation))
          
     def test_parse_line4(self):
         line = "foobar"
@@ -165,19 +165,11 @@ class TestParseString(TestCase):
         self.score = h.parse_string("**kern\n4c\n*-")
         self.data = self.score.data
     
-    def test_parse_string1(self):
+    def test_parse_string(self):
         self.assertEqual(3, len(self.data))
-
-    def test_parse_string2(self):
         self.assertTrue(isinstance(self.data[0][0], h.ExclusiveInterpretation))
-
-    def test_parse_string3(self):
         self.assertTrue(isinstance(self.data[1][0], h.Note))
-
-    def test_parse_string3(self):
         self.assertTrue(isinstance(self.data[2][0], h.Tandem))
-
-    def test_parse_string_error(self):
         self.assertRaises(AssertionError, lambda: h.parse_string(None))
 
 
@@ -187,21 +179,14 @@ class TestParseFile(TestCase):
     each element.
     """
     
-    def setUp(self):
-        self.score = h.parse_file("data/simple1.krn")
-        self.data = self.score.data
-    
-    def test_parse_file1(self):
-        self.assertEqual(3, len(self.data))
+    def test_parse_file(self):
+        score = h.parse_file("data/simple1.krn")
+        data = score.data
 
-    def test_parse_file2(self):
-        self.assertTrue(isinstance(self.data[0][0], h.ExclusiveInterpretation))
-
-    def test_parse_file3(self):
-        self.assertTrue(isinstance(self.data[1][0], h.Note))
-
-    def test_parse_file3(self):
-        self.assertTrue(isinstance(self.data[2][0], h.Tandem))
+        self.assertEqual(3, len(data))
+        self.assertTrue(isinstance(data[0][0], h.ExclusiveInterpretation))
+        self.assertTrue(isinstance(data[1][0], h.Note))
+        self.assertTrue(isinstance(data[2][0], h.Tandem))
 
 
 if __name__ == '__main__':
