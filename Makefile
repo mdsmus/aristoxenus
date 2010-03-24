@@ -12,7 +12,7 @@ runexample:
 	./example
 
 check:
-	./tools/pep8.py *.py
+	./tools/pep8.py xenophilus/*.py
 
 coverage:
 	coverage run xenophilus/humdrum.py
