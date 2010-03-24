@@ -3,77 +3,70 @@ from unittest import TestCase
 from fractions import Fraction as frac
 
 
-class TestScore(TestCase):
-    def test_append(self):
+class TestClasses(TestCase):
+    def test_classes(self):
+        """Simple tests to make sure the main classes are
+        instantiating correctly and without errors. Most classes
+        should be tested in the other tests in this suite, but is good
+        to have these simple tests in case some class end up not being
+        tested.
+        """
+        
         score = h.Score()
         score.append("foo")
+
+        record = h.Record("COM", "J. S. Bach")
+        comment = h.Comment("Foobar")
+        tandem = h.Tandem("Clef", "C4")
+        exinterp = h.ExclusiveInterpretation("kern")
+        note = h.Note("c##", frac(1, 4), None, None, 6, 5, "base40", "kern")
+        multiple_stop = h.MultipleStop()
+        bar = h.Bar(1)
+        rest = h.Rest(frac(1, 4))
+
         self.assertEqual(["foo"], score.data)
-
-class TestRecord(TestCase):
-    def test___init__(self):
-        # record = Record(name, data)
-        assert False # TODO: implement your test here
-
-class TestComment(TestCase):
-    def test___init__(self):
-        # comment = Comment(data)
-        assert False # TODO: implement your test here
-
-class TestTandem(TestCase):
-    def test___init__(self):
-        # tandem = Tandem(spine_type, data)
-        assert False # TODO: implement your test here
-
-class TestExclusiveInterpretation(TestCase):
-    def test___init__(self):
-        # exclusive_interpretation = ExclusiveInterpretation(name)
-        assert False # TODO: implement your test here
-
-    def test___repr__(self):
-        # exclusive_interpretation = ExclusiveInterpretation(name)
-        # self.assertEqual(expected, exclusive_interpretation.__repr__())
-        assert False # TODO: implement your test here
-
-class TestNote(TestCase):
-    def test___init__(self):
-        # note = Note(name, dur, art, beams, octave, code, system, spinetype)
-        assert False # TODO: implement your test here
-
-class TestMultipleStop(TestCase):
-    def test___repr__(self):
-        # multiple_stop = MultipleStop()
-        # self.assertEqual(expected, multiple_stop.__repr__())
-        assert False # TODO: implement your test here
-
-class TestBar(TestCase):
-    def test___init__(self):
-        # bar = Bar(number, repeat_begin, repeat_end, double)
-        assert False # TODO: implement your test here
-
-class TestRest(TestCase):
-    def test___init__(self):
-        # rest = Rest(dur, wholeNote)
-        assert False # TODO: implement your test here
-
-class TestKernError(TestCase):
-    def test_kern_error(self):
-        # self.assertEqual(expected, kern_error(message))
-        assert False # TODO: implement your test here
+        self.assertTrue(isinstance(score, h.Score))
+        self.assertTrue(isinstance(record, h.Record))
+        self.assertTrue(isinstance(comment, h.Comment))
+        self.assertTrue(isinstance(tandem, h.Tandem))
+        self.assertTrue(isinstance(exinterp, h.ExclusiveInterpretation))
+        self.assertTrue(isinstance(note, h.Note))
+        self.assertTrue(isinstance(multiple_stop, h.MultipleStop))
+        self.assertTrue(isinstance(bar, h.Bar))
+        self.assertTrue(isinstance(rest, h.Rest))
 
 class TestParseKernNote(TestCase):
     def test_parse_kern_note(self):
-        # self.assertEqual(expected, parse_kern_note(note, accs, lineno))
-        assert False # TODO: implement your test here
+        n1 = h.parse_kern_note(['d', 'd', 'd'], ['#','#'], 1)
+        n2 = h.parse_kern_note(['c', 'c', 'c'], ['#','#','#'], 1)
+        n3 = h.parse_kern_note(['e', 'e', 'e'], ['-','-'], 1)
+        n4 = h.parse_kern_note(['e'], [], 1)
+        self.assertEqual("d##", n1)
+        self.assertEqual("c###", n2)
+        self.assertEqual("ebb", n3)
+        self.assertEqual("e", n4)
+
 
 class TestParseKernOctave(TestCase):
     def test_parse_kern_octave(self):
-        # self.assertEqual(expected, parse_kern_octave(note, lineno))
-        assert False # TODO: implement your test here
+        self.assertEqual(4, h.parse_kern_octave("c", 1))
+        self.assertEqual(5, h.parse_kern_octave("dd", 1))
+        self.assertEqual(6, h.parse_kern_octave("eee#", 1))
+        self.assertEqual(6, h.parse_kern_octave("eee##", 1))
+        self.assertEqual(6, h.parse_kern_octave("eee###", 1))
+        self.assertEqual(3, h.parse_kern_octave("E-", 1))
+        self.assertEqual(2, h.parse_kern_octave("FF--", 1))
+        self.assertEqual(1, h.parse_kern_octave("GGG#", 1))
+
 
 class TestKernTokenizer(TestCase):
     def test_kern_tokenizer(self):
-        # self.assertEqual(expected, kern_tokenizer(token, linen))
-        assert False # TODO: implement your test here
+        tokens = h.kern_tokenizer("4.cc##", 1)
+        self.assertEqual(['c', 'c'], tokens['note'])
+        self.assertEqual(['#', '#'], tokens['acc'])
+        self.assertEqual(['4'], tokens['dur'])
+        self.assertEqual(['.'], tokens['dot'])
+
 
 class TestParseKernItem(TestCase):
     def test_parse_kern_item1(self):
