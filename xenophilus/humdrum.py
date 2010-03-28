@@ -298,8 +298,8 @@ def parse_string(string):
     assert type(string) is str, "argument must be a string, it was %s." % string
     
     score = Score()
-    l = string.split('\n')
-    [parse_line(line, score, lineno) for line, lineno in izip(l, count(1))]
+    for line, lineno in izip(string.split('\n'), count(1)):
+        parse_line(line, score, lineno)
     return score
 
 
@@ -311,6 +311,5 @@ def parse_file(name):
 if __name__ == "__main__":
     #f = parse_file("/home/kroger/Documents/xenophilus/data/k160-02.krn")
     f = parse_file("/home/kroger/Documents/xenophilus/data/test.krn")
-    print(f.data)
-    #for item in f.data:
-    #    print(item)
+    #print(f.data)
+    for item in f.data: print(item)
