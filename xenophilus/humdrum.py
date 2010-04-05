@@ -69,15 +69,15 @@ class ExclusiveInterpretation(Base):
 
 
 class Note(Base):
-    def __init__(self, name, dur, art, beams, octave, code, system, spinetype):
+    def __init__(self, name, dur):
         self.name = name
         self.duration = dur
-        self.articulations = art
-        self.beams = art
-        self.octave = octave
-        self.code = code
-        self.system = system
-        self.type = spinetype
+        self.articulations = []
+        self.beams = []
+        self.octave = 4
+        self.code = None
+        self.system = None
+        self.type = None
         self.__repr = "{0}{1}".format(name, dur)
 
 
@@ -183,13 +183,16 @@ def parse_kern_item(item, lineno, itemno):
 
     if tokens['note']:
         name = parse_kern_note(tokens['note'], tokens['acc'], lineno)
-        octave = parse_kern_octave(name, lineno)
         # FIXME
         #dur = calculate_duration(tokens['durs'], tokens['dots'])
-        dur = tokens['dur']
-        code = music.string_to_code(name, "base40")
-        return Note(name, dur, tokens['art'], tokens['beam'], octave,
-                    code, "base40", "kern")
+        note = Note(name, tokens['dur'])
+        note.articulations = tokens['art']
+        note.beams = tokens['beam']
+        note.octave = parse_kern_octave(name, lineno)
+        note.code = music.string_to_code(name, "base40")
+        note.system = "base40"
+        note.type = "kern"
+        return note
     elif tokens['rest']:
         # FIXME
         #dur = calculate_duration(tokens['durs'], tokens['dots'])
@@ -313,5 +316,5 @@ if __name__ == "__main__":
     #f = parse_file("/home/kroger/Documents/xenophilus/data/k160-02.krn")
     f = parse_file("/home/kroger/Documents/xenophilus/data/test.krn")
     #print(f.data)
-    for i in f.data:
-        print(i)
+    for item in f.data:
+        print(item)
