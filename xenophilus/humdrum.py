@@ -21,12 +21,11 @@ else:
 
 class Base(object):
     __repr = ''
-    
-    def __space(self):
-        return ' ' if self.__repr else ''
 
     def __repr__(self):
-        return "<" + self.__class__.__name__ + self.__space() + self.__repr + ">"
+        space = ' ' if self.__repr else ''
+        name = self.__class__.__name__
+        return "<{0}{1}{2}>".format(name, space, self.__repr)
 
 
 class Score(Base):
@@ -118,6 +117,7 @@ class KernError(Exception):
 
 def kern_error(message):
     raise KernError(message)
+
 
 ## Parse kern
 
@@ -242,6 +242,7 @@ def parse_data(item, lineno, itemno, data_type):
 
     return types.get(data_type, unknown_type)(item, lineno, itemno)
 
+
 ## basic parser
 
 
@@ -268,7 +269,7 @@ def parse_item(item, lineno, itemno, score):
 
 
 def parse_reference_record(line):
-    assert line.startswith('!!!'), "A reference record must start with 3 bangs !"
+    assert line.startswith('!!!'), "A reference record must start with !!!"
     assert ":" in line
     s = line.split(":", 1)
     return Record(s[0][3:].strip(), s[1].strip())
@@ -295,8 +296,8 @@ def parse_line(line, score, lineno):
 
 
 def parse_string(string):
-    assert type(string) is str, "argument must be a string, it was %s." % string
-    
+    assert type(string) is str, "argument must be a string, it was " + string
+
     score = Score()
     for line, lineno in izip(string.split('\n'), count(1)):
         parse_line(line, score, lineno)
@@ -312,4 +313,5 @@ if __name__ == "__main__":
     #f = parse_file("/home/kroger/Documents/xenophilus/data/k160-02.krn")
     f = parse_file("/home/kroger/Documents/xenophilus/data/test.krn")
     #print(f.data)
-    for item in f.data: print(item)
+    for i in f.data:
+        print(i)
