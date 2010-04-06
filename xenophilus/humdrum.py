@@ -152,7 +152,7 @@ def kern_tokenizer(token, linen):
         tokens[key].append(char) if cond else kern_error(kern.types[key][0])
 
     for i in range(0, len(token)):
-        p = utils.prev_string(token, i)
+        p = '' if i == 0 else token[i - 1]
         c = token[i]
 
         if _is(c, 'dur'):
