@@ -2,9 +2,6 @@ from __future__ import print_function
 from __future__ import division
 from collections import defaultdict
 from fractions import Fraction
-import math
-import operator
-import sys
 from itertools import izip, count
 
 if __name__ == "__main__":
@@ -20,12 +17,12 @@ else:
 
 
 class Base(object):
-    __repr = ''
+    repr = ''
 
     def __repr__(self):
-        space = ' ' if self.__repr else ''
+        space = ' ' if self.repr else ''
         name = self.__class__.__name__
-        return "<{0}{1}{2}>".format(name, space, self.__repr)
+        return "<{0}{1}{2}>".format(name, space, self.repr)
 
 
 class Score(Base):
@@ -51,13 +48,14 @@ class Comment(Base):
     def __init__(self, data, level=2):
         self.data = data
         self.level = level
+        self.repr = data
 
 
 class Tandem(Base):
     def __init__(self, spine_type, data):
         self.type = spine_type
         self.data = data
-        self.__repr = spine_type
+        self.repr = spine_type
 
 
 class ExclusiveInterpretation(Base):
@@ -78,7 +76,7 @@ class Note(Base):
         self.code = None
         self.system = None
         self.type = None
-        self.__repr = "{0}{1}".format(name, dur)
+        self.repr = "{0}{1}".format(name, dur)
 
 
 class MultipleStop(list):
@@ -93,14 +91,14 @@ class Bar(Base):
         self.repeat_begin = repeat_begin
         self.repeat_end = repeat_end
         self.double = double
-        self.__repr = self.number
+        self.repr = self.number
 
 
 class Rest(Base):
     def __init__(self, dur, wholeNote=False):
         self.duration = dur
         self.print_as_whole = wholeNote
-        self.__repr = "{0}".format(dur)
+        self.repr = "{0}".format(dur)
 
 
 class NullToken(Base):
@@ -137,6 +135,7 @@ def parse_kern_octave(note, lineno):
 
 
 def kern_tokenizer(token, linen):
+    """pylint R0912 """
     tokens = defaultdict(list)
 
     def _is(char, type):
@@ -279,12 +278,23 @@ def parse_reference_record(line):
 
 
 def parse_comment(line):
-    assert line.startswith('!'), "A comment must start with a bang !"
-    level = line.count('!')
-    return Comment(line.strip('!').strip(), level)
+    """Separate the actual comment from the comment character."""
+
+    match = re.match("^(!+)(.*)$", line)
+    return Comment(match.group(2).strip(), len(match.group(1)))
 
 
 def parse_line(line, score, lineno):
+    """A line can be a BlankLine, a reference record, a comment, or
+    have tabular data (spines) in which case we parse each item
+    individually. Both reference record and comments start with !, but
+    a reference record starts with 3 exclamation marks (!!!) while a
+    comment starts with one, two, four or more exclamation marks.
+    Global comments have more than one exclamation marks and will be
+    catched by this function. Local comments have only one exclamation
+    mark and are aplied to an individual spine. A local comment will
+    be catched in parse_item()."""
+    
     if utils.isMatch(r"^[ \t]*$", line) is not None:
         score.append(BlankLine())
     elif utils.isMatch(r"^!{3}[a-zA-Z ]+", line):
@@ -299,6 +309,9 @@ def parse_line(line, score, lineno):
 
 
 def parse_string(string):
+    """This is a helper function to parse small strings containing
+    humdrum code. This function is useful mainly for tests."""
+    
     assert type(string) is str, "argument must be a string, it was " + string
 
     score = Score()
@@ -308,8 +321,15 @@ def parse_string(string):
 
 
 def parse_file(name):
+    """Parse a humdrum file and return an object of type Score. We don't
+    use parse_string because it's probably faster (and save memory) to
+    iterate the file one line at time using for."""
+    
     with open(name) as f:
-        return parse_string(f.read())
+        score = Score()
+        for line, lineno in izip(f, count(1)):
+            parse_line(line.rstrip(), score, lineno)
+        return score
 
 
 if __name__ == "__main__":
