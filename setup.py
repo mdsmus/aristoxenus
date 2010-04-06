@@ -8,6 +8,7 @@ setup(
     author_email='pedro.kroger@gmail.com',
     url='http://github.com/kroger/xenophilus',
     packages=['xenophilus', 'xenophilus.test'],
+    py_modules = ['score', 'humdrum', 'music', 'utils', 'abc']
     license='LICENSE.txt',
     long_description=open('README.txt').read(),
 )

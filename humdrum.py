@@ -5,116 +5,16 @@ from fractions import Fraction
 from itertools import izip, count
 import re
 
+from score import (Score, Record, Comment, Tandem, ExclusiveInterpretation,
+     Note, MultipleStop, Bar, Rest, NullToken, BlankLine)
 
-if __name__ == "__main__":
-    import utils
-    import music
-    import kern
-else:
-    from . import utils
-    from . import music
-    from . import kern
+import utils
+import music
 
 # FIXME: write documentation
 """
 blablag
 """
-
-## classes definitions
-
-
-class Base(object):
-    repr = ''
-
-    def __repr__(self):
-        space = ' ' if self.repr else ''
-        name = self.__class__.__name__
-        return "<{0}{1}{2}>".format(name, space, self.repr)
-
-
-class Score(Base):
-    def append(self, item):
-        self.data.append(item)
-
-    def __init__(self):
-        self.title = ""
-        self.composer = ""
-        self.data = []
-        self.filename = ""
-        self.spine_number = 0
-        self.spine_types = []
-
-
-class Record(Base):
-    def __init__(self, name, data):
-        self.name = name
-        self.data = data
-
-
-class Comment(Base):
-    def __init__(self, data, level=2):
-        self.data = data
-        self.level = level
-        self.repr = data
-
-
-class Tandem(Base):
-    def __init__(self, spine_type, data):
-        self.type = spine_type
-        self.data = data
-        self.repr = spine_type
-
-
-class ExclusiveInterpretation(Base):
-    def __repr__(self):
-        return "<**" + self.name + ">"
-
-    def __init__(self, name):
-        self.name = name
-
-
-class Note(Base):
-    def __init__(self, name, dur):
-        self.name = name
-        self.duration = dur
-        self.articulations = []
-        self.beams = []
-        self.octave = 4
-        self.code = None
-        self.system = None
-        self.type = None
-        self.repr = "{0}{1}".format(name, dur)
-
-
-class MultipleStop(list):
-    def __repr__(self):
-        return '<MS: ' + str(self.__getslice__(0, self.__sizeof__())) + '>'
-
-
-class Bar(Base):
-    def __init__(self, number, repeat_begin=False,
-                 repeat_end=False, double=False):
-        self.number = number or ""
-        self.repeat_begin = repeat_begin
-        self.repeat_end = repeat_end
-        self.double = double
-        self.repr = self.number
-
-
-class Rest(Base):
-    def __init__(self, dur, wholeNote=False):
-        self.duration = dur
-        self.print_as_whole = wholeNote
-        self.repr = "{0}".format(dur)
-
-
-class NullToken(Base):
-    pass
-
-
-class BlankLine(Base):
-    pass
-
 
 class KernError(Exception):
     pass
@@ -125,6 +25,60 @@ def kern_error(message):
 
 
 ## Parse kern
+
+art = {'n': "natural",
+       '/': "up-stem",
+       '\\': "down-stem",
+       'o': "harmonic",
+       't': "trill-st",
+       'T': "trill-wt",
+       'S': "turn",
+       '$': "inverted-turn",
+       'R': "end-with-turn",
+       'u': "down-bow",
+       'H': "glissando-start",
+       'h': "glissando-end",
+       ';': "fermata",
+       'Q': "gruppetto",
+       'p': "app-main-note",
+       'U': "mute",
+       '[': "tie-start",
+       ']': "tie-end",
+       '_': "tie-midle",
+       '(': "slur-start",
+       ')': "slur-end",
+       '{': "phrase-start",
+       '}': "phrase-end",
+       '\'': "staccato",
+       's': "spiccato",
+       '\\': "pizzicato",
+       '`': "staccatissimo",
+       '~': "tenuto",
+       '^': "accent",
+       ':': "arpeggiation",
+       'v': "up-bow",
+       'z': "sforzando",
+       ',': "breath",
+       'm': "mordent-st",
+       'w': "inverted-mordent-st",
+       'M': "mordent-wt",
+       'W': "inverted-mordent-wt"}
+
+beams = {'L': 'beam-start',
+         'J': 'beam-end',
+         'K': 'beam-partial-right',
+         'k': 'beam-partial-left'}
+
+
+types = {'dur': ("0123456789", "Duration must be together."),
+         'note': ("abcdefgABCDEFG", "Notes must be together."),
+         'dot': (".", "Dots must be together or after a number."),
+         'acc': ("#-", "Accs."),
+         'art': (art,),
+         'beam': (beams,),
+         'rest': ("r", "Rest."),
+         'acciac': ("q", "App"),
+         'app': ("P",)}
 
 
 def parse_kern_note(note, accs, lineno):
@@ -146,10 +100,10 @@ def kern_tokenizer(token, linen):
     tokens = defaultdict(list)
 
     def _is(char, type):
-        return char in kern.types[type][0]
+        return char in types[type][0]
 
     def parse(char, key, cond):
-        tokens[key].append(char) if cond else kern_error(kern.types[key][0])
+        tokens[key].append(char) if cond else kern_error(types[key][0])
 
     for i in range(0, len(token)):
         p = '' if i == 0 else token[i - 1]
@@ -168,9 +122,9 @@ def kern_tokenizer(token, linen):
         elif _is(c, 'app'):
             parse(c, 'app', (tokens['note'] and tokens['dur']))
         elif _is(c, 'art'):
-            tokens['art'].append(kern.art[c])
+            tokens['art'].append(art[c])
         elif _is(c, 'beam'):
-            tokens['beam'].append(kern.beams[c])
+            tokens['beam'].append(beams[c])
         elif _is(c, 'acciac'):
             tokens['acciac'].append(c)
         else:
