@@ -1,7 +1,11 @@
 # -*- org -*-
 
+* implement split lines
+* fix parse_kern_octave
+* fix calculate_duration
+* implemente parse_tandem
+* implemente parse_dynam
 * function to print Score() [debug]
 
-* write unit tests
 * document functions and methods
 * document parser (in doc/)
