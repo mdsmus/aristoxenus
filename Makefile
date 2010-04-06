@@ -3,7 +3,7 @@ PYTHON_FILES = $(wildcard xenophilus/*.py)
 all: runexample check #coverage
 
 lint:
-	pylint xenophilus/humdrum.py
+	pylint --min-public-methods=0 --include-ids=y --max-attributes=9 xenophilus/humdrum.py
 
 tests:
 	nosetests
