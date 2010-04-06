@@ -10,6 +10,5 @@
 
    Spam or ham the foo.
 
-
 .. autofunction:: humdrum.parse_file
 

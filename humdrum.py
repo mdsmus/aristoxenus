@@ -143,7 +143,7 @@ def parse_kern_item(item, lineno, itemno):
     if tokens['note']:
         name = parse_kern_note(tokens['note'], tokens['acc'], lineno)
         # FIXME
-        #dur = calculate_duration(tokens['durs'], tokens['dots'])
+        #dur = music.calculate_duration(tokens['durs'], tokens['dots'])
         note = Note(name, tokens['dur'])
         note.articulations = tokens['art']
         note.beams = tokens['beam']
@@ -154,7 +154,7 @@ def parse_kern_item(item, lineno, itemno):
         return note
     elif tokens['rest']:
         # FIXME
-        #dur = calculate_duration(tokens['durs'], tokens['dots'])
+        #dur = music.calculate_duration(tokens['durs'], tokens['dots'])
         dur = tokens['dur']
         wholeNote = not bool(tokens['rest'] or len(tokens['rest']) >= 1)
         return Rest(dur, wholeNote)
@@ -296,7 +296,7 @@ def parse_string(string):
 
 
 def parse_file(name):
-    """Parse a humdrum file and return an object of type Score."""
+    """Parse a humdrum file and return an object of type :class:`Score`."""
 
     # We don't use parse_string because it's probably faster (and save
     # memory) to iterate the file one line at time using for.

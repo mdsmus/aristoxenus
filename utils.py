@@ -10,8 +10,7 @@ def ispython3():
 
 def search_string(pattern, string):
     """Like re.search but return the string that matches the pattern
-    instead of a Match object.
-    """
+    instead of a Match object."""
 
     tmp = re.search(pattern, string)
     if tmp:

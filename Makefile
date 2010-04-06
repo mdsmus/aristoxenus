@@ -8,6 +8,9 @@ lint:
 tests:
 	nosetests
 
+profile:
+	python -m "profile"  *.py
+
 humdrum:
 	python humdrum.py
 
@@ -22,7 +25,7 @@ TAGS: $(PYTHON_FILES)
 	find /usr/lib/python2.6/ . -name "*.py" | etags --output TAGS -
 
 clean:
-	rm -f *.out parsetab.py
+	rm -f *.out parsetab.py *.pyc
 
 print: humdrum.ps
 
