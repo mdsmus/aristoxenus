@@ -289,10 +289,10 @@ def parse_string(string):
     should use parse_file() instead.
     """
 
-    score = Score()
+    s = Score()
     for line, lineno in izip(string.split('\n'), count(1)):
-        parse_line(line, score, lineno)
-    return score
+        parse_line(line, s, lineno)
+    return s
 
 
 def parse_file(name):
@@ -301,10 +301,10 @@ def parse_file(name):
     # We don't use parse_string because it's probably faster (and save
     # memory) to iterate the file one line at time using for.
     with open(name) as f:
-        score = Score()
+        s = Score()
         for line, lineno in izip(f, count(1)):
-            parse_line(line.rstrip(), score, lineno)
-        return score
+            parse_line(line.rstrip(), s, lineno)
+        return s
 
 
 if __name__ == "__main__":

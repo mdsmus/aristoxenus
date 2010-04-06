@@ -89,3 +89,8 @@ class NullToken(Base):
 
 class BlankLine(Base):
     pass
+
+
+class Dynam(Base):
+    def __init__(self, data):
+        self.data = data
