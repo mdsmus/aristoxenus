@@ -1,4 +1,4 @@
-PYTHON_FILES = $(wildcard xenophilus/*.py)
+PYTHON_FILES = $(wildcard *.py)
 
 all: humdrum check
 
