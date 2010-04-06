@@ -6,9 +6,9 @@ from fractions import Fraction as frac
 class TestClasses(TestCase):
     def test_classes(self):
         """Simple tests to make sure the main classes are
-        instantiating correctly and without errors. Most classes
-        should be tested in the other tests in this suite, but is good
-        to have these simple tests in case some class end up not being
+        instantiating correctly and without errors. Most classes will
+        be tested in the other tests in this suite, but it's good to
+        have these simple tests in case some class end up not being
         tested.
         """
         
@@ -19,7 +19,11 @@ class TestClasses(TestCase):
         comment = h.Comment("Foobar")
         tandem = h.Tandem("Clef", "C4")
         exinterp = h.ExclusiveInterpretation("kern")
-        note = h.Note("c##", frac(1, 4), None, None, 6, 5, "base40", "kern")
+        note = h.Note("c##", frac(1, 4))
+        h.octave = 6
+        h.code = 5
+        h.system = "base40"
+        h.type = "kern"
         multiple_stop = h.MultipleStop()
         bar = h.Bar(1)
         rest = h.Rest(frac(1, 4))
@@ -154,8 +158,10 @@ class TestParseReferenceRecord(TestCase):
 
 class TestParseComment(TestCase):
     def test_parse_comment(self):
-        f = h.parse_comment("!! foobar")
-        self.assertEqual("foobar", f.data)
+        c1 = h.parse_comment("!! foobar")
+        c2 = h.parse_comment("!! foobar!")
+        self.assertEqual("foobar", c1.data)
+        self.assertEqual("foobar!", c2.data)
 
 
 class TestParseLine(TestCase):
