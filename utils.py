@@ -3,6 +3,8 @@ import sys
 
 
 def ispython3():
+    """Return True if the main version of python is 3"""
+    
     return sys.version[:1] == '3'
 
 
