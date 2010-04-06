@@ -5,8 +5,12 @@ def isPython3():
     return sys.version[:1] == '3'
 
 
-def isMatch(reg, string):
-    tmp = re.search(reg, string)
+def search_string(pattern, string):
+    """Like re.search but return the string that matches the pattern
+    instead of a Match object.
+    """
+
+    tmp = re.search(pattern, string)
     if tmp:
         return tmp.group()
 

@@ -3,6 +3,8 @@ from __future__ import division
 from collections import defaultdict
 from fractions import Fraction
 from itertools import izip, count
+import re
+
 
 if __name__ == "__main__":
     import utils
@@ -12,6 +14,11 @@ else:
     from . import utils
     from . import music
     from . import kern
+
+# FIXME: write documentation
+"""
+blablag
+"""
 
 ## classes definitions
 
@@ -227,10 +234,10 @@ def unknown_type(item, lineno, itemno):
 
 
 def parse_bar(item):
-    return Bar(utils.isMatch("[0-9]+([a-z]+)?", item),
-               bool(utils.isMatch(":\\||:!", item)),
-               bool(utils.isMatch("\\|:|!:", item)),
-               bool(utils.isMatch("==", item)))
+    return Bar(utils.search_string("[0-9]+([a-z]+)?", item),
+               bool(utils.search_string(":\\||:!", item)),
+               bool(utils.search_string("\\|:|!:", item)),
+               bool(utils.search_string("==", item)))
 
 
 def parse_tandem(item):
@@ -249,6 +256,9 @@ def parse_data(item, lineno, itemno, data_type):
 
 
 def parse_item(item, lineno, itemno, score):
+    """
+    """
+
     if item.startswith("="):
         return parse_bar(item)
     elif item.startswith("**"):
@@ -271,8 +281,15 @@ def parse_item(item, lineno, itemno, score):
 
 
 def parse_reference_record(line):
-    assert line.startswith('!!!'), "A reference record must start with !!!"
-    assert ":" in line
+    """Separate the data in the Reference from the ! character.
+
+    Since a reference record must start with 3 exclamantion marks we
+    don't need to use regular expressions to separate the actual
+    comment from the comment character. We split the line by the first
+    occurency of":" in order to prevent splitting a colon inside the text,
+    such as '!!!OTL: Title: more stuff'
+    """
+
     s = line.split(":", 1)
     return Record(s[0][3:].strip(), s[1].strip())
 
@@ -285,21 +302,24 @@ def parse_comment(line):
 
 
 def parse_line(line, score, lineno):
-    """A line can be a BlankLine, a reference record, a comment, or
-    have tabular data (spines) in which case we parse each item
+    """Parse a line and append the parsed line into the score.
+
+    A line can be a BlankLine, a reference record, a comment, or have
+    tabular data (spines) in which case we parse each item
     individually. Both reference record and comments start with !, but
     a reference record starts with 3 exclamation marks (!!!) while a
     comment starts with one, two, four or more exclamation marks.
     Global comments have more than one exclamation marks and will be
     catched by this function. Local comments have only one exclamation
     mark and are aplied to an individual spine. A local comment will
-    be catched in parse_item()."""
-    
-    if utils.isMatch(r"^[ \t]*$", line) is not None:
+    be catched in parse_item().
+    """
+
+    if utils.search_string(r"^[ \t]*$", line) is not None:
         score.append(BlankLine())
-    elif utils.isMatch(r"^!{3}[a-zA-Z ]+", line):
+    elif utils.search_string(r"^!{3}[a-zA-Z ]+", line):
         score.append(parse_reference_record(line))
-    elif utils.isMatch(r"^(!{2})|(!{4,})[a-zA-Z ]+", line):
+    elif utils.search_string(r"^(!{2})|(!{4,})[a-zA-Z ]+", line):
         score.append(parse_comment(line))
     else:
         s = line.split("\t")
@@ -309,10 +329,12 @@ def parse_line(line, score, lineno):
 
 
 def parse_string(string):
-    """This is a helper function to parse small strings containing
-    humdrum code. This function is useful mainly for tests."""
-    
-    assert type(string) is str, "argument must be a string, it was " + string
+    """Helper function to parse small strings containing humdrum code.
+
+    This function is useful mainly for tests and to parse data
+    directly from user input. To parse large quantities of data you
+    should use parse_file() instead.
+    """
 
     score = Score()
     for line, lineno in izip(string.split('\n'), count(1)):
@@ -321,10 +343,10 @@ def parse_string(string):
 
 
 def parse_file(name):
-    """Parse a humdrum file and return an object of type Score. We don't
-    use parse_string because it's probably faster (and save memory) to
-    iterate the file one line at time using for."""
-    
+    """Parse a humdrum file and return an object of type Score."""
+
+    # We don't use parse_string because it's probably faster (and save
+    # memory) to iterate the file one line at time using for.
     with open(name) as f:
         score = Score()
         for line, lineno in izip(f, count(1)):
