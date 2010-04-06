@@ -4,10 +4,8 @@ from collections import defaultdict
 from fractions import Fraction
 from itertools import izip, count
 import re
-
-from score import (Score, Record, Comment, Tandem, ExclusiveInterpretation,
-     Note, MultipleStop, Bar, Rest, NullToken, BlankLine)
-
+from score import (Score, Record, Comment, Tandem, Exclusive,
+                   Note, MultipleStop, Bar, Rest, NullToken, BlankLine)
 import utils
 import music
 
@@ -15,6 +13,7 @@ import music
 """
 blablag
 """
+
 
 class KernError(Exception):
     pass
@@ -218,7 +217,7 @@ def parse_item(item, lineno, itemno, score):
     elif item.startswith("**"):
         spine_type = item[2:]
         score.spine_types.append(spine_type)
-        return ExclusiveInterpretation(spine_type)
+        return Exclusive(spine_type)
     elif item.startswith("*"):
         return parse_tandem(item)
     elif item.startswith("!"):
@@ -309,8 +308,8 @@ def parse_file(name):
 
 
 if __name__ == "__main__":
-    #f = parse_file("/home/kroger/Documents/xenophilus/data/k160-02.krn")
-    f = parse_file("/home/kroger/Documents/xenophilus/data/test.krn")
+    #f = parse_file("data/k160-02.krn")
+    f = parse_file("data/test.krn")
     #print(f.data)
     for item in f.data:
         print(item)

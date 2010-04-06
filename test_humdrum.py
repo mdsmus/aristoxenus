@@ -1,4 +1,4 @@
-from xenophilus import humdrum as h
+import humdrum as h
 from unittest import TestCase
 from fractions import Fraction as frac
 
@@ -11,14 +11,14 @@ class TestClasses(TestCase):
         have these simple tests in case some class end up not being
         tested.
         """
-        
+
         score = h.Score()
         score.append("foo")
 
         record = h.Record("COM", "J. S. Bach")
         comment = h.Comment("Foobar")
         tandem = h.Tandem("Clef", "C4")
-        exinterp = h.ExclusiveInterpretation("kern")
+        exinterp = h.Exclusive("kern")
         note = h.Note("c##", frac(1, 4))
         h.octave = 6
         h.code = 5
@@ -33,17 +33,18 @@ class TestClasses(TestCase):
         self.assertTrue(isinstance(record, h.Record))
         self.assertTrue(isinstance(comment, h.Comment))
         self.assertTrue(isinstance(tandem, h.Tandem))
-        self.assertTrue(isinstance(exinterp, h.ExclusiveInterpretation))
+        self.assertTrue(isinstance(exinterp, h.Exclusive))
         self.assertTrue(isinstance(note, h.Note))
         self.assertTrue(isinstance(multiple_stop, h.MultipleStop))
         self.assertTrue(isinstance(bar, h.Bar))
         self.assertTrue(isinstance(rest, h.Rest))
 
+
 class TestParseKernNote(TestCase):
     def test_parse_kern_note(self):
-        n1 = h.parse_kern_note(['d', 'd', 'd'], ['#','#'], 1)
-        n2 = h.parse_kern_note(['c', 'c', 'c'], ['#','#','#'], 1)
-        n3 = h.parse_kern_note(['e', 'e', 'e'], ['-','-'], 1)
+        n1 = h.parse_kern_note(['d', 'd', 'd'], ['#', '#'], 1)
+        n2 = h.parse_kern_note(['c', 'c', 'c'], ['#', '#', '#'], 1)
+        n3 = h.parse_kern_note(['e', 'e', 'e'], ['-', '-'], 1)
         n4 = h.parse_kern_note(['e'], [], 1)
         self.assertEqual("d##", n1)
         self.assertEqual("c###", n2)
@@ -105,8 +106,7 @@ class TestParseKern(TestCase):
 
 class TestParseDynam(TestCase):
     def test_parse_dynam(self):
-        # self.assertEqual(expected, parse_dynam(item, lineno, itemno))
-        assert False # TODO: implement your test here
+        self.assertTrue(isinstance(h.parse_dynam("fff", 1, 1), h.Dynam))
 
 
 class TestParseBar(TestCase):
@@ -122,8 +122,7 @@ class TestParseBar(TestCase):
 
 class TestParseTandem(TestCase):
     def test_parse_tandem(self):
-        # self.assertEqual(expected, parse_tandem(item))
-        assert False # TODO: implement your test here
+        self.assertEqual("fixme, please", parse_tandem("*IVox"))
 
 
 class TestParseItem(TestCase):
@@ -133,7 +132,7 @@ class TestParseItem(TestCase):
 
     def test_parse_item_einterp(self):
         item = h.parse_item("**kern", 1, 1, h.Score())
-        self.assertTrue(isinstance(item, h.ExclusiveInterpretation))
+        self.assertTrue(isinstance(item, h.Exclusive))
 
     def test_parse_item_tandem(self):
         item = h.parse_item("*ClefF4", 1, 1, h.Score())
@@ -151,7 +150,7 @@ class TestParseItem(TestCase):
 class TestParseReferenceRecord(TestCase):
     def test_parse_reference_record(self):
         f = h.parse_reference_record("!!! COM: J. S. Bach")
-        
+
         self.assertEqual(f.name, 'COM')
         self.assertEqual(f.data, 'J. S. Bach')
 
@@ -173,40 +172,40 @@ class TestParseLine(TestCase):
     exclusive interpretation. If you want to parse things like kern
     data, you should use parse_kern_item instead.
     """
-    
+
     def test_parse_line1(self):
         f = h.parse_line("!!!com: Pedro Kroger", h.Score(), 1)
         self.assertTrue(isinstance(f.data[0], h.Record))
-         
+
     def test_parse_line2(self):
         f = h.parse_line("!! Global comment", h.Score(), 1)
         self.assertTrue(isinstance(f.data[0], h.Comment))
-         
+
     def test_parse_line3(self):
         # FIXME: is this a bug?
         f = h.parse_line("", h.Score(), 1)
         self.assertTrue(isinstance(f.data[0], h.BlankLine))
-         
+
     def test_parse_line4(self):
         line = "**kern	**kern"
         f = h.parse_line(line, h.Score(), 1)
-        self.assertTrue(isinstance(f.data[0], h.ExclusiveInterpretation))
-        self.assertTrue(isinstance(f.data[1], h.ExclusiveInterpretation))
-         
+        self.assertTrue(isinstance(f.data[0], h.Exclusive))
+        self.assertTrue(isinstance(f.data[1], h.Exclusive))
+
     def test_parse_line5(self):
         line = "4c	f"
         score = h.Score()
         self.assertRaises(h.KernError, lambda: h.parse_line(line, score, 1))
-         
+
     def test_parse_line6(self):
         score = h.Score()
         h.parse_line("**kern	**kern", score, 1)
         h.parse_line("4c	4d", score, 1)
-        self.assertTrue(isinstance(score.data[0][0], h.ExclusiveInterpretation))
-        self.assertTrue(isinstance(score.data[0][1], h.ExclusiveInterpretation))
+        self.assertTrue(isinstance(score.data[0][0], h.Exclusive))
+        self.assertTrue(isinstance(score.data[0][1], h.Exclusive))
         self.assertTrue(isinstance(score.data[1][0], h.Note))
         self.assertTrue(isinstance(score.data[1][1], h.Note))
-         
+
 
 class TestParseString(TestCase):
     """We check if the basics of parse_string are working by parsing a
@@ -217,10 +216,10 @@ class TestParseString(TestCase):
     def setUp(self):
         self.score = h.parse_string("**kern\n4c\n*-")
         self.data = self.score.data
-    
+
     def test_parse_string(self):
         self.assertEqual(3, len(self.data))
-        self.assertTrue(isinstance(self.data[0][0], h.ExclusiveInterpretation))
+        self.assertTrue(isinstance(self.data[0][0], h.Exclusive))
         self.assertTrue(isinstance(self.data[1][0], h.Note))
         self.assertTrue(isinstance(self.data[2][0], h.Tandem))
         self.assertRaises(AssertionError, lambda: h.parse_string(None))
@@ -231,13 +230,13 @@ class TestParseFile(TestCase):
     file with 3 elements (only one spine) and checking the type of
     each element.
     """
-    
+
     def test_parse_file(self):
         score = h.parse_file("data/simple1.krn")
         data = score.data
 
         self.assertEqual(3, len(data))
-        self.assertTrue(isinstance(data[0][0], h.ExclusiveInterpretation))
+        self.assertTrue(isinstance(data[0][0], h.Exclusive))
         self.assertTrue(isinstance(data[1][0], h.Note))
         self.assertTrue(isinstance(data[2][0], h.Tandem))
 

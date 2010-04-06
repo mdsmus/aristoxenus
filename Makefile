@@ -1,21 +1,21 @@
 PYTHON_FILES = $(wildcard xenophilus/*.py)
 
-all: runexample check #coverage
+all: humdrum check
 
 lint:
-	pylint --min-public-methods=0 --include-ids=y --max-attributes=9 xenophilus/humdrum.py
+	pylint --min-public-methods=0 --include-ids=y --max-attributes=9 *.py
 
 tests:
 	nosetests
 
-runexample:
-	./example
+humdrum:
+	python humdrum.py
 
 check:
-	./tools/pep8.py xenophilus/*.py
+	./tools/pep8.py *.py
 
 coverage:
-	coverage run xenophilus/humdrum.py
+	coverage run humdrum.py
 	coverage html
 
 TAGS: $(PYTHON_FILES)

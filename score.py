@@ -40,7 +40,7 @@ class Tandem(Base):
         self.repr = spine_type
 
 
-class ExclusiveInterpretation(Base):
+class Exclusive(Base):
     def __repr__(self):
         return "<**" + self.name + ">"
 
