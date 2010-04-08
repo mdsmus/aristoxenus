@@ -82,12 +82,12 @@ def test_parse_tandem():
 
 
 def test_parse_item_bar():
-    item = h.parse_item("=2:||:", 1, 1, score.Score())
+    item = h.parse_item("=2:||:", score.Score())
     assert isinstance(item, score.Bar)
 
 
 def test_parse_item_einterp():
-    item = h.parse_item("**kern", 1, 1, score.Score())
+    item = h.parse_item("**kern", score.Score())
     assert isinstance(item, score.Exclusive)
 
 
@@ -131,25 +131,25 @@ def test_parse_comment():
 
 def test_parse_line1():
     f = h.parse_line("!!!com: Pedro Kroger", score.Score(), 1)
-    assert isinstance(f.data[0], score.Record)
+    assert isinstance(f[0], score.Record)
 
 
 def test_parse_line2():
     f = h.parse_line("!! Global comment", score.Score(), 1)
-    assert isinstance(f.data[0], score.Comment)
+    assert isinstance(f[0], score.Comment)
 
 
 def test_parse_line3():
     # FIXME: is this a bug?
     f = h.parse_line("", score.Score(), 1)
-    assert isinstance(f.data[0], score.BlankLine)
+    assert isinstance(f[0], score.BlankLine)
 
 
 def test_parse_line4():
     line = "**kern	**kern"
     f = h.parse_line(line, score.Score(), 1)
-    assert isinstance(f.data[0], score.Exclusive)
-    assert isinstance(f.data[1], score.Exclusive)
+    assert isinstance(f[0], score.Exclusive)
+    assert isinstance(f[1], score.Exclusive)
 
 
 def test_parse_line5():
@@ -166,10 +166,10 @@ def test_parse_line6():
     s = score.Score()
     h.parse_line("**kern	**kern", s, 1)
     h.parse_line("4c	4d", s, 1)
-    assert isinstance(s.data[0][0], score.Exclusive)
-    assert isinstance(s.data[0][1], score.Exclusive)
-    assert isinstance(s.data[1][0], score.Note)
-    assert isinstance(s.data[1][1], score.Note)
+    assert isinstance(s[0][0], score.Exclusive)
+    assert isinstance(s[0][1], score.Exclusive)
+    assert isinstance(s[1][0], score.Note)
+    assert isinstance(s[1][1], score.Note)
 
 
 def test_parse_string():
@@ -178,7 +178,7 @@ def test_parse_string():
     the type of each element.
     """
 
-    data = h.parse_string("**kern\n4c\n*-").data
+    data = h.parse_string("**kern\n4c\n*-")
 
     assert 3 == len(data)
     assert isinstance(data[0][0], score.Exclusive)
@@ -192,7 +192,7 @@ def test_parse_file():
     of each element.
     """
 
-    data = h.parse_file("data/simple1.krn").data
+    data = h.parse_file("data/simple1.krn")
 
     assert 3 == len(data)
     assert isinstance(data[0][0], score.Exclusive)

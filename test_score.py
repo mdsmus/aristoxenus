@@ -26,7 +26,7 @@ def test_score():
     bar = score.Bar(1)
     rest = score.Rest(frac(1, 4))
 
-    assert s.data == ["foo"]
+    assert s == ["foo"]
     assert isinstance(s, score.Score)
     assert isinstance(record, score.Record)
     assert isinstance(comment, score.Comment)

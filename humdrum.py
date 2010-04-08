@@ -206,7 +206,7 @@ def parse_data(item, lineno, itemno, data_type):
 ## basic parser
 
 
-def parse_item(item, lineno, itemno, score):
+def parse_item(item, score, lineno=1, itemno=1):
     """
     """
 
@@ -252,7 +252,7 @@ def parse_comment(line):
     return Comment(match.group(2).strip(), len(match.group(1)))
 
 
-def parse_line(line, score, lineno):
+def parse_line(line, score, lineno=1):
     """Parse a line and append the parsed line into the score.
 
     A line can be a BlankLine, a reference record, a comment, or have
@@ -274,7 +274,7 @@ def parse_line(line, score, lineno):
         score.append(parse_comment(line))
     else:
         s = line.split("\t")
-        parsed = [parse_item(i, lineno, n, score) for i, n in izip(s, count())]
+        parsed = [parse_item(i, score, lineno, n) for i, n in izip(s, count())]
         score.append(parsed)
     return score
 
@@ -293,12 +293,10 @@ def parse_string(string):
     return s
 
 
-def parse_file(name):
+def parse_file(filename):
     """Parse a humdrum file and return an object of type :class:`Score`."""
 
-    # We don't use parse_string because it's probably faster (and save
-    # memory) to iterate the file one line at time using for.
-    with open(name) as f:
+    with open(filename) as f:
         s = Score()
         for line, lineno in izip(f, count(1)):
             parse_line(line.rstrip(), s, lineno)
@@ -309,5 +307,5 @@ if __name__ == "__main__":
     #f = parse_file("data/k160-02.krn")
     f = parse_file("data/test.krn")
     #print(f.data)
-    for item in f.data:
+    for item in f:
         print(item)
