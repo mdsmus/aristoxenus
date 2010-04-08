@@ -15,10 +15,12 @@ following diagram:
    :width:  550
    :height: 487
 
-The :class:`Score` class
-------------------------
+The Score class
+---------------
 
-The class :class:`Score` is a subclass of :class:`list`. Every line of
+.. class:: score.Score()
+
+The class :class:`score.Score` is a subclass of :class:`list`. Every line of
 a humdrum file is parsed and the result is stored as an item of
 :class:`Score`. So, if we have ``s = Score()``, ``s[2]`` will return
 the third line of a parsed humdrum file. For instance, the result of
@@ -29,44 +31,65 @@ the third line of a parsed humdrum file. For instance, the result of
    [<score.Note object at 0x7f982d715650>],
    [<score.Tandem object at 0x7f982d715350>]]
 
+
+.. attribute:: Score.title
+               Score.composer
+
 The attributes :attr:`Score.title` and :attr:`Score.composer` are
 copied from reference records to allow easy and quick access to this
-information (useful when generation data for notation programs). The
-attribute :attr:`Score.filename` has the filename of the original
-humdrum file, :attr:`Score.spine_number` has the number of original
-spines and :attr:`Score.spine_types` has a list of strings with the
-original types of spines (for instance, ``["kern", "dynam"]``).
+information (useful when generation data for notation programs).
+
+.. attribute:: Score.filename 
+
+name of the original humdrum file
+
+.. attribute:: Score.spine_number
+
+the number of original spines
+
+.. attribute:: Score.spine_types
+
+list of strings with the original types of spines (for instance,
+``["kern", "dynam"]``).
 
 
-The :class:`Note` class
------------------------
+The Note class
+--------------
 
-The :class:`Note` class has the following attributes:
 
-name
+.. class:: score.Note()
+
+
+.. attribute:: name
+
   A string with the note name in English such as "Ab" and "C##".
 
-duration
+.. attribute:: duration
+
   A fractional number indicating the duration.
 
-octave
+.. attribute:: octave
+
   An integer, where 4 is the central octave.
 
-articulations
+.. attribute:: articulations
+
   A list of strings denoting an articulation such as "harmonic" and "turn".
 
-beams
+.. attribute:: beams
+
   A list of keywords denoting beam commands.
 
-code
-  Numeric code for the note name. For instance, if the
-  :attr:`Note.name` is "Ab" the value for :attr:`Note.code` should be 8
-  if :attr:`system` is "et12" and 31 if :attr:`system` is
-  "base40".
+.. attribute:: code
 
-system
-  The numeric system used to parse the note. Values can be
-  "et12", "base40", "base96" and so on.
+  Numeric code for the note name. For instance, if the
+  :attr:`Note.name` is "Ab" the value for :attr:`Note.code` should be
+  8 if :attr:`system` is "et12" and 31 if :attr:`system` is "base40".
+
+.. attribute:: system
+
+  The numeric system used to parse the note. Values can be "et12",
+  "base40", "base96" and so on.
 
 
 The idea to have a code number in the :class:`Note` class is to
@@ -75,8 +98,12 @@ calculated after the file is parsed). It's probably not a good idea to
 modify the :attr:`Note.code` and :attr:`Note.system` attributes after
 the file has been parsed.
 
-The :class:`Tandem` class
--------------------------
+
+The Tandem class
+----------------
+
+
+.. class:: score.Tandem
 
 The tandem class stores the kind of tandem interpretation as a string
 in :attr:`Score.type` and the actual value in :attr:`Score.data`. The
@@ -121,8 +148,11 @@ the humdrum manual. (See also :ref:`todo`).
 .. [#f1] It can't be a rational because tempos like 4/4 will be normalized to 1/1.
 
 
-The :class:`Record` class
--------------------------
+The Record class
+----------------
+
+
+.. class:: score.Record
 
 Reference records are partially parsed and saved in the
 :class:`Record` class. The reference codes are saved in
