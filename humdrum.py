@@ -1,7 +1,6 @@
 from __future__ import print_function
 from __future__ import division
 from collections import defaultdict
-from fractions import Fraction
 from itertools import izip, count
 import re
 from score import (Score, Record, Comment, Tandem, Exclusive,
@@ -81,7 +80,6 @@ types = {'dur': ("0123456789", "Duration must be together."),
 
 
 def parse_kern_note(note, accs, lineno):
-    assert isinstance(note, list) and isinstance(accs, list)
     return note[0].lower() + "".join(accs).replace("-", "b")
 
 

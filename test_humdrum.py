@@ -42,6 +42,7 @@ def test_parse_kern_item1():
     assert n.system == "base40"
     assert n.type == "kern"
 
+
 def test_parse_kern_item2():
     n = h.parse_kern_item("4.CC##T;U(L", 1, 1)
     assert n.name == 'c##'
@@ -84,17 +85,21 @@ def test_parse_item_bar():
     item = h.parse_item("=2:||:", 1, 1, score.Score())
     assert isinstance(item, score.Bar)
 
+
 def test_parse_item_einterp():
     item = h.parse_item("**kern", 1, 1, score.Score())
     assert isinstance(item, score.Exclusive)
+
 
 def test_parse_item_tandem():
     item = h.parse_item("*ClefF4", 1, 1, score.Score())
     assert isinstance(item, score.Tandem)
 
+
 def test_parse_item_comment():
     item = h.parse_item("! foo", 1, 1, score.Score())
     assert isinstance(item, score.Comment)
+
 
 def test_parse_item_null():
     item = h.parse_item(".", 1, 1, score.Score())
@@ -128,20 +133,24 @@ def test_parse_line1():
     f = h.parse_line("!!!com: Pedro Kroger", score.Score(), 1)
     assert isinstance(f.data[0], score.Record)
 
+
 def test_parse_line2():
     f = h.parse_line("!! Global comment", score.Score(), 1)
     assert isinstance(f.data[0], score.Comment)
+
 
 def test_parse_line3():
     # FIXME: is this a bug?
     f = h.parse_line("", score.Score(), 1)
     assert isinstance(f.data[0], score.BlankLine)
 
+
 def test_parse_line4():
     line = "**kern	**kern"
     f = h.parse_line(line, score.Score(), 1)
     assert isinstance(f.data[0], score.Exclusive)
     assert isinstance(f.data[1], score.Exclusive)
+
 
 def test_parse_line5():
     line = "4c	f"
@@ -168,7 +177,7 @@ def test_parse_string():
     parsing a string with 3 elements (only one spine) and checking
     the type of each element.
     """
-    
+
     data = h.parse_string("**kern\n4c\n*-").data
 
     assert 3 == len(data)
