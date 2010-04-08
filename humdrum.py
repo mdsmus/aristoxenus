@@ -180,7 +180,7 @@ def parse_dynam(item, lineno, itemno):
 ## parse elements
 
 
-def unknown_type(item, lineno, itemno):
+def unknown_type(item, lineno=1, itemno=1):
     return item
 
 
@@ -196,7 +196,7 @@ def parse_tandem(item):
     return Tandem(item, None)
 
 
-def parse_data(item, lineno, itemno, data_type):
+def parse_data(item, data_type, lineno=1, itemno=1):
     types = {"kern": parse_kern,
              "dynam": parse_dynam}
 
@@ -228,7 +228,7 @@ def parse_item(item, score, lineno=1, itemno=1):
             kern_error("Can't parse an item without knowing the spine type.")
         else:
             data_type = score.spine_types[itemno]
-        return parse_data(item, lineno, itemno, data_type)
+        return parse_data(item, data_type, lineno, itemno)
 
 
 def parse_reference_record(line):
