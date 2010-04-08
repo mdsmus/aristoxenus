@@ -79,11 +79,11 @@ types = {'dur': ("0123456789", "Duration must be together."),
          'app': ("P",)}
 
 
-def parse_kern_note(note, accs, lineno):
+def parse_kern_note(note, accs, lineno=1):
     return note[0].lower() + "".join(accs).replace("-", "b")
 
 
-def parse_kern_octave(note, lineno):
+def parse_kern_octave(note, lineno=1):
     # FIXME: nasty bug with accidentals (see tests)
     if note[0].islower:
         return 3 + len(note)
@@ -92,7 +92,7 @@ def parse_kern_octave(note, lineno):
         return value or kern_error("Octave is too low.")
 
 
-def kern_tokenizer(token, linen):
+def kern_tokenizer(token, linen=1):
     """pylint R0912 """
     tokens = defaultdict(list)
 
@@ -129,7 +129,7 @@ def kern_tokenizer(token, linen):
     return tokens
 
 
-def parse_kern_item(item, lineno, itemno):
+def parse_kern_item(item, lineno=1, itemno=1):
     tokens = kern_tokenizer(item, lineno)
 
     if (not tokens['dur']) and ((not tokens['acciac']) or (not tokens['app'])):
@@ -160,7 +160,7 @@ def parse_kern_item(item, lineno, itemno):
         kern_error("Kern data must have a note or rest.")
 
 
-def parse_kern(item, linen, itemno):
+def parse_kern(item, linen=1, itemno=1):
     s = item.split(" ")
 
     if not item:
@@ -173,7 +173,7 @@ def parse_kern(item, linen, itemno):
 ## Parse dynam
 
 
-def parse_dynam(item, lineno, itemno):
+def parse_dynam(item, lineno=1, itemno=1):
     # FIXME: implement
     return item
 
@@ -237,8 +237,8 @@ def parse_reference_record(line):
     Since a reference record must start with 3 exclamantion marks we
     don't need to use regular expressions to separate the actual
     comment from the comment character. We split the line by the first
-    occurency of":" in order to prevent splitting a colon inside the text,
-    such as '!!!OTL: Title: more stuff'
+    occurency of ':' in order to prevent splitting a colon inside the
+    text, such as '!!!OTL: Title: more stuff'.
     """
 
     s = line.split(":", 1)
@@ -280,11 +280,11 @@ def parse_line(line, score, lineno=1):
 
 
 def parse_string(string):
-    """Helper function to parse small strings containing humdrum code.
+    """Parse a string with humdrum data  and return an :class:`Score`.
 
     This function is useful mainly for tests and to parse data
     directly from user input. To parse large quantities of data you
-    should use parse_file() instead.
+    should use :func:`parse_file()` instead.
     """
 
     s = Score()
@@ -294,7 +294,7 @@ def parse_string(string):
 
 
 def parse_file(filename):
-    """Parse a humdrum file and return an object of type :class:`Score`."""
+    """Parse a humdrum file and return an :class:`Score`."""
 
     with open(filename) as f:
         s = Score()

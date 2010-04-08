@@ -4,10 +4,10 @@ from fractions import Fraction as frac
 
 
 def test_parse_kern_note():
-    n1 = h.parse_kern_note(['d', 'd', 'd'], ['#', '#'], 1)
-    n2 = h.parse_kern_note(['c', 'c', 'c'], ['#', '#', '#'], 1)
-    n3 = h.parse_kern_note(['e', 'e', 'e'], ['-', '-'], 1)
-    n4 = h.parse_kern_note(['e'], [], 1)
+    n1 = h.parse_kern_note(['d', 'd', 'd'], ['#', '#'])
+    n2 = h.parse_kern_note(['c', 'c', 'c'], ['#', '#', '#'])
+    n3 = h.parse_kern_note(['e', 'e', 'e'], ['-', '-'])
+    n4 = h.parse_kern_note(['e'], [])
     assert n1 == "d##"
     assert n2 == "c###"
     assert n3 == "ebb"
@@ -15,18 +15,18 @@ def test_parse_kern_note():
 
 
 def test_parse_kern_octave():
-    assert h.parse_kern_octave("c", 1) == 4
-    assert h.parse_kern_octave("dd", 1) == 5
-    assert h.parse_kern_octave("eee#", 1) == 6
-    assert h.parse_kern_octave("eee##", 1) == 6
-    assert h.parse_kern_octave("eee###", 1) == 6
-    assert h.parse_kern_octave("E-", 1) == 3
-    assert h.parse_kern_octave("FF--", 1) == 2
-    assert h.parse_kern_octave("GGG#", 1) == 1
+    assert h.parse_kern_octave("c") == 4
+    assert h.parse_kern_octave("dd") == 5
+    assert h.parse_kern_octave("eee#") == 6
+    assert h.parse_kern_octave("eee##") == 6
+    assert h.parse_kern_octave("eee###") == 6
+    assert h.parse_kern_octave("E-") == 3
+    assert h.parse_kern_octave("FF--") == 2
+    assert h.parse_kern_octave("GGG#") == 1
 
 
 def test_kern_tokenizer():
-    tokens = h.kern_tokenizer("4.cc##", 1)
+    tokens = h.kern_tokenizer("4.cc##")
     assert tokens['note'] == ['c', 'c']
     assert tokens['acc'] == ['#', '#']
     assert tokens['dur'] == ['4']
@@ -34,7 +34,7 @@ def test_kern_tokenizer():
 
 
 def test_parse_kern_item1():
-    n = h.parse_kern_item("4c", 1, 1)
+    n = h.parse_kern_item("4c")
     assert n.name == 'c'
     assert n.duration == frac(1, 4)
     assert n.octave == 4
@@ -44,7 +44,7 @@ def test_parse_kern_item1():
 
 
 def test_parse_kern_item2():
-    n = h.parse_kern_item("4.CC##T;U(L", 1, 1)
+    n = h.parse_kern_item("4.CC##T;U(L")
     assert n.name == 'c##'
     assert n.duration == frac(3, 8)
     assert n.octave == 6
@@ -59,12 +59,12 @@ def test_parse_kern_item2():
 
 
 def test_parse_kern():
-    assert isinstance(h.parse_kern("4c", 1, 1), score.Note)
-    assert isinstance(h.parse_kern("4r", 1, 1), score.Rest)
+    assert isinstance(h.parse_kern("4c"), score.Note)
+    assert isinstance(h.parse_kern("4r"), score.Rest)
 
 
 def test_parse_dynam():
-    assert isinstance(h.parse_dynam("fff", 1, 1), score.Dynam)
+    assert isinstance(h.parse_dynam("fff"), score.Dynam)
 
 
 def test_parse_bar():
@@ -92,17 +92,17 @@ def test_parse_item_einterp():
 
 
 def test_parse_item_tandem():
-    item = h.parse_item("*ClefF4", 1, 1, score.Score())
+    item = h.parse_item("*ClefF4", score.Score())
     assert isinstance(item, score.Tandem)
 
 
 def test_parse_item_comment():
-    item = h.parse_item("! foo", 1, 1, score.Score())
+    item = h.parse_item("! foo", score.Score())
     assert isinstance(item, score.Comment)
 
 
 def test_parse_item_null():
-    item = h.parse_item(".", 1, 1, score.Score())
+    item = h.parse_item(".", score.Score())
     assert isinstance(item, score.NullToken)
 
 
@@ -130,24 +130,24 @@ def test_parse_comment():
 
 
 def test_parse_line1():
-    f = h.parse_line("!!!com: Pedro Kroger", score.Score(), 1)
+    f = h.parse_line("!!!com: Pedro Kroger", score.Score())
     assert isinstance(f[0], score.Record)
 
 
 def test_parse_line2():
-    f = h.parse_line("!! Global comment", score.Score(), 1)
+    f = h.parse_line("!! Global comment", score.Score())
     assert isinstance(f[0], score.Comment)
 
 
 def test_parse_line3():
     # FIXME: is this a bug?
-    f = h.parse_line("", score.Score(), 1)
+    f = h.parse_line("", score.Score())
     assert isinstance(f[0], score.BlankLine)
 
 
 def test_parse_line4():
     line = "**kern	**kern"
-    f = h.parse_line(line, score.Score(), 1)
+    f = h.parse_line(line, score.Score())
     assert isinstance(f[0], score.Exclusive)
     assert isinstance(f[1], score.Exclusive)
 
@@ -156,7 +156,7 @@ def test_parse_line5():
     line = "4c	f"
     s = score.Score()
     try:
-        h.parse_line(line, s, 1)
+        h.parse_line(line, s)
         raise Exception
     except h.KernError:
         pass
@@ -164,8 +164,8 @@ def test_parse_line5():
 
 def test_parse_line6():
     s = score.Score()
-    h.parse_line("**kern	**kern", s, 1)
-    h.parse_line("4c	4d", s, 1)
+    h.parse_line("**kern	**kern", s)
+    h.parse_line("4c	4d", s)
     assert isinstance(s[0][0], score.Exclusive)
     assert isinstance(s[0][1], score.Exclusive)
     assert isinstance(s[1][0], score.Note)
