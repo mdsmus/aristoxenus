@@ -1,12 +1,21 @@
 PYTHON_FILES = $(wildcard *.py)
 
+.PHONY: docs
+
 all: humdrum check
 
 lint:
 	pylint --min-public-methods=0 --include-ids=y --max-attributes=9 *.py
 
+
+docs:
+	cd docs; $(MAKE) html
+
 tests:
 	nosetests
+
+tests-color:
+	nosetests --rednose
 
 profile:
 	python -m "profile"  *.py
