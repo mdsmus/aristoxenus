@@ -151,7 +151,6 @@ the humdrum manual. (See also :ref:`todo`).
 The Record class
 ----------------
 
-
 .. class:: score.Record
 
 Reference records are partially parsed and saved in the
@@ -163,3 +162,16 @@ data in :attr:`Record.name`. The only exception is the reference code
 for the title and composer, which are saved in the slots with the same
 name in the :class:`Record` class. See section :ref:`todo` for things
 that need to be done.
+
+Other classes
+-------------
+
+.. class:: score.Comment
+.. class:: score.Comment
+.. class:: score.Exclusive
+.. class:: score.MultipleStop(list)
+.. class:: score.Bar
+.. class:: score.Rest
+.. class:: score.NullToken
+.. class:: score.BlankLine
+.. class:: score.Dynam

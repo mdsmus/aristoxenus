@@ -1,5 +1,6 @@
 # -*- org -*-
 
+* implement code to extract measures
 * implement split lines
 * fix parse_kern_octave
 * fix calculate_duration

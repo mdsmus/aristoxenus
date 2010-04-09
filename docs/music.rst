@@ -1,5 +1,5 @@
-:mod:`music` -- Library for musical operations
-==============================================
+Music functions and operations
+==============================
 
 .. module:: music
    :platform: Unix, Windows

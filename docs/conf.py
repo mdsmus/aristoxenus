@@ -36,6 +36,8 @@ source_suffix = '.rst'
 # The master toctree document.
 master_doc = 'index'
 
+autoclass_content = 'both'
+
 # General information about the project.
 project = u'Aristoxenus'
 copyright = u'2010, Pedro Kroger'
