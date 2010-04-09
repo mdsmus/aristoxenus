@@ -207,7 +207,18 @@ def parse_data(item, data_type, lineno=1, itemno=1):
 
 
 def parse_item(item, score, lineno=1, itemno=1):
-    """
+    """Parse each item of a humdrum spine.
+
+    We can parse general items like :class:`score.Bar`,
+    :class:`score.Exclusive`, :class:`score.Tandem`,
+    :class:`score.Comment`, and :class:`score.NullToken` without
+    previous information since the type of data is defined in the
+    string itself (e.g. the '**' in '**kern' defines it as an
+    exclusive interpretation). However, we can't parse other data
+    records without knowing their spine type. When an exclusive
+    interpretation is found the spine type is appended to
+    :attr:`Score.spine_types`. This attribute is used to know the
+    spine type of an item.
     """
 
     if item.startswith("="):
@@ -253,17 +264,18 @@ def parse_comment(line):
 
 
 def parse_line(line, score, lineno=1):
-    """Parse a line and append the parsed line into the score.
+    """Parse a line, append the parsed result into the score and return the score
 
     A line can be a BlankLine, a reference record, a comment, or have
     tabular data (spines) in which case we parse each item
-    individually. Both reference record and comments start with !, but
-    a reference record starts with 3 exclamation marks (!!!) while a
-    comment starts with one, two, four or more exclamation marks.
-    Global comments have more than one exclamation marks and will be
-    catched by this function. Local comments have only one exclamation
-    mark and are aplied to an individual spine. A local comment will
-    be catched in parse_item().
+    individually with :func:`humdrum.parse_item`. Both reference
+    record and comments start with !, but a reference record starts
+    with 3 exclamation marks (!!!) while a comment starts with one,
+    two, four or more exclamation marks. Global comments have more
+    than one exclamation marks and will be catched by this function.
+    Local comments have only one exclamation mark and are aplied to an
+    individual spine. A local comment will be catched in
+    :func:`humdrum.parse_item()`.
     """
 
     if utils.search_string(r"^[ \t]*$", line) is not None:
@@ -280,7 +292,7 @@ def parse_line(line, score, lineno=1):
 
 
 def parse_string(string):
-    """Parse a string with humdrum data  and return an :class:`Score`.
+    """Parse a string with humdrum data  and return a :class:`score.Score`.
 
     This function is useful mainly for tests and to parse data
     directly from user input. To parse large quantities of data you
@@ -294,7 +306,7 @@ def parse_string(string):
 
 
 def parse_file(filename):
-    """Parse a humdrum file and return an :class:`Score`."""
+    """Parse a humdrum file and return a :class:`score.Score`."""
 
     with open(filename) as f:
         s = Score()
