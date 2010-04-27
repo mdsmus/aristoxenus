@@ -31,7 +31,7 @@ class Exclusive(object):
 
 
 class Note(object):
-    def __init__(self, name, dur=-1):
+    def __init__(self, name, dur=None):
         self.name = name
         self.duration = dur
         self.articulations = []

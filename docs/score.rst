@@ -64,62 +64,61 @@ List of strings with the original types of spines (for instance,
 The Note class
 --------------
 
+.. autoclass:: score.Note
 
-.. class:: score.Note()
 
-
-.. attribute:: name
+.. attribute:: Note.name
 
   A string with the note name in English such as "Ab" and "C##".
 
-.. attribute:: duration
+.. attribute:: Note.duration
 
-  A fractional number indicating the duration.
+  A fractional number indicating the duration or ``None`` for no
+  duration.
 
-.. attribute:: octave
+.. attribute:: Note.octave
 
   An integer, where 4 is the central octave.
 
-.. attribute:: articulations
+.. attribute:: Note.articulations
 
   A list of strings denoting an articulation such as "harmonic" and "turn".
 
-.. attribute:: beams
+.. attribute:: Note.beams
 
   A list of keywords denoting beam commands.
 
-.. attribute:: code
+.. attribute:: Note.code
 
   Numeric code for the note name. For instance, if the
   :attr:`Note.name` is "Ab" the value for :attr:`Note.code` should be
   8 if :attr:`system` is "et12" and 31 if :attr:`system` is "base40".
 
-.. attribute:: system
+.. attribute:: Note.system
 
   The numeric system used to parse the note. Values can be "et12",
   "base40", "base96" and so on.
 
 
-The idea to have a code number in the :class:`Note` class is to
-provide some optimization. (i.e. the code number doesn't have to be
-calculated after the file is parsed). It's probably not a good idea to
-modify the :attr:`Note.code` and :attr:`Note.system` attributes after
-the file has been parsed.
+The code number in the :class:`Note` class is calculated while the
+notes are being parsed to provide some optimization. (i.e. the code
+number doesn't have to be calculated after the file is parsed). It's
+probably not a good idea to modify :attr:`Note.code` and
+:attr:`Note.system` after the file has been parsed.
 
 
 The Tandem class
 ----------------
 
-
-.. class:: score.Tandem
+.. autoclass:: score.Tandem
 
 The tandem class stores the kind of tandem interpretation as a string
-in :attr:`Score.type` and the actual value in :attr:`Score.data`. The
+in :attr:`Tandem.type` and the actual value in :attr:`Tandem.data`. The
 following table shows each value :attr:`type` can have and the type
 of :attr:`data`, with a brief example:
 
 +-----------------+----------------------------+------------------------+
-| keyword         | type of Note.data          | example                |
+| keyword         | type of Tandem.data        | example                |
 +=================+============================+========================+
 | "clef"          | string                     | "treble"               |
 +-----------------+----------------------------+------------------------+
@@ -159,7 +158,7 @@ the humdrum manual. (See also :ref:`todo`).
 The Record class
 ----------------
 
-.. class:: score.Record
+.. autoclass:: score.Record
 
 Reference records are partially parsed and saved in the
 :class:`Record` class. The reference codes are saved in
@@ -174,12 +173,11 @@ that need to be done.
 Other classes
 -------------
 
-.. class:: score.Comment
-.. class:: score.Comment
-.. class:: score.Exclusive
-.. class:: score.MultipleStop(list)
-.. class:: score.Bar
-.. class:: score.Rest
-.. class:: score.NullToken
-.. class:: score.BlankLine
-.. class:: score.Dynam
+.. autoclass:: score.Comment
+.. autoclass:: score.Exclusive
+.. autoclass:: score.MultipleStop(list)
+.. autoclass:: score.Bar
+.. autoclass:: score.Rest
+.. autoclass:: score.NullToken
+.. autoclass:: score.BlankLine
+.. autoclass:: score.Dynam
