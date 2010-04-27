@@ -87,9 +87,7 @@ def parse_kern_octave(note, lineno=1):
         return value or kern_error("Octave is too low.")
 
 
-def kern_tokenizer(token, linen=1):
-    """pylint R0912 """
-
+def kern_tokenizer(item, linen=1):
     tokens = defaultdict(list)
 
     def _is(char, type):
@@ -98,9 +96,9 @@ def kern_tokenizer(token, linen=1):
     def parse(char, key, cond):
         tokens[key].append(char) if cond else kern_error(types[key][0])
 
-    for i in range(0, len(token)):
-        p = '' if i == 0 else token[i - 1]
-        c = token[i]
+    for i in range(0, len(item)):
+        p = '' if i == 0 else item[i - 1]
+        c = item[i]
 
         if _is(c, 'dur'):
             parse(c, 'dur', (not p or not tokens['dur'] or _is(p, 'dur')))
