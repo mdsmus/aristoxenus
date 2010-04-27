@@ -16,12 +16,16 @@ parse all barline elements
 
   We don't parse signs for barline visual rendering. It's a mostly
   easy job, but we need to think of a useful internal representation
-  for those things. See
-  http://humdrum.org/Humdrum/representations/kern.html#Barlines
+  for those things. See the `humdrum documentation
+  <http://humdrum.org/Humdrum/representations/kern.html#Barlines>`_.
+  
+
+  The file ``all-bars.txt`` has a list of all bar types used in the
+  40,000+ kernscores files. This list is a good reference for
+  real-life testing.
 
 consider if we should use more descriptive names for instruments
 
   The names used by default are not very descriptive, like "Ibspro"
   for "basso profondo". Is it a good thing to use names like
   "basso-profondo"?
-

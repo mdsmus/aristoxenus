@@ -102,12 +102,10 @@ The functions :func:`humdrum.parse_file` and
    >>> parse_item("c", score)
    KernError: Can't parse an item without knowing the spine type.
 
-Parse elements
 
-.. autofunction:: humdrum.parse_data
-.. autofunction:: humdrum.parse_tandem
 .. autofunction:: humdrum.parse_bar
-.. autofunction:: humdrum.unknown_type
+.. autofunction:: humdrum.parse_tandem
+.. autofunction:: humdrum.parse_data
 
 Spine paths
 -----------

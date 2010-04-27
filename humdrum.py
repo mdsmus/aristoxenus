@@ -8,11 +8,6 @@ from score import (Score, Record, Comment, Tandem, Exclusive,
 import utils
 import music
 
-# FIXME: write documentation
-"""
-blablag
-"""
-
 
 class KernError(Exception):
     pass
@@ -171,21 +166,18 @@ def parse_kern(item, linen=1, itemno=1):
     else:
         return MultipleStop([parse_kern_item(i, linen, itemno) for i in s])
 
-## Parse dynam
-
-
-def parse_dynam(item, lineno=1, itemno=1):
-    # FIXME: implement
-    return item
 
 ## parse elements
 
 
-def unknown_type(item, lineno=1, itemno=1):
-    return item
-
-
 def parse_bar(item):
+    """Search a string for bar elements and return a :class:`score.Bar`
+
+    This function will search for the bar number, if a bar begins or
+    ends a repetition and if it's a double bar. Humdrum has a bunch of
+    syntax for visual barlines that we don't parse. See :ref:`todo`.
+    """
+    
     return Bar(utils.search_string("[0-9]+([a-z]+)?", item),
                bool(utils.search_string(":\\||:!", item)),
                bool(utils.search_string("\\|:|!:", item)),
@@ -193,15 +185,27 @@ def parse_bar(item):
 
 
 def parse_tandem(item):
-    # FIXME: implement
+    """FIXME: implement"""
     return Tandem(item, None)
 
 
-def parse_data(item, data_type, lineno=1, itemno=1):
-    types = {"kern": parse_kern,
-             "dynam": parse_dynam}
+def parse_data(data_type, item, lineno=1, itemno=1):
+    """Apply the right function to parse ``data_type``.
 
-    return types.get(data_type, unknown_type)(item, lineno, itemno)
+    For instance, if ``data_type`` is 'kern', then ``parse_data`` will
+    apply ``parse_kern`` to the rest of arguments. ``parse_data`` has
+    a dispatch table to match the data type to the function. When the
+    parser for a new humdrum data type is implemented, the dispatch
+    table need to be updated. If an unknown type is found the item
+    will be returned without any parsing.
+    """
+
+    def unknown_type(item, lineno=1, itemno=1):
+        return item
+
+    dispatch = {"kern": parse_kern}
+
+    return dispatch.get(data_type, unknown_type)(item, lineno, itemno)
 
 
 ## basic parser
@@ -218,7 +222,7 @@ def parse_item(item, score, lineno=1, itemno=1):
     exclusive interpretation). However, we can't parse other data
     records without knowing their spine type. When an exclusive
     interpretation is found the spine type is appended to
-    :attr:`Score.spine_types`. This attribute is used to know the
+    :attr:`Score.spine_types`. This attribute can be used to know the
     spine type of an item.
     """
 
@@ -240,7 +244,7 @@ def parse_item(item, score, lineno=1, itemno=1):
             kern_error("Can't parse an item without knowing the spine type.")
         else:
             data_type = score.spine_types[itemno]
-        return parse_data(item, data_type, lineno, itemno)
+        return parse_data(data_type, item, lineno, itemno)
 
 
 def parse_reference_record(line):
