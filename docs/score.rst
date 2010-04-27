@@ -20,11 +20,19 @@ The Score class
 
 .. class:: score.Score()
 
-The class :class:`score.Score` is a subclass of :class:`list`. Every line of
-a humdrum file is parsed and the result is stored as an item of
-:class:`Score`. So, if we have ``s = Score()``, ``s[2]`` will return
-the third line of a parsed humdrum file. For instance, the result of
-``parse_string("**kern\n4c\n\n4d\n*-")`` will be something like::
+The class :class:`score.Score` is a subclass of :class:`list`; you can
+append and remove elements and use the slice operator. You can
+instantiate a class with any number of arguments. For instance,
+``Score(1, 2, 4)`` will return ``[1, 2, 4]``. Of course, you should
+add music elements such as :class:`score.Note`::
+
+  Score(Note("C#"), Note("Bb"))
+
+Every line of a humdrum file is parsed as an object and the result is
+stored as an item of :class:`Score`. So, if we have ``s = Score()``,
+``s[2]`` will return the third line of a parsed humdrum file. For
+instance, the result of ``parse_string("**kern\n4c\n\n4d\n*-")`` will
+be something like::
 
   [[<score.Exclusive object at 0x7f982d7a9590>],
    [<score.Note object at 0x7f982d715690>],
@@ -37,20 +45,20 @@ the third line of a parsed humdrum file. For instance, the result of
 
 The attributes :attr:`Score.title` and :attr:`Score.composer` are
 copied from reference records to allow easy and quick access to this
-information (useful when generation data for notation programs).
+information (useful when generating data for notation programs).
 
 .. attribute:: Score.filename 
 
-name of the original humdrum file
-
-.. attribute:: Score.spine_number
-
-the number of original spines
+Name of the original humdrum file. Useful to generate files
+with the same name but different extension.
 
 .. attribute:: Score.spine_types
 
-list of strings with the original types of spines (for instance,
+List of strings with the original types of spines (for instance,
 ``["kern", "dynam"]``).
+
+
+.. autofunction:: score.make_notes
 
 
 The Note class

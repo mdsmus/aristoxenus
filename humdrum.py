@@ -94,6 +94,7 @@ def parse_kern_octave(note, lineno=1):
 
 def kern_tokenizer(token, linen=1):
     """pylint R0912 """
+
     tokens = defaultdict(list)
 
     def _is(char, type):
@@ -318,6 +319,5 @@ def parse_file(filename):
 if __name__ == "__main__":
     #f = parse_file("data/k160-02.krn")
     f = parse_file("data/test.krn")
-    #print(f.data)
     for item in f:
         print(item)

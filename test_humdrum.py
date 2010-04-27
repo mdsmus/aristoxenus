@@ -178,12 +178,15 @@ def test_parse_string():
     the type of each element.
     """
 
-    data = h.parse_string("**kern\n4c\n*-")
+    sco1 = h.parse_string("**kern\t**kern\nc4\tc4\n*-\t*-")
+    assert sco1.spine_types == ['kern', 'kern']
 
-    assert 3 == len(data)
-    assert isinstance(data[0][0], score.Exclusive)
-    assert isinstance(data[1][0], score.Note)
-    assert isinstance(data[2][0], score.Tandem)
+    sco2 = h.parse_string("**kern\n4c\n*-")
+
+    assert 3 == len(sco2)
+    assert isinstance(sco2[0][0], score.Exclusive)
+    assert isinstance(sco2[1][0], score.Note)
+    assert isinstance(sco2[2][0], score.Tandem)
 
 
 def test_parse_file():
