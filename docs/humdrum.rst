@@ -113,4 +113,111 @@ Spine paths
 Parsing the kern representation
 -------------------------------
 
+The following attributes are used by :func:`humdrum.kern_tokenizer`.
+The shouldn't be accessed by other functions or directly.
 
+.. attribute:: humdrum.types
+
+   A dictionary that maps a data record type such as duration,
+   articulation, or beam to che characters that compose those types
+   and an error message. The format is ``<type>: (<characteres>,
+   <error message>)``, for example::
+
+   'dur': ("0123456789", "Duration must be together."),
+   'note': ("abcdefgABCDEFG", "Notes must be together."),
+
+.. attribute:: humdrum.beams
+
+   A dictionary that maps humdrum code for beams to full names, for
+   example::
+
+   'L': 'beam-start',
+   'J': 'beam-end',
+
+.. attribute:: humdrum.art
+
+   A dictionary that maps humdrum code for articulations to full
+   names, for example::
+
+   '$': "inverted-turn",
+   'R': "end-with-turn",
+   'u': "down-bow",
+
+.. autofunction:: humdrum.parse_kern
+
+   Main function to parse kern data. If the input is a multiple stop
+   (notes separated by spaces in humdrum) it will return a
+   :class:`score.MultipleStop` object with notes and rests inside. If
+   not, it'll return either a note or a rest. (The other kern elements
+   such as null tokens and local comments are handled by
+   :func:`humdrum.parse_item`). Most of the parsing is actually done
+   by :func:`humdrum.parse_kern_item` and
+   :func:`humdrum.kern_tokenizer`. Here's an example (the resulting
+   type is a MultipleStop, and not a list):
+
+   >>> parse_kern("c4 d4")
+   [<__main__.Note object at 0x24fb510>, <__main__.Note object at 0x24fb050>]
+
+.. autofunction:: humdrum.kern_tokenizer
+
+   Breaks a kern data record in elements and returns a dictionary
+   where the keyword is the type of element and the value is the
+   element itself in a list. We put the elements in a list to make it
+   easier to append and count elements.
+
+   >>> kern_tokenizer("CC4;/")
+   {'note': ['C', 'C'], 'dur': ['4'], 'art': ['fermata', 'up-stem']})
+
+
+   The tokenizer reads one charater at a time in the string, comparing
+   the current character (``c``) with the previous (``p``). A big
+   conditional expression checks (using the subfunction ``_is``) if
+   the current character is of a certain type such as duration, note,
+   or rest and append the character (or a more mnemonic representation
+   of it, in the case of articulations) to the ``tokens`` dictionary.
+   Here's an snippet of the conditional::
+
+    if _is(c, 'dur'):
+        parse(c, 'dur', (not p or not tokens['dur'] or _is(p, 'dur')))
+
+   The ``parse`` subfunction appends the character to the ``tokens``
+   dictionary or raises a :class:`humdrum.KernError` if the condition
+   is not met. In the example above, the condition is that the
+   previous character must be either a duration or nothing (that is,
+   the current character is the first of the string) and it shouldn't
+   have a duration that was parsed before in the string. This avoids
+   the case of having repeated duration such as "4cc4".
+
+   The code looks uglish, but it's way faster than using pyparsing and
+   has way less dependencies than using ply. It may be a good idea to
+   generalize the tokenizer using ply or a state machine if more
+   parsing like this will be done for other spine types.
+
+.. autofunction:: humdrum.parse_kern_item
+
+   Takes the output from :func:`humdrum.kern_tokenizer` and process it
+   further; checking for common mistakes such as having a note without
+   a duration or having a note and a rest at the same time. This
+   function will also create and return :class:`score.Note` and
+   :class:`score.Rest` objects. It'll call functions such as
+   :func:`humdrum.parse_kern_octave`, :func:`humdrum.parse_kern_note`,
+   and :func:`music.string_to_code` to do the dirty work.
+
+   >>> parse_kern_item("c4")
+   <__main__.Note object at 0x252aed0>
+
+
+.. autofunction:: humdrum.parse_kern_octave
+.. autofunction:: humdrum.parse_kern_note
+
+
+The following signifiers are not implemented yet:
+
+#. appoggiatura (P p)
+#. acciacatura (q)
+#. phrase elision (&)
+#. editorial marks (x X y Y ?)
+
+Generic ornaments (O) and a generic articulations (I) will never be
+implemented because what's the point in having those? They are
+silently ignored by the parser.

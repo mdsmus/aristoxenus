@@ -6,9 +6,4 @@ Music functions and operations
    :synopsis: Library for musical operations
 .. moduleauthor:: Pedro Kroger <pedro.kroger@gmail.com>
 
-.. function:: spam(eggs)
-
-   Spam or ham the foo.
-
-.. autofunction:: humdrum.parse_file
-
+.. autofunction:: music.string_to_code

@@ -173,9 +173,14 @@ that need to be done.
 Other classes
 -------------
 
+.. autoclass:: score.MultipleStop(list)
+
+   A subclass of list used to store notes (:class:`score.Note`) and
+   rests (:class:`score.Rest`). It'll look like a list, but can be
+   tested with :func:`isinstance`.
+
 .. autoclass:: score.Comment
 .. autoclass:: score.Exclusive
-.. autoclass:: score.MultipleStop(list)
 .. autoclass:: score.Bar
 .. autoclass:: score.Rest
 .. autoclass:: score.NullToken
