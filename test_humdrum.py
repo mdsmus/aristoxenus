@@ -152,10 +152,10 @@ def test_parse_line3():
 
 
 def test_parse_line4():
-    line = "**kern	**kern"
+    line = "**kern\t**kern"
     f = h.parse_line(line, score.Score())
-    assert isinstance(f[0], score.Exclusive)
-    assert isinstance(f[1], score.Exclusive)
+    assert isinstance(f[0][0], score.Exclusive)
+    assert isinstance(f[0][1], score.Exclusive)
 
 
 def test_parse_line5():
