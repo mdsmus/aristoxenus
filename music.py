@@ -11,16 +11,20 @@ def calculate_duration(durs, dots):
     return sum_power(min, max)
 
 
-def string_to_code(note_name, code):
-    base40 = [None,
-              "cbb", "cb", "c", "c#", "c##", None,
-              "dbb", "db", "d", "d#", "d##", None,
-              "ebb", "eb", "e", "e#", "e##",
-              "fbb", "fb", "f", "f#", "f##", None,
-              "gbb", "gb", "g", "g#", "g##", None,
-              "abb", "ab", "a", "a#", "a##", None,
-              "bbb", "bb", "b", "b#", "b##"]
+def string_to_code(notename, acc, code):
+    """
+    >>> string_to_code('b', '#', 'base12')
+    0
+    """
+    
+    notes = "c d e f g a b".split()
+    dic = {'base40': ([3, 9, 15, 20, 26, 32, 38], 40),
+           'base12': ([0, 2, 4, 5, 7, 8, 11], 12)}
 
-    dic = {'base40': base40}
-
-    return dic[code].index(note_name)
+    code_list = dic[code][0]
+    n = code_list[notes.index(notename.lower())]
+    if acc:
+        op = 1 if acc[0] == "#" else -1
+    else:
+        op = 0
+    return  (n + (len(acc) * op)) % dic[code][1]
