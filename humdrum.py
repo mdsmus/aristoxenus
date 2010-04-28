@@ -74,17 +74,47 @@ types = {'dur': ("0123456789", "Duration must be together."),
          'app': ("P",)}
 
 
-def parse_kern_note(note, accs, lineno=1):
+def parse_kern_note(note, accs):
+    """Return a string representation of a note from the tokenizer representation.
+
+    Humdrum represents flats as dashs ('-'); we replace them with 'b's:
+    
+    >>> parse_kern_note('cc', ['-', '-'])
+    'cbb'
+    """
     return note[0].lower() + "".join(accs).replace("-", "b")
 
 
-def parse_kern_octave(note, lineno=1):
-    # FIXME: nasty bug with accidentals (see tests)
-    if note[0].islower:
-        return 3 + len(note)
+def parse_kern_octave(note, accs):
+    """Calculate the octave of a note in the kern representation.
+
+    Since kern uses repetition and case to indicate octave, we need to
+    parse it. The central octave is 4, these are the most common
+    octaves: ccc = 6, cc = 5, c = 4, C = 3, CC = 2, CCC = 1, CCCC = 0
+
+    This is a basic example of use:
+    
+    >>> parse_kern_octave('bb', '')
+    5
+
+    And we need to take care of the cases where an accidental will
+    change the octave:
+    
+    >>> parse_kern_octave('bb', '#')
+    6
+    """
+    
+    if note[0].islower():
+        octave = 3 + len(note)
     else:
-        value = [3, 2, 1, 0][note[-1]]
-        return value or kern_error("Octave is too low.")
+        size = len(note)
+        assert 0 < size <= 4
+        octave = [None, 3, 2, 1, 0][size]
+
+    n = music.string_to_code(note[0], "", "base12")
+    a = music.accidental(accs)
+
+    return octave + ((n + a) // 12)
 
 
 def kern_tokenizer(item, linen=1):
@@ -133,14 +163,16 @@ def parse_kern_item(item, lineno=1, itemno=1):
         kern_error("A note can't have a pitch and a rest.")
 
     if tokens['note']:
-        name = parse_kern_note(tokens['note'], tokens['acc'], lineno)
+        notename = "".join(tokens['note'])
+        acc = "".join(tokens['acc'])
+        name = parse_kern_note(notename, acc)
         # FIXME
         #dur = music.calculate_duration(tokens['durs'], tokens['dots'])
         note = Note(name, tokens['dur'])
         note.articulations = tokens['art']
         note.beams = tokens['beam']
-        note.octave = parse_kern_octave(name, lineno)
-        note.code = music.string_to_code(name, "base40")
+        note.octave = parse_kern_octave(notename, acc)
+        note.code = music.string_to_code(notename[0], acc, "base40")
         note.system = "base40"
         note.type = "kern"
         return note

@@ -4,10 +4,10 @@ from fractions import Fraction as frac
 
 
 def test_parse_kern_note():
-    n1 = h.parse_kern_note(['d', 'd', 'd'], ['#', '#'])
-    n2 = h.parse_kern_note(['c', 'c', 'c'], ['#', '#', '#'])
-    n3 = h.parse_kern_note(['e', 'e', 'e'], ['-', '-'])
-    n4 = h.parse_kern_note(['e'], [])
+    n1 = h.parse_kern_note('ddd', '##')
+    n2 = h.parse_kern_note('ccc', '###')
+    n3 = h.parse_kern_note('eee', '--')
+    n4 = h.parse_kern_note('e', '')
     assert n1 == "d##"
     assert n2 == "c###"
     assert n3 == "ebb"
@@ -15,14 +15,24 @@ def test_parse_kern_note():
 
 
 def test_parse_kern_octave():
-    assert h.parse_kern_octave("c") == 4
-    assert h.parse_kern_octave("dd") == 5
-    assert h.parse_kern_octave("eee#") == 6
-    assert h.parse_kern_octave("eee##") == 6
-    assert h.parse_kern_octave("eee###") == 6
-    assert h.parse_kern_octave("E-") == 3
-    assert h.parse_kern_octave("FF--") == 2
-    assert h.parse_kern_octave("GGG#") == 1
+    assert h.parse_kern_octave('EEE', '#') == 1
+    assert h.parse_kern_octave('DD', '') == 2
+    assert h.parse_kern_octave('CC', '') == 2
+    assert h.parse_kern_octave('C', '') == 3
+    assert h.parse_kern_octave('c', '') == 4
+    assert h.parse_kern_octave('dd', '') == 5
+    assert h.parse_kern_octave('eee', '#') == 6
+    assert h.parse_kern_octave('eee', '##') == 6
+    assert h.parse_kern_octave('eee', '###') == 6
+    assert h.parse_kern_octave('FF', '--') == 2
+    assert h.parse_kern_octave('GGG', '#') == 1
+    # a few boundary cases, where accidentals change the octave
+    assert h.parse_kern_octave('c', '-') == 3
+    assert h.parse_kern_octave('d', '---') == 3
+    assert h.parse_kern_octave('b', '#') == 5
+    assert h.parse_kern_octave('C', '-') == 2
+    assert h.parse_kern_octave('D', '---') == 2
+    assert h.parse_kern_octave('B', '#') == 4
 
 
 def test_kern_tokenizer():
@@ -61,10 +71,6 @@ def test_parse_kern_item2():
 def test_parse_kern():
     assert isinstance(h.parse_kern("4c"), score.Note)
     assert isinstance(h.parse_kern("4r"), score.Rest)
-
-
-def test_parse_dynam():
-    assert isinstance(h.parse_dynam("fff"), score.Dynam)
 
 
 def test_parse_bar():

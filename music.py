@@ -11,6 +11,15 @@ def calculate_duration(durs, dots):
     return sum_power(min, max)
 
 
+def accidental(acc):
+    if acc:
+        op = 1 if acc[0] == "#" else -1
+    else:
+        op = 0
+
+    return len(acc) * op
+
+
 def string_to_code(notename, acc, code):
     """
     >>> string_to_code('b', '#', 'base12')
@@ -23,8 +32,4 @@ def string_to_code(notename, acc, code):
 
     code_list = dic[code][0]
     n = code_list[notes.index(notename.lower())]
-    if acc:
-        op = 1 if acc[0] == "#" else -1
-    else:
-        op = 0
-    return  (n + (len(acc) * op)) % dic[code][1]
+    return  (n + accidental(acc)) % dic[code][1]
