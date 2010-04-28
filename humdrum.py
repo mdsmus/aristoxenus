@@ -10,10 +10,13 @@ import music
 
 
 class KernError(Exception):
+    """Exception class for kern data."""
     pass
 
 
 def kern_error(message):
+    """Helper function to raise parsing errors."""
+
     raise KernError(message)
 
 

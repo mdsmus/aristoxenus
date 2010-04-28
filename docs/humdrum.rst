@@ -221,3 +221,11 @@ The following signifiers are not implemented yet:
 Generic ornaments (O) and a generic articulations (I) will never be
 implemented because what's the point in having those? They are
 silently ignored by the parser.
+
+Exceptions
+----------
+
+.. autoclass:: humdrum.KernError()
+
+
+.. autofunction:: humdrum.kern_error
