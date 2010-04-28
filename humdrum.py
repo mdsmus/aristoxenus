@@ -79,7 +79,7 @@ def parse_kern_note(note, accs):
 
     Humdrum represents flats as dashs ('-'); we replace them with 'b's:
     
-    >>> parse_kern_note('cc', ['-', '-'])
+    >>> parse_kern_note('cc', '--')
     'cbb'
     """
     return note[0].lower() + "".join(accs).replace("-", "b")
