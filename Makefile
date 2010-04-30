@@ -12,10 +12,8 @@ docs:
 	cd docs; $(MAKE) html
 
 tests:
-	nosetests
-
-tests-color:
-	nosetests --rednose
+	py.test --tb=line
+#	nosetests --with-doctest
 
 profile:
 	python -m "profile"  *.py

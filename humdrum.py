@@ -85,6 +85,7 @@ def parse_kern_note(note, accs):
     >>> parse_kern_note('cc', '--')
     'cbb'
     """
+
     return note[0].lower() + "".join(accs).replace("-", "b")
 
 
