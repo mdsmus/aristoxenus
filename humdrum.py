@@ -108,12 +108,16 @@ def parse_kern_octave(note, accs):
     6
     """
     
-    if note[0].islower():
-        octave = 3 + len(note)
+    size = len(note)
+
+    if size > 0:
+        if note[0].islower():
+            octave = 3 + size
+        else:
+            octave = -size + 4
+            assert size <= 4, "octave can't be lower than 0, the value is " + str(octave)
     else:
-        size = len(note)
-        assert 0 < size <= 4
-        octave = [None, 3, 2, 1, 0][size]
+        kern_error("Note can't be empty.")
 
     n = music.string_to_code(note[0], "", "base12")
     a = music.accidental(accs)

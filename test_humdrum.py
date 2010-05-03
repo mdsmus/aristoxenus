@@ -1,6 +1,7 @@
 import humdrum as h
 import score
 from fractions import Fraction as frac
+import py
 
 
 def test_parse_kern_note():
@@ -33,6 +34,8 @@ def test_parse_kern_octave():
     assert h.parse_kern_octave('C', '-') == 2
     assert h.parse_kern_octave('D', '---') == 2
     assert h.parse_kern_octave('B', '#') == 4
+    py.test.raises(AssertionError, h.parse_kern_octave, 'CCCCC', '')
+    py.test.raises(h.KernError, h.parse_kern_octave, '', '')
 
 
 def test_kern_tokenizer():
