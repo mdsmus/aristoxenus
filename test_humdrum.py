@@ -164,11 +164,7 @@ def test_parse_line4():
 def test_parse_line5():
     line = "4c	f"
     s = score.Score()
-    try:
-        h.parse_line(line, s)
-        raise Exception
-    except h.KernError:
-        pass
+    py.test.raises(h.KernError, h.parse_line, line, s)
 
 
 def test_parse_line6():
