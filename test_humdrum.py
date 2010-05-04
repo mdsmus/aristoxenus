@@ -9,10 +9,10 @@ def test_parse_kern_note():
     n2 = h.parse_kern_note('ccc', '###')
     n3 = h.parse_kern_note('eee', '--')
     n4 = h.parse_kern_note('e', '')
-    assert n1 == "d##"
-    assert n2 == "c###"
-    assert n3 == "ebb"
-    assert n4 == "e"
+    assert n1 == "D##"
+    assert n2 == "C###"
+    assert n3 == "Ebb"
+    assert n4 == "E"
 
 
 def test_parse_kern_octave():
@@ -48,7 +48,7 @@ def test_kern_tokenizer():
 
 def test_parse_kern_item1():
     n = h.parse_kern_item("4c")
-    assert n.name == 'c'
+    assert n.name == 'C'
     assert n.duration == frac(1, 4)
     assert n.octave == 4
     assert n.code == 3
@@ -58,9 +58,9 @@ def test_parse_kern_item1():
 
 def test_parse_kern_item2():
     n = h.parse_kern_item("4.CC##T;U(L")
-    assert n.name == 'c##'
+    assert n.name == 'C##'
     assert n.duration == frac(3, 8)
-    assert n.octave == 6
+    assert n.octave == 2
     assert n.code == 5
     assert n.system == "base40"
     assert n.type == "kern"
