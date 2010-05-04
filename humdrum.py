@@ -170,13 +170,15 @@ def parse_kern_item(item, lineno=1, itemno=1):
     if (tokens['note'] and tokens['rest']):
         kern_error("A note can't have a pitch and a rest.")
 
+    dur = int("".join(tokens['dur']))
+    dots = len(tokens['dot'])
+    duration = music.calculate_duration(dur, dots)
+    
     if tokens['note']:
         notename = "".join(tokens['note'])
         acc = "".join(tokens['acc'])
         name = parse_kern_note(notename, acc)
-        # FIXME
-        #dur = music.calculate_duration(tokens['durs'], tokens['dots'])
-        note = Note(name, tokens['dur'])
+        note = Note(name, duration)
         note.articulations = tokens['art']
         note.beams = tokens['beam']
         note.octave = parse_kern_octave(notename, acc)
@@ -185,11 +187,8 @@ def parse_kern_item(item, lineno=1, itemno=1):
         note.type = "kern"
         return note
     elif tokens['rest']:
-        # FIXME
-        #dur = music.calculate_duration(tokens['durs'], tokens['dots'])
-        dur = tokens['dur']
         wholeNote = not bool(tokens['rest'] or len(tokens['rest']) >= 1)
-        return Rest(dur, wholeNote)
+        return Rest(duration, wholeNote)
     else:
         kern_error("Kern data must have a note or rest.")
 

@@ -1,14 +1,38 @@
-def sum_power(start, end):
-    return reduce(operator.add, [pow(2, x) for x in range(start, end - 1, -1)])
+from __future__ import division
+from fractions import Fraction
 
 
-def calculate_duration(durs, dots):
-    # FIXME to work with fractions
-    d = int("".join(durs))
-    duration = Fraction(1, 2) if d == 0 else d
-    max = math.floor(math.log(duration, 2)) * -1
-    min = max - len(dots)
-    return sum_power(min, max)
+class MusicError(Exception):
+    pass
+
+
+def calculate_duration(dur, dots=0):
+    """Calculate the total duration of a note with augmentation dots.
+
+    :param dur: reciprocal of usual note values (e.g. 8th note has the value of 8)
+    :param dots: number of duration dots
+   
+    The total duration of a note is :math:`\\sum_{i=0} \\frac{R}{2^i}`
+    where R is the reciprocal of ``dur``. For instance, a
+    note with a duration like '16..' will have a total duration of
+    1/16 + 1/32 + 1/64 = 7/64.
+    
+    >>> calculate_duration(16, 2)
+    Fraction(7, 64)
+    """
+
+    if dur == 0 or dur == "breve" or dur == "brevis":
+        base = Fraction(2, 1)
+    elif dur == "longa":
+        base = Fraction(4, 1)
+    elif dur == "maxima":
+        base = Fraction(8, 1)
+    elif isinstance(dur, int):
+        base = Fraction().from_decimal(dur) ** -1
+    else:
+        raise MusicError, "I don't recognize duration {0}".format(dur)
+    
+    return sum([base / (2 ** x) for x in range(0, dots + 1)])
 
 
 def accidental(acc):
