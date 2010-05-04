@@ -14,7 +14,7 @@ def test_score():
     s.append("foo")
 
     record = score.Record("COM", "J. S. Bach")
-    comment = score.Comment("Foobar")
+    comment = score.Comment("Foobar", 2)
     tandem = score.Tandem("Clef", "C4")
     exinterp = score.Exclusive("kern")
     note = score.Note("c##", frac(1, 4))

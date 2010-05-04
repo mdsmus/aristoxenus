@@ -272,7 +272,7 @@ def parse_item(item, score, lineno=1, itemno=1):
     elif item.startswith("*"):
         return parse_tandem(item)
     elif item.startswith("!"):
-        return Comment(item[1:])
+        return parse_comment(item)
     elif item == ".":
         return NullToken()
     else:

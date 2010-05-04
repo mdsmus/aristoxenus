@@ -177,6 +177,14 @@ def test_parse_line6():
     assert isinstance(s[1][1], score.Note)
 
 
+def test_parse_line7():
+    s = score.Score()
+    h.parse_line("!foo\t!! bar", s)
+    assert s[0][0].data == "foo"
+    assert s[0][1].data == "bar"
+    assert s[0][0].level == 1
+    assert s[0][1].level == 2
+
 def test_parse_string():
     """We check if the basics of parse_string are working by
     parsing a string with 3 elements (only one spine) and checking

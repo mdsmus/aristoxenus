@@ -1,6 +1,9 @@
 Music functions and operations
 ==============================
 
+The ``music`` module has functions to deal with music codifications
+and musical operations such as transposition and inversion.
+
 .. autofunction:: music.calculate_duration
 
    Although the use of the reciprocal of a note value in the

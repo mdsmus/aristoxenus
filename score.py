@@ -14,7 +14,7 @@ class Record(object):
 
 
 class Comment(object):
-    def __init__(self, data, level=2):
+    def __init__(self, data, level):
         self.data = data
         self.level = level
 
@@ -75,16 +75,7 @@ class Dynam(object):
 
 
 def make_notes(notes):
-    """
-    return a :class:`score.Score` with the notes written as a string.
-
-    It's a helper function to make notes quickly:
-
-    >>> make_notes('C# Dbb Bb')
-    [<__main__.Note object at 0x223cbd0>,
-     <__main__.Note object at 0x223cb10>,
-     <__main__.Note object at 0x2244550>]
-    """
+    """return a :class:`score.Score` with the notes written as a string."""
 
     lst = [Note(n) for n in notes.split()]
     return Score(*lst)

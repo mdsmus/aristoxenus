@@ -60,6 +60,13 @@ List of strings with the original types of spines (for instance,
 
 .. autofunction:: score.make_notes
 
+   It's a helper function to make notes quickly:
+
+   >>> make_notes('C# Dbb Bb')
+   [<__main__.Note object at 0x223cbd0>,
+    <__main__.Note object at 0x223cb10>,
+    <__main__.Note object at 0x2244550>]
+
 
 The Note class
 --------------
