@@ -49,10 +49,3 @@ humdrum_table = {
     'beam-partial-left': 'k'
     }
 
-
-def score_to_humdrum(sco):
-    for item in sco:
-        if type(item) is list:
-            print("\t".join([x.show_as_humdrum() for x in item]))
-        else:
-            item.show_as_humdrum()

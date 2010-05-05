@@ -84,7 +84,6 @@ def notename_to_lily(notename, octave):
     acc = notename[1:].replace("b", "es").replace("#", "is")
 
     if octave > 3:
-        print (octave - 3)
         o = "'" * (octave - 3)
     else:
         o = "," * (3 - octave)
