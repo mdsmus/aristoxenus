@@ -238,7 +238,7 @@ def parse_data(data_type, item, lineno=1, itemno=1):
     """
 
     def unknown_type(item, lineno=1, itemno=1):
-        return item
+        return UnknownType(item)
 
     dispatch = {"kern": parse_kern}
 

@@ -50,38 +50,9 @@ humdrum_table = {
     }
 
 
-
 def score_to_humdrum(sco):
     for item in sco:
-        if isinstance(item, score.Record):
-            print("!!! {0}".format(item.data)) 
-        elif isinstance(item, score.Comment):
-            print("{0} {1}".format(item.level * "!", item.data))
-        elif isinstance(item, score.BlankLine):
-            print()
-        elif isinstance(item, list):
-            x = 0
-            for el in item:
-                if x != 0:
-                    print("\t", end='', sep='')
-                x += 1
-                if isinstance(el, score.Comment):
-                    print("{0} {1}".format(el.level * "!", el.data), end='')
-                elif type(el) is score.Exclusive:
-                    print("*{0}".format(el.name), end='')
-                elif type(el) is score.Tandem:
-                    print("*{0}".format(el.data), end='')
-                elif type(el) is score.Note:
-                    print("{1}{0}".format(el.name, el.duration ** -1), end='')
-                elif type(el) is score.Rest:
-                    print("{0}r".format(el.duration), end='')
-                elif type(el) is score.Bar:
-                    print("={0}".format(el.number), end='')
-                elif type(el) is score.NullToken:
-                    print(".", end='')
-                else:
-                    print(el, end='')
-            print()
+        if type(item) is list:
+            print("\t".join([x.show_as_humdrum() for x in item]))
         else:
-            raise ConvertError, "item in score is of unknown type: {0}".format(item)
-            
+            item.show_as_humdrum()
