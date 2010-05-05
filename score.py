@@ -12,10 +12,19 @@ class Score(list):
     def show_as_lily(self):
         for spine in range(0, len(self.spine_types)):
             print("\\new Staff {")
-            print(" ".join([i.show_as_lily() for i in self.get_spine(spine)]))
+            print(" ".join([i.show_as_lily() for i in self.get_spine_simple(spine)]))
             print("}")
             
     def get_spine(self, n):
+        tmp = []
+        for item in self:
+            if type(item) is list:
+                tmp.append(item[n])
+            else:
+                tmp.append(item)
+        return tmp
+
+    def get_spine_simple(self, n):
         return [x[n] for x in self if type(x) is list]
 
     def __init__(self, *args):
