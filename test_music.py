@@ -26,3 +26,25 @@ def test_calculate_duration():
     assert music.calculate_duration("maxima", 0) == Fraction(8, 1)
     assert music.calculate_duration("maxima", 1) == Fraction(12, 1)
     py.test.raises(music.MusicError, music.calculate_duration, "foo", 0)
+
+
+def test_notename_to_humdrum():
+    assert music.notename_to_humdrum("Cbb", 1) == "CCC--"
+    assert music.notename_to_humdrum("Cbb", 2) == "CC--"
+    assert music.notename_to_humdrum("Cbb", 3) == "C--"
+    assert music.notename_to_humdrum("Cbb", 4) == "c--"
+    assert music.notename_to_humdrum("Cbb", 5) == "cc--"
+    assert music.notename_to_humdrum("D##", 5) == "dd##"
+    assert music.notename_to_humdrum("D##", 0) == "DDDD##"
+    assert music.notename_to_humdrum("D##", 7) == "dddd##"
+
+
+def test_notename_to_lily():
+    assert music.notename_to_lily("Cbb", 1) == "ceses,,"
+    assert music.notename_to_lily("Cbb", 2) == "ceses,"
+    assert music.notename_to_lily("Cbb", 3) == "ceses"
+    assert music.notename_to_lily("Cbb", 4) == "ceses'"
+    assert music.notename_to_lily("Cbb", 5) == "ceses''"
+    assert music.notename_to_lily("D##", 5) == "disis''"
+    assert music.notename_to_lily("D##", 0) == "disis,,,"
+    assert music.notename_to_lily("D##", 7) == "disis''''"

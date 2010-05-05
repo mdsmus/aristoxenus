@@ -57,3 +57,36 @@ def string_to_code(notename, acc, code):
     code_list = dic[code][0]
     n = code_list[notes.index(notename.lower())]
     return  (n + accidental(acc)) % dic[code][1]
+
+
+def notename_to_humdrum(notename, octave):
+    """
+    >>> note_to_humdrum('Cbb', 5)
+    cc--
+    """
+    
+    note = notename[0]
+    acc = notename[1:].replace("b", "-")
+
+    if octave > 3:
+        return (note.lower() * (octave - 3)) + acc
+    else:
+        return (note.upper() * (4 - octave)) + acc
+
+
+def notename_to_lily(notename, octave):
+    """
+    >>> note_to_lily('Cb', 5)
+    cb''
+    """
+
+    note = notename[0]
+    acc = notename[1:].replace("b", "es").replace("#", "is")
+
+    if octave > 3:
+        print (octave - 3)
+        o = "'" * (octave - 3)
+    else:
+        o = "," * (3 - octave)
+
+    return note.lower() + acc + o
