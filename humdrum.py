@@ -3,7 +3,7 @@ from __future__ import division
 from collections import defaultdict
 from itertools import izip, count
 import re
-from score import (Score, Record, Comment, Tandem, Exclusive,
+from score import (Score, Record, Comment, Tandem, Exclusive, UnknownType,
                    Note, MultipleStop, Bar, Rest, NullToken, BlankLine)
 import utils
 import music
