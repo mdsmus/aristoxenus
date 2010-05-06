@@ -20,6 +20,8 @@ class Score(list):
         self.composer = ""
         self.filename = ""
         self.spine_types = []
+        self.spine_names = []
+        self.measure_numbers = []
 
 
 class Record(object):

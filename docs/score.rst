@@ -58,6 +58,23 @@ List of strings with the original types of spines (for instance,
 ``["kern", "dynam"]``).
 
 
+.. attribute:: Score.spine_names
+
+The attribute :attr:`Score.spine_names` is a list with the instrument
+names, with None if a spine doesn't have an instrument name (a
+``**dynam`` spine, for instance). There are three main ways to define
+instrument names in humdrum. ``*I`` is for pre-defined instrument
+names (see the Appendix II in the Humdrum Manual) and ``*I:`` is for
+user-defined instrument names (proposed by Andreas Kornstaedt, but not
+documented yet). A local comment can also be used to store an
+instrument name but is difficult to parse automatically.
+
+.. attribute:: Score.measure_numbers
+
+The attribute:attr:`Score.measure_numbers` is a list with the position
+of the beginning of every measure in the spine. It's intended to be
+used to quickly extract measures from a score.g
+
 .. autofunction:: score.make_notes
 
    It's a helper function to make notes quickly:
@@ -124,29 +141,20 @@ in :attr:`Tandem.type` and the actual value in :attr:`Tandem.data`. The
 following table shows each value :attr:`type` can have and the type
 of :attr:`data`, with a brief example:
 
-+-----------------+----------------------------+------------------------+
-| keyword         | type of Tandem.data        | example                |
-+=================+============================+========================+
-| "clef"          | string                     | "treble"               |
-+-----------------+----------------------------+------------------------+
-| "instr-class"   | string                     | "vox"                  |
-+-----------------+----------------------------+------------------------+
-| "instr-group"   | string                     | "ripn"                 |
-+-----------------+----------------------------+------------------------+
-| "instrument"    | string                     | "bass"                 |
-+-----------------+----------------------------+------------------------+
-| "key-signature" | integer or list of strings | 2 or ``["f#", "cb"]``  |
-+-----------------+----------------------------+------------------------+
-| "tempo"         | number                     | 88.8                   |
-+-----------------+----------------------------+------------------------+
-| "meter"         | string                     | "12/8" [#f1]_          |
-+-----------------+----------------------------+------------------------+
-| "timebase"      | number                     | 12                     |
-+-----------------+----------------------------+------------------------+
-| "transposing"   | string                     | "d1c2"                 |
-+-----------------+----------------------------+------------------------+
-| "key"           | string                     | "Ab"                   |
-+-----------------+----------------------------+------------------------+
+================ ============================ ======================== 
+ keyword          type of Tandem.data         example                
+================ ============================ ======================== 
+ "clef"           string                      "treble"               
+ "instr-class"    string                      "vox"                  
+ "instr-group"    string                      "ripn"                 
+ "instrument"     string                      "bass"                 
+ "key-signature"  integer or list of strings  2 or ``["f#", "cb"]``  
+ "tempo"          number                      88.8                   
+ "meter"          string                      "12/8" [#f1]_          
+ "timebase"       number                      12                     
+ "transposing"    string                      "d1c2"                 
+ "key"            string                      "Ab"                   
+================ ============================ ======================== 
 
 If the key signature is one of the standard used in western tonal
 music, a positive integer is used to indicate the number of sharps and
