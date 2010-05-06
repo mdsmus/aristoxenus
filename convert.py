@@ -3,6 +3,7 @@ from score import (Score, Record, Comment, Tandem, Exclusive, UnknownType,
                    Note, MultipleStop, Bar, Rest, NullToken, BlankLine)
 from multimethod import multimethod
 import sys
+import music
 
 
 humdrum_table = {
@@ -87,7 +88,8 @@ def show_as_humdrum(self):
 @multimethod(Note)
 def show_as_humdrum(self):
     name = music.notename_to_humdrum(self.name, self.octave)
-    return "{1}{0}".format(name, self.duration ** -1)
+    dur = music.frac_to_dur(self.duration)
+    return "{1}{0}".format(name, dur)
 
 
 @multimethod(MultipleStop)
@@ -102,7 +104,8 @@ def show_as_humdrum(self):
 
 @multimethod(Rest)
 def show_as_humdrum(self):
-    return "{0}r".format(self.duration ** -1)
+    dur = music.frac_to_dur(self.duration)
+    return "{0}r".format(dur)
 
 
 @multimethod(BlankLine)
