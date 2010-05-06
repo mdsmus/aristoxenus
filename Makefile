@@ -7,13 +7,14 @@ all: humdrum check
 lint:
 	pylint --min-public-methods=0 --include-ids=y --max-attributes=9 *.py
 
+parse:
+	./parse_files.py
 
 docs:
 	cd docs; $(MAKE) html
 
 tests:
 	py.test --tb=line
-#	nosetests --with-doctest
 
 profile:
 	python -m "profile"  *.py

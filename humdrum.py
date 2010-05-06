@@ -6,7 +6,11 @@ import re
 import utils
 import music
 from score import (Score, Record, Comment, Tandem, Exclusive, UnknownType,
-                   Note, MultipleStop, Bar, Rest, NullToken, BlankLine)
+                   Note, MultipleStop, Bar, Rest, NullToken, BlankLine,
+                   SpinePath)
+
+
+debug = False
 
 
 class KernError(Exception):
@@ -161,7 +165,8 @@ def kern_tokenizer(item, linen=1):
         elif _is(c, 'acciac'):
             tokens['acciac'].append(c)
         else:
-            print("Humdrum cacter not recognized: " + c)
+            if debug:
+                print("Humdrum cacter not recognized: " + c)
     return tokens
 
 
@@ -209,6 +214,16 @@ def parse_kern(item, linen=1, itemno=1):
 
 
 ## parse elements
+
+
+def parse_spine_path(item):
+    d = {'*-': "spine-end",
+         '*+': "spine-add",
+         '*^': "spine-split",
+         '*v': "spine-join",
+         '*x': "spine-swap"}
+
+    return SpinePath(d[item])
 
 
 def parse_bar(item):
@@ -334,12 +349,16 @@ def parse_item(item, score, lineno=1, itemno=1):
     spine type of an item.
     """
 
-    if item.startswith("="):
+    if type(item) is list:
+        return [parse_item(i, score, lineno, itemno) for i in item]
+    elif item.startswith("="):
         return parse_bar(item)
     elif item.startswith("**"):
         spine_type = item[2:]
         score.spine_types.append(spine_type)
         return Exclusive(spine_type)
+    elif item in ["*-", "*+", "*^", "*v", "*x"]:
+        return parse_spine_path(item)
     elif item.startswith("*"):
         if item.startswith("*I:"):
             score.spine_names.append(item[3:])
@@ -411,6 +430,21 @@ def parse_line(line, score, lineno=1):
         score.append(parse_comment(line))
     else:
         s = line.split("\t")
+
+        if score.split_spine:
+            n = score.split_spine
+            s[n:n+2] = [s[n:n+2]]
+
+        if "*^" in s:
+            score.split_spine = s.index("*^")
+
+        for i in s:
+            if type(i) is list:
+                if "*v" in i:
+                    score.split_spine = False
+            elif "*v" == i:
+                score.split_spine = False
+
         parsed = [parse_item(i, score, lineno, n) for i, n in izip(s, count())]
         score.append(parsed)
     return score
@@ -443,4 +477,6 @@ def parse_file(filename):
 if __name__ == "__main__":
     #f = parse_file("data/k160-02.krn")
     #f = parse_file("data/test.krn")
-    f = parse_file("data/001.krn")
+    #f = parse_file("data/001.krn")
+    #f = parse_file("data/split.krn")
+    f = parse_file("data/wtc-1/wtc1f03.krn")

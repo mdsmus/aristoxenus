@@ -1,5 +1,6 @@
 import re
 import sys
+import itertools
 
 
 def ispython3():
@@ -15,3 +16,8 @@ def search_string(pattern, string):
     tmp = re.search(pattern, string)
     if tmp:
         return tmp.group()
+
+
+def flatten(listOfLists):
+    "Flatten one level of nesting"
+    return itertools.chain.from_iterable(listOfLists)

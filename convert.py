@@ -1,6 +1,7 @@
 from __future__ import print_function
 from score import (Score, Record, Comment, Tandem, Exclusive, UnknownType,
-                   Note, MultipleStop, Bar, Rest, NullToken, BlankLine)
+                   Note, MultipleStop, Bar, Rest, NullToken, BlankLine,
+                   SpinePath)
 from multimethod import multimethod
 import sys
 import music
@@ -97,9 +98,19 @@ def show_as_humdrum(self):
     return " ".join([show_as_humdrum(x) for x in self])
 
 
+@multimethod(list)
+def show_as_humdrum(self):
+    return "\t".join([show_as_humdrum(x) for x in self])
+
+
 @multimethod(Bar)
 def show_as_humdrum(self):
     return "={0}".format(self.number)
+
+
+@multimethod(SpinePath)
+def show_as_humdrum(self):
+    return "*{0}".format(self.type)
 
 
 @multimethod(Rest)

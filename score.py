@@ -19,6 +19,8 @@ class Score(list):
         self.title = ""
         self.composer = ""
         self.filename = ""
+        self.split_spine = False
+        self.join_spine = False
         self.spine_types = []
         self.spine_names = []
         self.measure_numbers = []
@@ -76,6 +78,11 @@ class Rest(object):
     def __init__(self, dur, wholenote=False):
         self.duration = dur
         self.print_as_whole = wholenote
+
+
+class SpinePath(object):
+    def __init__(self, type):
+        self.type = type
 
 
 class BlankLine(object):
