@@ -3,6 +3,13 @@ import music
 import py
 
 
+def test_power_two_series():
+    assert music.power_two_series(1) == [1]
+    assert music.power_two_series(3) == [1, 2]
+    assert music.power_two_series(7) == [1, 2, 4]
+    assert music.power_two_series(15) == [1, 2, 4, 8]
+
+
 def test_string_to_code():
     assert music.string_to_code("c", "#", "base40") == 4
     assert music.string_to_code("b", "", "base12") == 11
@@ -26,6 +33,14 @@ def test_calculate_duration():
     assert music.calculate_duration("maxima", 0) == Fraction(8, 1)
     assert music.calculate_duration("maxima", 1) == Fraction(12, 1)
     py.test.raises(music.MusicError, music.calculate_duration, "foo", 0)
+
+
+def test_frac_to_dur():
+    assert music.frac_to_dur(Fraction(3, 8)) == "4."
+    assert music.frac_to_dur(Fraction(3, 4)) == "2."
+    assert music.frac_to_dur(Fraction(7, 8)) == "2.."
+    assert music.frac_to_dur(Fraction(7, 16)) == "4.."
+    py.test.raises(music.MusicError, music.frac_to_dur, Fraction(13, 4))
 
 
 def test_notename_to_humdrum():

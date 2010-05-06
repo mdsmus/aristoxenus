@@ -4,6 +4,8 @@ Music functions and operations
 The ``music`` module has functions to deal with music codifications
 and musical operations such as transposition and inversion.
 
+.. autofunction:: music.power_two_series
+
 .. autofunction:: music.calculate_duration
 
    Although the use of the reciprocal of a note value in the
@@ -22,3 +24,8 @@ and musical operations such as transposition and inversion.
 
 .. autofunction:: music.string_to_code
 
+.. autofunction:: music.frac_to_dur
+
+.. autofunction:: music.notename_to_humdrum
+
+.. autofunction:: music.notename_to_lily

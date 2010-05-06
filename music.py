@@ -1,9 +1,23 @@
 from __future__ import division
 from fractions import Fraction
+import math
 
 
 class MusicError(Exception):
     pass
+
+
+def power_two_series(n):
+    """Return a list of the power of two numbers that summed will give n.
+
+    The power of two series is :math:`\\sum_{i=0}^{n-1} 2^i`.
+    
+    >>> power_two_series(7)
+    [1, 2, 4]
+    """
+
+    number_elements = int(math.log(n + 1, 2))
+    return [2**x for x in range(0, number_elements)]
 
 
 def calculate_duration(dur, dots=0):
@@ -57,6 +71,29 @@ def string_to_code(notename, acc, code):
     code_list = dic[code][0]
     n = code_list[notes.index(notename.lower())]
     return  (n + accidental(acc)) % dic[code][1]
+
+
+def frac_to_dur(n):
+    """Return a string representation for a duration represented as a fraction.
+
+    >>> frac_to_dur(Fraction(3, 8))
+    '4.'
+
+    This function will fail with more complicated rythms than dotted notes.
+    """
+
+    num = n.numerator
+    den = n.denominator
+    
+    if num == 1:
+        return str(den)
+    elif num in [3, 7, 15]:
+        s = power_two_series(num)
+        dur = int(den/s[-1])
+        dot = "." * int(math.log(num + 1, 2) - 1)
+        return "{0}{1}".format(dur, dot)
+    else:
+        raise MusicError, "I don't know how to work with duration " + str(n)
 
 
 def notename_to_humdrum(notename, octave):
