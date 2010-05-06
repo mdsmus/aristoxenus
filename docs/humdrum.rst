@@ -104,7 +104,26 @@ The functions :func:`humdrum.parse_file` and
 
 
 .. autofunction:: humdrum.parse_bar
+
 .. autofunction:: humdrum.parse_tandem
+
+These are the most common tandem interpretations:
+
+======================  =========
+tandem type             example
+======================  =========
+clef	                \*clefG2
+instrument	        \*I
+instrument class        \*IC
+instrument group        \*IG
+key signatures          \*k[f#c#]
+key                     \*c#:
+meter signatures        \*M6/8
+tempo                   \*MM96.3
+timebase                \*tb32
+transposing instrument  \*ITr
+======================  =========
+
 .. autofunction:: humdrum.parse_data
 
 Spine paths

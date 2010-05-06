@@ -3,10 +3,10 @@ from __future__ import division
 from collections import defaultdict
 from itertools import izip, count
 import re
-from score import (Score, Record, Comment, Tandem, Exclusive, UnknownType,
-                   Note, MultipleStop, Bar, Rest, NullToken, BlankLine)
 import utils
 import music
+from score import (Score, Record, Comment, Tandem, Exclusive, UnknownType,
+                   Note, MultipleStop, Bar, Rest, NullToken, BlankLine)
 
 
 class KernError(Exception):
@@ -18,6 +18,10 @@ def kern_error(message):
     """Helper function to raise parsing errors."""
 
     raise KernError(message)
+
+
+def replace_flats(string):
+    return string.replace("-", "b")
 
 
 ## Parse kern
@@ -86,7 +90,7 @@ def parse_kern_note(note, accs):
     'Cbb'
     """
 
-    return note[0].upper() + "".join(accs).replace("-", "b")
+    return note[0].upper() + replace_flats("".join(accs))
 
 
 def parse_kern_octave(note, accs):
@@ -221,9 +225,76 @@ def parse_bar(item):
                bool(utils.search_string("==", item)))
 
 
+def parse_clef(item):
+    dic = {"F4": "bass",
+           "G2": "treble",
+           "C3": "alto",
+           "C4": "tenor",
+           "Gv2": "tenor8",
+           "C1": "soprano",
+           "C2": "mezzo",
+           "X" : "perc",
+           # we have these as defaults
+           "C" : "alto",
+           "F" : "bass",
+           "G" : "treble"}
+
+    return Tandem("clef", dic[item])
+
+
+def parse_expansion_list(item):
+    return Tandem("expansion-list", item[:-1].split(','))
+
+
+def parse_key_signature(item):
+    item = item[1:-1]
+    split_item = [item[i] + item[i+1] for i in range(0, len(item), 2)]
+    list_keys = [replace_flats(x.lower().strip()) for x in split_item]
+    size = len(list_keys)
+    sharps = music.accidentals_table[size]
+    flats = music.accidentals_table[-size]
+
+    if list_keys == sharps:
+        return Tandem("key-signature", size)
+    elif list_keys == flats:
+        return Tandem("key-signature", -size)
+    else:
+        return Tandem("key-signature", list_keys)
+
+
+def parse_key(item):
+    return Tandem("key", replace_flats(item))
+
+
 def parse_tandem(item):
-    """FIXME: implement"""
-    return Tandem(item, None)
+    if item.startswith("*clef"):
+        return parse_clef(item[5:])
+    elif item.startswith("*IC"):
+        return Tandem("instr-class", item[3:])
+    elif item.startswith("*IG"):
+        return Tandem("instr-group", item[3:])
+    elif item.startswith("*ITr"):
+        return Tandem("transposing", item[4:])
+    elif item.startswith("*I:"):
+        return Tandem("instrument", item[3:])
+    elif item.startswith("*I"):
+        return Tandem("instrument", item[2:])
+    elif item.startswith("*k"):
+        return parse_key_signature(item[2:])
+    elif item.startswith("*MM"):
+        return Tandem("tempo", float(item[3:]))
+    elif item.startswith("*M"):
+        return Tandem("meter", item[2:])
+    elif item.startswith("*tb"):
+        return Tandem("timebase", float(item[3:]))
+    elif item.startswith("*>["):
+        return parse_expansion_list(item[3:])
+    elif item.startswith("*>"):
+        return Tandem("label", item[2:])
+    elif item.endswith(":"):
+        return parse_key(item[1:-1])
+    else:
+        return Tandem(None, item[1:])
 
 
 def parse_data(data_type, item, lineno=1, itemno=1):
@@ -270,6 +341,12 @@ def parse_item(item, score, lineno=1, itemno=1):
         score.spine_types.append(spine_type)
         return Exclusive(spine_type)
     elif item.startswith("*"):
+        if item.startswith("*I:"):
+            score.spine_names.append(item[3:])
+        elif (item.startswith("*I") and not item.startswith("*IC")
+              and len(score.spine_names) != itemno - 1):
+            score.spine_names.append(item[2:])
+
         return parse_tandem(item)
     elif item.startswith("!"):
         return parse_comment(item)
@@ -323,7 +400,13 @@ def parse_line(line, score, lineno=1):
     if utils.search_string(r"^[ \t]*$", line) is not None:
         score.append(BlankLine())
     elif utils.search_string(r"^!{3}[a-zA-Z ]+", line):
-        score.append(parse_reference_record(line))
+        record = parse_reference_record(line)
+        if record.name.startswith("COM"):
+            score.composer = record.data
+        elif record.name.startswith("OTL"):
+            score.title = record.data
+
+        score.append(record)
     elif utils.search_string(r"^(!{2})|(!{4,})[a-zA-Z ]+", line):
         score.append(parse_comment(line))
     else:

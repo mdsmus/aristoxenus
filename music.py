@@ -7,6 +7,25 @@ class MusicError(Exception):
     pass
 
 
+accidentals_table = {
+    0  : [],
+    1  : ["f#"],
+    2  : ["f#", "c#"],
+    3  : ["f#", "c#", "g#"],
+    4  : ["f#", "c#", "g#", "d#"],
+    5  : ["f#", "c#", "g#", "d#", "a#"],
+    6  : ["f#", "c#", "g#", "d#", "a#", "e#"],
+    7  : ["f#", "c#", "g#", "d#", "a#", "e#", "b#"],
+    -1 : ["bb"],
+    -2 : ["bb", "eb"],
+    -3 : ["bb", "eb", "ab"],
+    -4 : ["bb", "eb", "ab", "db"],
+    -5 : ["bb", "eb", "ab", "db", "gb"],
+    -6 : ["bb", "eb", "ab", "db", "gb", "cb"],
+    -7 : ["bb", "eb", "ab", "db", "gb", "cb", "fb"],
+    }
+
+
 def power_two_series(n):
     """Return a list of the power of two numbers that summed will give n.
 

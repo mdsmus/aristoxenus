@@ -87,7 +87,20 @@ def test_parse_bar():
 
 
 def test_parse_tandem():
-    assert "fixme, please" == h.parse_tandem("*IVox")
+    assert h.parse_tandem("*clefG").data == "treble"
+    assert h.parse_tandem("*ICvox").data == "vox"
+    assert h.parse_tandem("*IGsolo").data == "solo"
+    assert h.parse_tandem("*I:violin 1").data == "violin 1"
+    assert h.parse_tandem("*Isoprn").data == "soprn"
+    assert h.parse_tandem("*k[f#c#]").data == 2
+    assert h.parse_tandem("*k[B-E-]").data == -2
+    assert h.parse_tandem("*MM88.97").data == 88.97
+    assert h.parse_tandem("*M6/8").data == "6/8"
+    assert h.parse_tandem("*tb32").data == 32.0
+    assert h.parse_tandem("*ITrd1c2").data == "d1c2"
+    assert h.parse_tandem("*>[aria1,aria2]").data == ["aria1", "aria2"]
+    assert h.parse_tandem("*>aria").data == "aria"
+    assert h.parse_tandem("*A-:").data == "Ab"
 
 
 def test_parse_item_bar():
