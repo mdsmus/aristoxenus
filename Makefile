@@ -27,8 +27,8 @@ check:
 	./tools/pep8.py $(PROJNAME)/*.py
 
 coverage:
-	coverage run $(PROJNAME)/*.py
-	coverage html
+	coverage run --branch $(PROJNAME)/humdrum.py
+	coverage report
 
 TAGS: $(PYTHONFILES)
 	find /usr/lib/python2.6/ . -name "*.py" | etags --output TAGS -

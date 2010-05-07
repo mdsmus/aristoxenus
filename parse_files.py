@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import os
-import humdrum
+import aristoxenus.humdrum as humdrum
 
 
 wtc1 = 'data/wtc-1/'
