@@ -208,7 +208,7 @@ def test_parse_string():
     assert 3 == len(sco2)
     assert isinstance(sco2[0][0], score.Exclusive)
     assert isinstance(sco2[1][0], score.Note)
-    assert isinstance(sco2[2][0], score.Tandem)
+    assert isinstance(sco2[2][0], score.SpinePath)
 
 
 def test_parse_file():
@@ -222,4 +222,4 @@ def test_parse_file():
     assert 3 == len(data)
     assert isinstance(data[0][0], score.Exclusive)
     assert isinstance(data[1][0], score.Note)
-    assert isinstance(data[2][0], score.Tandem)
+    assert isinstance(data[2][0], score.SpinePath)
