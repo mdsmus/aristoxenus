@@ -15,3 +15,5 @@ htmlcov
 .pythoscope
 TAGS
 doc/_build
+MANIFEST
+dist

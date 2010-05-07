@@ -1,3 +1,7 @@
+=============
+ Aristoxenus
+=============
+
 Aristoxenus is a python library to deal with music data. It has a
 humdrum parser and code to perform operations on music data.
 
