@@ -88,7 +88,7 @@ types = {'dur': ("0123456789", "Duration must be together."),
 def parse_kern_note(note, accs):
     """Return a string representation of a note from the tokenizer representation.
 
-    Humdrum represents flats as dashs ('-'); we replace them with 'b's:
+    Humdrum represents flats as dashes ('-'); we replace them with 'b's:
     
     >>> parse_kern_note('cc', '--')
     'Cbb'
@@ -166,7 +166,7 @@ def kern_tokenizer(item, linen=1):
             tokens['acciac'].append(c)
         else:
             if debug:
-                print("Humdrum cacter not recognized: " + c)
+                print("Humdrum character not recognized: " + c)
     return tokens
 
 
@@ -206,7 +206,7 @@ def parse_kern(item, linen=1, itemno=1):
     s = item.split(" ")
 
     if not item:
-        kern_error("Kern item shoudn't be empty.")
+        kern_error("Kern item shouldn't be empty.")
     elif len(s) == 1:
         return parse_kern_item(item, linen, itemno)
     else:
@@ -231,7 +231,7 @@ def parse_bar(item):
 
     This function will search for the bar number, if a bar begins or
     ends a repetition and if it's a double bar. Humdrum has a bunch of
-    syntax for visual barlines that we don't parse. See :ref:`todo`.
+    syntax for visual bar lines that we don't parse. See :ref:`todo`.
     """
     
     return Bar(utils.search_string("[0-9]+([a-z]+)?", item),
@@ -383,10 +383,10 @@ def parse_item(item, score, lineno=1, itemno=1):
 def parse_reference_record(line):
     """Separate the data in the Reference from the ! character.
 
-    Since a reference record must start with 3 exclamantion marks we
+    Since a reference record must start with 3 exclamation marks we
     don't need to use regular expressions to separate the actual
     comment from the comment character. We split the line by the first
-    occurency of ':' in order to prevent splitting a colon inside the
+    occurrence of ':' in order to prevent splitting a colon inside the
     text, such as '!!!OTL: Title: more stuff'.
     """
 
@@ -411,7 +411,7 @@ def parse_line(line, score, lineno=1):
     with 3 exclamation marks (!!!) while a comment starts with one,
     two, four or more exclamation marks. Global comments have more
     than one exclamation marks and will be catched by this function.
-    Local comments have only one exclamation mark and are aplied to an
+    Local comments have only one exclamation mark and are applied to an
     individual spine. A local comment will be catched in
     :func:`humdrum.parse_item()`.
     """
