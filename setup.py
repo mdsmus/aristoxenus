@@ -1,6 +1,6 @@
 from distutils.core import setup
 
-setup(name='xenophilus',
+setup(name='aristoxenus',
       version='0.1.0',
       description='Library for music data',
       author='Pedro Kroger',
