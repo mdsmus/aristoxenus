@@ -475,8 +475,8 @@ def parse_file(filename):
 
 
 if __name__ == "__main__":
-    #f = parse_file("data/k160-02.krn")
-    #f = parse_file("data/test.krn")
-    #f = parse_file("data/001.krn")
-    #f = parse_file("data/split.krn")
-    f = parse_file("data/wtc-1/wtc1f03.krn")
+    #f = parse_file("../data/k160-02.krn")
+    f = parse_file("../data/test.krn")
+    #f = parse_file("../data/001.krn")
+    #f = parse_file("../data/split.krn")
+    #f = parse_file("../data/wtc-1/wtc1f03.krn")
