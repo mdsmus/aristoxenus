@@ -1,11 +1,15 @@
-PYTHON_FILES = $(wildcard *.py)
+PROJNAME = aristoxenus
+export PYTHONPATH=$(CURDIR)/$(PROJNAME)
 
-.PHONY: docs
+PYTHONFILES = $(wildcard $(PROJNAME)/*.py)
+LINT_ARGS = --min-public-methods=0 --include-ids=y --max-attributes=9
+
+.PHONY: docs tests
 
 all: humdrum check
 
 lint:
-	pylint --min-public-methods=0 --include-ids=y --max-attributes=9 *.py
+	pylint $(LINT_ARGS) $(PROJNAME)/*.py
 
 parse:
 	./parse_files.py
@@ -17,25 +21,17 @@ tests:
 	py.test --tb=line
 
 profile:
-	python -m "profile"  *.py
-
-humdrum:
-	python humdrum.py
+	python -m "profile" $(PROJNAME)/*.py
 
 check:
-	./tools/pep8.py *.py
+	./tools/pep8.py $(PROJNAME)/*.py
 
 coverage:
-	coverage run humdrum.py
+	coverage run $(PROJNAME)/*.py
 	coverage html
 
-TAGS: $(PYTHON_FILES)
+TAGS: $(PYTHONFILES)
 	find /usr/lib/python2.6/ . -name "*.py" | etags --output TAGS -
 
 clean:
-	rm -f *.out parsetab.py *.pyc
-
-print: humdrum.ps
-
-%.ps: %.py
-	a2ps -o $@ $<
+	rm -rf *.out parsetab.py *.pyc htmlcov
