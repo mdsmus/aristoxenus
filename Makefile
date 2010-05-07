@@ -34,4 +34,5 @@ TAGS: $(PYTHONFILES)
 	find /usr/lib/python2.6/ . -name "*.py" | etags --output TAGS -
 
 clean:
-	rm -rf *.out parsetab.py *.pyc htmlcov
+	find -name "*.pyc" | xargs rm
+	rm -rf *.out parsetab.py htmlcov
