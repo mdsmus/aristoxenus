@@ -5,14 +5,10 @@ import py
 
 
 def test_parse_kern_note():
-    n1 = h.parse_kern_note('ddd', '##')
-    n2 = h.parse_kern_note('ccc', '###')
-    n3 = h.parse_kern_note('eee', '--')
-    n4 = h.parse_kern_note('e', '')
-    assert n1 == "D##"
-    assert n2 == "C###"
-    assert n3 == "Ebb"
-    assert n4 == "E"
+    assert h.parse_kern_note('ddd', '##') == "D##"
+    assert h.parse_kern_note('ccc', '###') == "C###"
+    assert h.parse_kern_note('eee', '--') == "Ebb"
+    assert h.parse_kern_note('e', '') == "E"
 
 
 def test_parse_kern_octave():

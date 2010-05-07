@@ -14,4 +14,4 @@ htmlcov
 .pydevproject
 .pythoscope
 TAGS
-docs/_build
+doc/_build

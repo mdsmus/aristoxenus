@@ -142,20 +142,20 @@ following table shows each value :attr:`type` can have and the type
 of :attr:`data`, with a brief example:
 
 ================ ============================ ========================
- keyword          type of Tandem.data         example
+keyword          type of Tandem.data          example
 ================ ============================ ========================
- "clef"           string                      "treble"
- "instr-class"    string                      "vox"
- "instr-group"    string                      "ripn"
- "instrument"     string                      "bass"
- "key-signature"  integer or list of strings  2 or ``["f#", "cb"]``
- "tempo"          number                      88.8
- "meter"          string                      "12/8" [#f1]_
- "timebase"       number                      12
- "transposing"    string                      "d1c2"
- "key"            string                      "Ab"
- "expansion-list" list                        ["verse1", "verse2"]
- "label"          string                      "verse1"
+"clef"           string                       "treble"
+"instr-class"    string                       "vox"
+"instr-group"    string                       "ripn"
+"instrument"     string                       "bass"
+"key-signature"  integer or list of strings   2 or ``["f#", "cb"]``
+"tempo"          number                       88.8
+"meter"          string                       "12/8" [#f1]_
+"timebase"       number                       12
+"transposing"    string                       "d1c2"
+"key"            string                       "Ab"
+"expansion-list" list                         ["verse1", "verse2"]
+"label"          string                       "verse1"
 ================ ============================ ======================== 
 
 If the key signature is one of the standard used in western tonal
