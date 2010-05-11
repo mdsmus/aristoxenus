@@ -41,21 +41,33 @@ def compare_humdrum_file(filename):
         else:
             print_color(ratio, "red")
 
+        return ratio
+
 
 def run_datatest():
-    ok = 0
+    noerrors = 0
     errors = 0
+    good = 0
+    bad = 0
 
-    for fname in os.listdir("datatest"):
+    files = os.listdir("datatest")
+    files.sort()
+
+    for fname in files:
         fullname = os.path.join("datatest", fname)
         try:
-            compare_humdrum_file(fullname)
-            ok += 1
+            ratio = compare_humdrum_file(fullname)
+            if ratio == 1:
+                good += 1
+            else:
+                bad += 1
+            noerrors += 1
         except:
             print "- {0:35} [error]".format(fullname)
             errors += 1
 
-    print "\nI ran {0} files, where ok: {1} and errors: {2}".format(ok + errors, ok, errors)
-
+    print "\n{0} files, no errors: {1}, errors: {2}".format(noerrors + errors, noerrors, errors)
+    print "bottom line: good: {0}, bad: {1}".format(good, bad)
+    print
 
 run_datatest()
