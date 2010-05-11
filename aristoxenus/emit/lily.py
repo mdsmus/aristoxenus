@@ -4,7 +4,7 @@ from aristoxenus.score import (Score, Record, Comment, Tandem, Exclusive, Unknow
                    Note, MultipleStop, Bar, Rest, NullToken, BlankLine,
                    SpinePath)
 from aristoxenus.utils import multimethod
-import aristoxenus.music
+from aristoxenus import music
 
 
 @multimethod(Score)

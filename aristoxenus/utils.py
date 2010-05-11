@@ -4,6 +4,10 @@ import itertools
 from itertools import imap, izip
 
 
+def replace_flats(string):
+    return string.replace("-", "b")
+
+
 def search_string(pattern, string):
     """Like re.search but return the string that matches the pattern
     instead of a Match object."""

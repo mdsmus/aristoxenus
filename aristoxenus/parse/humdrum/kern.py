@@ -1,3 +1,11 @@
+from collections import defaultdict
+from aristoxenus import utils
+from aristoxenus import music
+from aristoxenus.score import (Score, Record, Comment, Tandem, Exclusive, UnknownType,
+                   Note, MultipleStop, Bar, Rest, NullToken, BlankLine,
+                   SpinePath)
+
+
 class KernError(Exception):
     """Exception class for kern data."""
     pass
@@ -7,10 +15,6 @@ def kern_error(message):
     """Helper function to raise parsing errors."""
 
     raise KernError(message)
-
-
-def replace_flats(string):
-    return string.replace("-", "b")
 
 
 ## Parse kern
@@ -79,7 +83,7 @@ def parse_kern_note(note, accs):
     'Cbb'
     """
 
-    return note[0].upper() + replace_flats("".join(accs))
+    return note[0].upper() + utils.replace_flats("".join(accs))
 
 
 def parse_kern_octave(note, accs):

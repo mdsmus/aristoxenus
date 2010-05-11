@@ -1,6 +1,5 @@
 from __future__ import print_function
 from __future__ import division
-from collections import defaultdict
 from itertools import izip, count
 import re
 from aristoxenus import utils
@@ -8,11 +7,9 @@ from aristoxenus import music
 from aristoxenus.score import (Score, Record, Comment, Tandem, Exclusive, UnknownType,
                                Note, MultipleStop, Bar, Rest, NullToken, BlankLine,
                                SpinePath)
-
+import kern
 
 debug = False
-
-
 
 
 ## parse elements
@@ -66,7 +63,7 @@ def parse_expansion_list(item):
 def parse_key_signature(item):
     item = item[1:-1]
     split_item = [item[i] + item[i+1] for i in range(0, len(item), 2)]
-    list_keys = [replace_flats(x.lower().strip()) for x in split_item]
+    list_keys = [utils.replace_flats(x.lower().strip()) for x in split_item]
     size = len(list_keys)
     sharps = music.accidentals_table[size]
     flats = music.accidentals_table[-size]
@@ -80,7 +77,7 @@ def parse_key_signature(item):
 
 
 def parse_key(item):
-    return Tandem("key", replace_flats(item))
+    return Tandem("key", utils.replace_flats(item))
 
 
 def parse_tandem(item):
@@ -128,7 +125,7 @@ def parse_data(data_type, item, lineno=1, itemno=1):
     def unknown_type(item, lineno=1, itemno=1):
         return UnknownType(item)
 
-    dispatch = {"kern": parse_kern}
+    dispatch = {"kern": kern.parse_kern}
 
     return dispatch.get(data_type, unknown_type)(item, lineno, itemno)
 
