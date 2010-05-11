@@ -383,30 +383,3 @@ def test_parse_string_note(simple_score):
 
 def test_parse_string_spine_path(simple_score):
     assert isinstance(simple_score[2][0], score.SpinePath)
-
-
-# parse_file
-
-# We check if the basics of parse_file are working by parsing a file
-# with 3 elements (only one spine) and checking the type of each
-# element.
-
-def pytest_funcarg__parse_kern_file(request):
-    return h.parse_file("data/simple1.krn")
-
-
-def test_parse_file_(parse_kern_file):
-    data = parse_kern_file
-    assert 3 == len(data)
-
-def test_parse_file_(parse_kern_file):
-    data = parse_kern_file
-    assert isinstance(data[0][0], score.Exclusive)
-
-def test_parse_file_(parse_kern_file):
-    data = parse_kern_file
-    assert isinstance(data[1][0], score.Note)
-
-def test_parse_file_(parse_kern_file):
-    data = parse_kern_file
-    assert isinstance(data[2][0], score.SpinePath)

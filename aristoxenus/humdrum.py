@@ -5,7 +5,6 @@ from itertools import izip, count
 import re
 import utils
 import music
-import convert
 from score import (Score, Record, Comment, Tandem, Exclusive, UnknownType,
                    Note, MultipleStop, Bar, Rest, NullToken, BlankLine,
                    SpinePath)

@@ -8,4 +8,5 @@ setup(name='aristoxenus',
       url='http://github.com/kroger/aristoxenus',
       packages=['aristoxenus'],
       license='GNU GPL',
+      platforms=["any"],
       long_description=open('README.txt').read())
