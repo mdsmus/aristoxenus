@@ -15,6 +15,8 @@ Contents:
    humdrum.rst
    music.rst
    exporting.rst
+   using.rst
+   hacking.rst
    todo.rst
 
 
