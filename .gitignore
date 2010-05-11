@@ -14,6 +14,6 @@ htmlcov
 .pydevproject
 .pythoscope
 TAGS
-doc/_build
+docs/_build
 MANIFEST
 dist

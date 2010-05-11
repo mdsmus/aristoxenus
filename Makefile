@@ -15,7 +15,7 @@ parse:
 	./parse_files.py
 
 docs:
-	cd doc; $(MAKE) html
+	cd docs; $(MAKE) html
 
 tests:
 	py.test --tb=line
