@@ -5,6 +5,7 @@ from itertools import izip, count
 import re
 import utils
 import music
+import convert
 from score import (Score, Record, Comment, Tandem, Exclusive, UnknownType,
                    Note, MultipleStop, Bar, Rest, NullToken, BlankLine,
                    SpinePath)
@@ -89,7 +90,7 @@ def parse_kern_note(note, accs):
     """Return a string representation of a note from the tokenizer representation.
 
     Humdrum represents flats as dashes ('-'); we replace them with 'b's:
-    
+
     >>> parse_kern_note('cc', '--')
     'Cbb'
     """
@@ -105,17 +106,17 @@ def parse_kern_octave(note, accs):
     octaves: ccc = 6, cc = 5, c = 4, C = 3, CC = 2, CCC = 1, CCCC = 0
 
     This is a basic example of use:
-    
+
     >>> parse_kern_octave('bb', '')
     5
 
     And we need to take care of the cases where an accidental will
     change the octave:
-    
+
     >>> parse_kern_octave('bb', '#')
     6
     """
-    
+
     size = len(note)
 
     if size > 0:
@@ -182,7 +183,7 @@ def parse_kern_item(item, lineno=1, itemno=1):
     dur = int("".join(tokens['dur']))
     dots = len(tokens['dot'])
     duration = music.calculate_duration(dur, dots)
-    
+
     if tokens['note']:
         notename = "".join(tokens['note'])
         acc = "".join(tokens['acc'])
@@ -233,7 +234,7 @@ def parse_bar(item):
     ends a repetition and if it's a double bar. Humdrum has a bunch of
     syntax for visual bar lines that we don't parse. See :ref:`todo`.
     """
-    
+
     return Bar(utils.search_string("[0-9]+([a-z]+)?", item),
                bool(utils.search_string(":\\||:!", item)),
                bool(utils.search_string("\\|:|!:", item)),
@@ -476,7 +477,8 @@ def parse_file(filename):
 
 if __name__ == "__main__":
     #f = parse_file("../data/k160-02.krn")
-    f = parse_file("../data/test.krn")
+    #f = parse_file("../data/test.krn")
     #f = parse_file("../data/001.krn")
     #f = parse_file("../data/split.krn")
     #f = parse_file("../data/wtc-1/wtc1f03.krn")
+    f = parse_file("../datatest/kern-simplest.krn")

@@ -51,6 +51,14 @@ humdrum_table = {
     'beam-partial-left': 'k'
     }
 
+spine_table_humdrum = {
+    "spine-end": '-',
+    "spine-add": '+',
+    "spine-split": '^',
+    "spine-join": 'v',
+    "spine-swap": 'x'
+    }
+
 
 class ConvertError(Exception):
     pass
@@ -58,12 +66,19 @@ class ConvertError(Exception):
 
 ## humdrum
 @multimethod(Score)
+def print_as_humdrum(self):
+    print(show_as_humdrum(self))
+
+
+@multimethod(Score)
 def show_as_humdrum(self):
+    result = []
     for item in self:
         if type(item) is list:
-            print("\t".join([show_as_humdrum(x) for x in item]))
+            result.append("\t".join([show_as_humdrum(x) for x in item]))
         else:
-            print(show_as_humdrum(item))
+            result.append(show_as_humdrum(item))
+    return "\n".join(result)
 
 
 @multimethod(Record)
@@ -110,7 +125,7 @@ def show_as_humdrum(self):
 
 @multimethod(SpinePath)
 def show_as_humdrum(self):
-    return "*{0}".format(self.type)
+    return "*{0}".format(spine_table_humdrum[self.type])
 
 
 @multimethod(Rest)
