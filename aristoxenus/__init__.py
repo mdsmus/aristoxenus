@@ -1,5 +1,11 @@
 #from __future__ import generators
 
+import parse
+import emit
+import score
+import music
+import utils
+
 # Ensure the user is running the version of python we require.
 import sys
 if not hasattr(sys, "version_info") or sys.version_info < (2,3):

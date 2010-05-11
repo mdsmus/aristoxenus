@@ -1,10 +1,10 @@
 from __future__ import print_function
-from score import (Score, Record, Comment, Tandem, Exclusive, UnknownType,
+import sys
+from aristoxenus.score import (Score, Record, Comment, Tandem, Exclusive, UnknownType,
                    Note, MultipleStop, Bar, Rest, NullToken, BlankLine,
                    SpinePath)
-from multimethod import multimethod
-import sys
-import music
+from aristoxenus.utils import multimethod
+import aristoxenus.music
 
 
 humdrum_table = {
@@ -66,137 +66,79 @@ class ConvertError(Exception):
 
 ## humdrum
 @multimethod(Score)
-def print_as_humdrum(self):
-    print(show_as_humdrum(self))
-
-
-@multimethod(Score)
-def show_as_humdrum(self):
+def show(self):
     result = []
     for item in self:
         if type(item) is list:
-            result.append("\t".join([show_as_humdrum(x) for x in item]))
+            result.append("\t".join([show(x) for x in item]))
         else:
-            result.append(show_as_humdrum(item))
+            result.append(show(item))
     return "\n".join(result)
 
 
 @multimethod(Record)
-def show_as_humdrum(self):
+def show(self):
     return "!!! {0}: {1}".format(self.name, self.data)
 
 
 @multimethod(Comment)
-def show_as_humdrum(self):
+def show(self):
     return "{0} {1}".format(self.level * "!", self.data)
 
 
 @multimethod(Tandem)
-def show_as_humdrum(self):
+def show(self):
     return "*{0}{1}".format(self.type, self.data)
 
 
 @multimethod(Exclusive)
-def show_as_humdrum(self):
+def show(self):
     return "**{0}".format(self.name)
 
 
 @multimethod(Note)
-def show_as_humdrum(self):
+def show(self):
     name = music.notename_to_humdrum(self.name, self.octave)
     dur = music.frac_to_dur(self.duration)
     return "{1}{0}".format(name, dur)
 
 
 @multimethod(MultipleStop)
-def show_as_humdrum(self):
-    return " ".join([show_as_humdrum(x) for x in self])
+def show(self):
+    return " ".join([show(x) for x in self])
 
 
 @multimethod(list)
-def show_as_humdrum(self):
-    return "\t".join([show_as_humdrum(x) for x in self])
+def show(self):
+    return "\t".join([show(x) for x in self])
 
 
 @multimethod(Bar)
-def show_as_humdrum(self):
+def show(self):
     return "={0}".format(self.number)
 
 
 @multimethod(SpinePath)
-def show_as_humdrum(self):
+def show(self):
     return "*{0}".format(spine_table_humdrum[self.type])
 
 
 @multimethod(Rest)
-def show_as_humdrum(self):
+def show(self):
     dur = music.frac_to_dur(self.duration)
     return "{0}r".format(dur)
 
 
 @multimethod(BlankLine)
-def show_as_humdrum(self):
+def show(self):
     return "\n"
 
 
 @multimethod(NullToken)
-def show_as_humdrum(self):
+def show(self):
     return "."
 
 
 @multimethod(UnknownType)
-def show_as_humdrum(self):
+def show(self):
     return self
-
-
-## lily
-
-def print_as_lily(sco, afile):
-    with open(afile, 'w') as f:
-        show_as_lily(sco, f)
-
-
-@multimethod(Score)
-def show_as_lily(self, stream=sys.stdout):
-    spines = [s for s in self.spine_types if s == "kern"]
-
-    print("""\\header {{
-    title = \"{0}\"
-    composer = \"{1}\"
-    }}
-    """.format(self.title, self.composer), file=stream)
-
-    print("{\n<<\n", file=stream)
-    for spine in reversed(range(0, len(spines))):
-        print("\\new Staff {", file=stream)
-        print(" ".join([show_as_lily(i) for i in self.get_spine_simple(spine)]), file=stream)
-        print("}", file=stream)
-    print(">>\n}\n", file=stream)
-
-
-@multimethod(Note)
-def show_as_lily(self):
-    name = music.notename_to_lily(self.name, self.octave)
-    dur = music.frac_to_dur(self.duration)
-    return "{0}{1}".format(name,  dur)
-
-
-@multimethod(Rest)
-def show_as_lily(self):
-    dur = music.frac_to_dur(self.duration)
-    return "r{0}".format(dur)
-
-
-@multimethod(MultipleStop)
-def show_as_lily(self):
-    return " ".join([show_as_lily(x) for x in self])
-
-
-@multimethod(Bar)
-def show_as_lily(self):
-    return "|\n"
-
-
-@multimethod()
-def show_as_lily(self):
-    return ""
