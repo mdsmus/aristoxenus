@@ -12,6 +12,17 @@ import kern
 debug = False
 
 
+class HumdrumError(Exception):
+    """Exception class for humdrum data."""
+    pass
+
+
+def humdrum_error(message):
+    """Helper function to raise parsing errors."""
+
+    raise HumdrumError(message)
+
+
 ## parse elements
 
 
@@ -173,7 +184,7 @@ def parse_item(item, score, lineno=1, itemno=1):
     else:
         spine_type_list = score.spine_types
         if len(spine_type_list) == 0:
-            kern_error("Can't parse an item without knowing the spine type.")
+            humdrum_error("Can't parse an item without knowing the spine type.")
         else:
             data_type = score.spine_types[itemno]
         return parse_data(data_type, item, lineno, itemno)

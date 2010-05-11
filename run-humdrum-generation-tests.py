@@ -2,8 +2,8 @@
 
 import os
 from difflib import SequenceMatcher
-from aristoxenus import humdrum
-from aristoxenus import convert
+import aristoxenus.parse as parse
+import aristoxenus.emit as emit
 
 
 def print_color(text, color):
@@ -30,7 +30,7 @@ def print_color(text, color):
 def compare_humdrum_file(filename):
     with open(filename) as f:
         kernfile = f.read()
-        conversion = convert.show_as_humdrum(humdrum.parse_file(filename))
+        conversion = emit.humdrum.show(parse.humdrum.parse_file(filename))
         s = SequenceMatcher(None, kernfile, conversion)
         ratio = s.ratio()
 
