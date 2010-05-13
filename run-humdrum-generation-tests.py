@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 
 import os
+import difflib
 from difflib import SequenceMatcher
+from optparse import OptionParser
+
 import aristoxenus.parse as parse
 import aristoxenus.emit as emit
 
@@ -29,45 +32,48 @@ def print_color(text, color):
 
 def compare_humdrum_file(filename):
     with open(filename) as f:
-        kernfile = f.read()
-        conversion = emit.humdrum.show(parse.humdrum.parse_file(filename))
-        s = SequenceMatcher(None, kernfile, conversion)
-        ratio = s.ratio()
-
-        print "- {0:35}".format(filename),
-
-        if ratio == 1.0:
-            print_color(ratio, "green")
-        else:
-            print_color(ratio, "red")
-
-        return ratio
+        orig = f.read()
+        conv = emit.humdrum.show(parse.humdrum.parse_file(filename))
+        s = SequenceMatcher(None, orig, conv)
+        lines = zip(orig.splitlines(), conv.splitlines())
+        diff = [(o, g) for o, g in lines if o != g]
+        return s.ratio(), diff
 
 
-def run_datatest():
+def run_datatest(files, opt={}):
     noerrors = 0
     errors = 0
     good = 0
     bad = 0
 
-    files = os.listdir("datatest")
-    files.sort()
-
     for fname in files:
-        fullname = os.path.join("datatest", fname)
         try:
-            ratio = compare_humdrum_file(fullname)
+            ratio, diff = compare_humdrum_file(fname)
             if ratio == 1:
                 good += 1
             else:
                 bad += 1
             noerrors += 1
-        except:
-            print "- {0:35} [error]".format(fullname)
+
+            print "- {0:35}".format(fname),
+
+            if ratio == 1.0:
+                print_color(ratio, "green")
+            else:
+                print_color(ratio, "red")
+
+        except IndexError:
+            print "- {0:35} [error]".format(fname)
             errors += 1
 
     print "\n{0} files, no errors: {1}, errors: {2}".format(noerrors + errors, noerrors, errors)
     print "bottom line: good: {0}, bad: {1}".format(good, bad)
     print
 
-run_datatest()
+
+if __name__ == "__main__":
+    parser = OptionParser()
+    parser.add_option("-v", "--verbose", help="show diff.", action="store_true", dest="verbose")
+    (options, args) = parser.parse_args()
+
+    run_datatest(args, options)
