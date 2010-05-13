@@ -1,0 +1,17 @@
+!! Simple kern file
+**kern	**kern
+*ICvox	*ICvox
+*Ialto	*Isoprn
+*clefG2	*clefG2
+*M4/4	*M4/4
+4b	4g
+=1	=1
+4.c	4.a
+8d	8b
+!! Global comment in the midle of a spine
+4e	4c
+! local	! local comment2
+4f	4d
+==	==
+*-	*-
+!! Another global comment
