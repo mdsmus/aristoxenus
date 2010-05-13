@@ -50,32 +50,38 @@ def compare_humdrum_file(filename):
         return s.ratio(), diff, orig, conv
 
 
-def print_final_stats(stats):
+def print_final_stats(stats, opt):
     final_stats = "total: {0} | match: {1} | not match: {2}"
-    print("\n", "-" * 47, sep='')
+    if not opt.quiet:
+        print("\n", "-" * 47, sep='')
     print(final_stats.format(sum(stats), stats[0], stats[1]), end='')
     err = stats[2]
     print(" |", color_string("errors:" + str(err), "red")) if err else print()
-    print()
+    if not opt.quiet:
+        print()
 
 
 def run_datatest(files, opt):
     # 100% match, less than 100% match, error in file
     stats = [0, 0, 0]
 
-    print()
+    if not opt.quiet:
+        print()
     for fname in files:
-        color_print("{0:35}".format(fname), "blue", end='')
+        if not opt.quiet:
+            color_print("{0:35}".format(fname), "blue", end='')
         try:
             ratio, diff, orig, conv = compare_humdrum_file(fname)
             str_ratio = "{0:2.2f}".format(ratio)
 
             if ratio >= 0.99:
                 stats[0] += 1
-                color_print(str_ratio, "green")
+                if not opt.quiet:
+                    color_print(str_ratio, "green")
             else:
                 stats[1] += 1
-                color_print(str_ratio, "red")
+                if not opt.quiet:
+                    color_print(str_ratio, "red")
 
                 if opt.showdiff:
                     for a, b, n in diff:
@@ -85,12 +91,13 @@ def run_datatest(files, opt):
                     print("{0}\n\n{1}".format(orig, conv))
 
         except (IndexError, music.MusicError) as strerror:
-            color_print("[err]", "purple")
+            if not opt.quiet:
+                color_print("[err]", "purple")
             if opt.showerror:
                 print(strerror, '\n')
             stats[2] += 1
 
-    print_final_stats(stats)
+    print_final_stats(stats, opt)
 
 
 if __name__ == "__main__":
