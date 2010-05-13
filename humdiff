@@ -1,33 +1,41 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 import os
 import difflib
 from difflib import SequenceMatcher
 from optparse import OptionParser
+from itertools import count
 
 import aristoxenus.parse as parse
 import aristoxenus.emit as emit
 
+colors = {"black": "0;30",
+          "blue": "0;34",
+          "green": "0;32",
+          "cyan": "0;36",
+          "red": "0;31",
+          "purple": "0;35",
+          "brown": "0;33",
+          "light_gray": "0;37",
+          "dark_gray": "1;30",
+          "dark_blue": "1;34",
+          "dark_green": "1;32",
+          "dark_cyan": "1;36",
+          "dark_red": "1;31",
+          "dark_purple": "1;35",
+          "yellow": "1;33",
+          "white": "1;37"}
 
-def print_color(text, color):
-    colors = {"black": "0;30",
-              "blue": "0;34",
-              "green": "0;32",
-              "cyan": "0;36",
-              "red": "0;31",
-              "purple": "0;35",
-              "brown": "0;33",
-              "light_gray": "0;37",
-              "dark_gray": "1;30",
-              "light_blue": "1;34",
-              "light_green": "1;32",
-              "light_cyan": "1;36",
-              "light_red": "1;31",
-              "light_purple": "1;35",
-              "yellow": "1;33",
-              "white": "1;37"}
 
-    print "\x1b[{0}m{1:2.2f}\x1b[{2}m".format(colors[color], text, colors["black"])
+def color_print(text, color, end='\n'):
+    print("\x1b[{0}m{1}\x1b[{2}m".format(colors[color], text, colors["black"]),
+          end=end)
+
+
+def color_string(text, color):
+    return "\x1b[{0}m{1}\x1b[{2}m".format(colors[color], text, colors["black"])
 
 
 def compare_humdrum_file(filename):
@@ -35,45 +43,61 @@ def compare_humdrum_file(filename):
         orig = f.read()
         conv = emit.humdrum.show(parse.humdrum.parse_file(filename))
         s = SequenceMatcher(None, orig, conv)
-        lines = zip(orig.splitlines(), conv.splitlines())
-        diff = [(o, g) for o, g in lines if o != g]
-        return s.ratio(), diff
+        lines = zip(orig.splitlines(), conv.splitlines(), count())
+        diff = [(o, g, n) for o, g, n in lines if o != g]
+        return s.ratio(), diff, orig, conv
 
 
-def run_datatest(files, opt={}):
-    noerrors = 0
-    errors = 0
-    good = 0
-    bad = 0
+def print_final_stats(stats):
+    final_stats = "total: {0} | match: {1} | not match: {2}"
+    print("\n", "-" * 47, sep='')
+    print(final_stats.format(sum(stats), stats[0], stats[1]), end='')
+    err = stats[2]
+    print(" |", color_string("errors:" + str(err), "red")) if err else print()
+    print()
 
+
+def run_datatest(files, opt):
+    # 100% match, less than 100% match, error in file
+    stats = [0, 0, 0]
+
+    print()
     for fname in files:
+        color_print("{0:35}".format(fname), "blue", end='')
         try:
-            ratio, diff = compare_humdrum_file(fname)
-            if ratio == 1:
-                good += 1
+            ratio, diff, orig, conv = compare_humdrum_file(fname)
+            str_ratio = "{0:2.2f}".format(ratio)
+
+            if ratio >= 0.99:
+                stats[0] += 1
+                color_print(str_ratio, "green")
             else:
-                bad += 1
-            noerrors += 1
+                stats[1] += 1
+                color_print(str_ratio, "red")
 
-            print "- {0:35}".format(fname),
+                if opt.showdiff:
+                    for a, b, n in diff:
+                        print("{0} {1}\n{0} {2}\n".format(n, a, b))
 
-            if ratio == 1.0:
-                print_color(ratio, "green")
-            else:
-                print_color(ratio, "red")
+                if opt.showhumdrum:
+                    print("{0}\n\n{1}".format(orig, conv))
 
-        except IndexError:
-            print "- {0:35} [error]".format(fname)
-            errors += 1
+        except IndexError as strerror:
+            color_print("[err]", "purple")
+            if opt.showerror:
+                print(strerror, '\n')
+            stats[2] += 1
 
-    print "\n{0} files, no errors: {1}, errors: {2}".format(noerrors + errors, noerrors, errors)
-    print "bottom line: good: {0}, bad: {1}".format(good, bad)
-    print
+    print_final_stats(stats)
 
 
 if __name__ == "__main__":
     parser = OptionParser()
-    parser.add_option("-v", "--verbose", help="show diff.", action="store_true", dest="verbose")
+    parser.add_option("-d", "--show-diff", help="show diff",
+                      action="store_true", dest="showdiff")
+    parser.add_option("-e", "--show-error", help="show error",
+                      action="store_true", dest="showerror")
+    parser.add_option("-H", "--show-humdrum", help="show humdrum files",
+                      action="store_true", dest="showhumdrum")
     (options, args) = parser.parse_args()
-
     run_datatest(args, options)
