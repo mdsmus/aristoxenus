@@ -17,3 +17,4 @@ TAGS
 docs/_build
 MANIFEST
 dist
+test-interactive.py

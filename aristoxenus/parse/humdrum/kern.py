@@ -17,6 +17,8 @@ def kern_error(message):
     raise KernError(message)
 
 
+debug = False
+
 ## Parse kern
 
 art = {'n': "natural",
