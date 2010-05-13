@@ -59,19 +59,19 @@ Here is an example of a music with only one measure::
 Parsing the Humdrum file format
 -------------------------------
 
-The functions :func:`humdrum.parse_file` and
-:func:`humdrum.parse_string` are basically a wrapper for
-:func:`humdrum.parse_line`.
+The functions :func:`aristoxenus.parse.humdrum.main.parse_file` and
+:func:`aristoxenus.parse.humdrum.main.parse_string` are basically a wrapper for
+:func:`aristoxenus.parse.humdrum.main.parse_line`.
 
-.. autofunction:: humdrum.parse_file
-.. autofunction:: humdrum.parse_string
+.. autofunction:: aristoxenus.parse.humdrum.main.parse_file
+.. autofunction:: aristoxenus.parse.humdrum.main.parse_string
 
     >>> parse_string("**kern\n4c\n*-")
     [[<__main__.Exclusive object at 0x7f982d7b3890>],
      [<__main__.Note object at 0x7f982d7b3c10>],
      [<__main__.Tandem object at 0x7f982d7b3fd0>]]
 
-.. autofunction:: humdrum.parse_line
+.. autofunction:: aristoxenus.parse.humdrum.main.parse_line
 
    >>> s = Score()
    >>> parse_line("!! foo bar", s, 1)
@@ -81,11 +81,11 @@ The functions :func:`humdrum.parse_file` and
    [<__main__.Comment object at 0x7f982d7be1d0>,
     <__main__.Record object at 0x7f982d7be050>]
 
-.. autofunction:: humdrum.parse_comment(line) -> score.Comment
+.. autofunction:: aristoxenus.parse.humdrum.main.parse_comment(line) -> score.Comment
 
-.. autofunction:: humdrum.parse_reference_record(line) -> score.Record
+.. autofunction:: aristoxenus.parse.humdrum.main.parse_reference_record(line) -> score.Record
 
-.. autofunction:: humdrum.parse_item
+.. autofunction:: aristoxenus.parse.humdrum.main.parse_item
 
    >>> parse_item("=1", score)
    <__main__.Bar object at 0x7f982d7e6910>
@@ -103,9 +103,9 @@ The functions :func:`humdrum.parse_file` and
    KernError: Can't parse an item without knowing the spine type.
 
 
-.. autofunction:: humdrum.parse_bar
+.. autofunction:: aristoxenus.parse.humdrum.main.parse_bar
 
-.. autofunction:: humdrum.parse_tandem
+.. autofunction:: aristoxenus.parse.humdrum.main.parse_tandem
 
 These are the most common tandem interpretations:
 
@@ -124,7 +124,7 @@ timebase                \*tb32
 transposing instrument  \*ITr
 ======================  =========
 
-.. autofunction:: humdrum.parse_data
+.. autofunction:: aristoxenus.parse.humdrum.main.parse_data
 
 Spine paths
 -----------
@@ -132,10 +132,10 @@ Spine paths
 Parsing the kern representation
 -------------------------------
 
-The following attributes are used by :func:`humdrum.kern_tokenizer`.
+The following attributes are used by :func:`aristoxenus.parse.humdrum.main.kern_tokenizer`.
 The shouldn't be accessed by other functions or directly.
 
-.. attribute:: humdrum.types
+.. attribute:: aristoxenus.parse.humdrum.main.types
 
    A dictionary that maps a data record type such as duration,
    articulation, or beam to che characters that compose those types
@@ -145,7 +145,7 @@ The shouldn't be accessed by other functions or directly.
    'dur': ("0123456789", "Duration must be together."),
    'note': ("abcdefgABCDEFG", "Notes must be together."),
 
-.. attribute:: humdrum.beams
+.. attribute:: aristoxenus.parse.humdrum.main.beams
 
    A dictionary that maps humdrum code for beams to full names, for
    example::
@@ -153,7 +153,7 @@ The shouldn't be accessed by other functions or directly.
    'L': 'beam-start',
    'J': 'beam-end',
 
-.. attribute:: humdrum.art
+.. attribute:: aristoxenus.parse.humdrum.main.art
 
    A dictionary that maps humdrum code for articulations to full
    names, for example::
@@ -162,22 +162,22 @@ The shouldn't be accessed by other functions or directly.
    'R': "end-with-turn",
    'u': "down-bow",
 
-.. autofunction:: humdrum.parse_kern
+.. autofunction:: aristoxenus.parse.humdrum.kern.parse_kern
 
    Main function to parse kern data. If the input is a multiple stop
    (notes separated by spaces in humdrum) it will return a
    :class:`score.MultipleStop` object with notes and rests inside. If
    not, it'll return either a note or a rest. (The other kern elements
    such as null tokens and local comments are handled by
-   :func:`humdrum.parse_item`). Most of the parsing is actually done
-   by :func:`humdrum.parse_kern_item` and
-   :func:`humdrum.kern_tokenizer`. Here's an example (the resulting
+   :func:`aristoxenus.parse.humdrum.kern.parse_item`). Most of the parsing is actually done
+   by :func:`aristoxenus.parse.humdrum.kern.parse_kern_item` and
+   :func:`aristoxenus.parse.humdrum.kern.kern_tokenizer`. Here's an example (the resulting
    type is a MultipleStop, and not a list):
 
    >>> parse_kern("c4 d4")
    [<__main__.Note object at 0x24fb510>, <__main__.Note object at 0x24fb050>]
 
-.. autofunction:: humdrum.kern_tokenizer
+.. autofunction:: aristoxenus.parse.humdrum.kern.kern_tokenizer
 
    Breaks a kern data record in elements and returns a dictionary
    where the keyword is the type of element and the value is the
@@ -200,7 +200,7 @@ The shouldn't be accessed by other functions or directly.
         parse(c, 'dur', (not p or not tokens['dur'] or _is(p, 'dur')))
 
    The ``parse`` subfunction appends the character to the ``tokens``
-   dictionary or raises a :class:`humdrum.KernError` if the condition
+   dictionary or raises a :class:`aristoxenus.parse.humdrum.kern.KernError` if the condition
    is not met. In the example above, the condition is that the
    previous character must be either a duration or nothing (that is,
    the current character is the first of the string) and it shouldn't
@@ -212,22 +212,22 @@ The shouldn't be accessed by other functions or directly.
    generalize the tokenizer using ply or a state machine if more
    parsing like this will be done for other spine types.
 
-.. autofunction:: humdrum.parse_kern_item
+.. autofunction:: aristoxenus.parse.humdrum.kern.parse_kern_item
 
-   Takes the output from :func:`humdrum.kern_tokenizer` and process it
+   Takes the output from :func:`aristoxenus.parse.humdrum.kern.kern_tokenizer` and process it
    further; checking for common mistakes such as having a note without
    a duration or having a note and a rest at the same time. This
    function will also create and return :class:`score.Note` and
    :class:`score.Rest` objects. It'll call functions such as
-   :func:`humdrum.parse_kern_octave`, :func:`humdrum.parse_kern_note`,
+   :func:`aristoxenus.parse.humdrum.kern.parse_kern_octave`, :func:`aristoxenus.parse.humdrum.kern.parse_kern_note`,
    and :func:`music.string_to_code` to do the dirty work.
 
    >>> parse_kern_item("c4")
    <__main__.Note object at 0x252aed0>
 
 
-.. autofunction:: humdrum.parse_kern_octave
-.. autofunction:: humdrum.parse_kern_note
+.. autofunction:: aristoxenus.parse.humdrum.kern.parse_kern_octave
+.. autofunction:: aristoxenus.parse.humdrum.kern.parse_kern_note
 
 
 The following signifiers are not implemented yet:
@@ -244,7 +244,7 @@ silently ignored by the parser.
 Exceptions
 ----------
 
-.. autoclass:: humdrum.KernError()
+.. autoclass:: aristoxenus.parse.humdrum.kern.KernError()
 
 
-.. autofunction:: humdrum.kern_error
+.. autofunction:: aristoxenus.parse.humdrum.kern.kern_error

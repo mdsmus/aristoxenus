@@ -18,13 +18,13 @@ following diagram:
 The Score class
 ---------------
 
-.. class:: score.Score()
+.. class:: aristoxenus.score.Score()
 
-The class :class:`score.Score` is a subclass of :class:`list`; you can
+The class :class:`aristoxenus.score.Score` is a subclass of :class:`list`; you can
 append and remove elements and use the slice operator. You can
 instantiate a class with any number of arguments. For instance,
 ``Score(1, 2, 4)`` will return ``[1, 2, 4]``. Of course, you should
-add music elements such as :class:`score.Note`::
+add music elements such as :class:`aristoxenus.score.Note`::
 
   Score(Note("C#"), Note("Bb"))
 
@@ -34,33 +34,33 @@ stored as an item of :class:`Score`. So, if we have ``s = Score()``,
 instance, the result of ``parse_string("**kern\n4c\n\n4d\n*-")`` will
 be something like::
 
-  [[<score.Exclusive object at 0x7f982d7a9590>],
-   [<score.Note object at 0x7f982d715690>],
-   [<score.Note object at 0x7f982d715650>],
-   [<score.Tandem object at 0x7f982d715350>]]
+  [[<aristoxenus.score.Exclusive object at 0x7f982d7a9590>],
+   [<aristoxenus.score.Note object at 0x7f982d715690>],
+   [<aristoxenus.score.Note object at 0x7f982d715650>],
+   [<aristoxenus.score.Tandem object at 0x7f982d715350>]]
 
 
-.. attribute:: Score.title
-               Score.composer
+.. attribute:: Aristoxenus.Score.title
+               Aristoxenus.Score.composer
 
-The attributes :attr:`Score.title` and :attr:`Score.composer` are
+The attributes :attr:`Aristoxenus.Score.title` and :attr:`Aristoxenus.Score.composer` are
 copied from reference records to allow easy and quick access to this
 information (useful when generating data for notation programs).
 
-.. attribute:: Score.filename 
+.. attribute:: Aristoxenus.Score.filename
 
 Name of the original humdrum file. Useful to generate files
 with the same name but different extension.
 
-.. attribute:: Score.spine_types
+.. attribute:: Aristoxenus.Score.spine_types
 
 List of strings with the original types of spines (for instance,
 ``["kern", "dynam"]``).
 
 
-.. attribute:: Score.spine_names
+.. attribute:: Aristoxenus.Score.spine_names
 
-The attribute :attr:`Score.spine_names` is a list with the instrument
+The attribute :attr:`Aristoxenus.Score.spine_names` is a list with the instrument
 names, with None if a spine doesn't have an instrument name (a
 ``**dynam`` spine, for instance). There are three main ways to define
 instrument names in humdrum. ``*I`` is for pre-defined instrument
@@ -69,13 +69,13 @@ user-defined instrument names (proposed by Andreas Kornstaedt, but not
 documented yet). A local comment can also be used to store an
 instrument name but is difficult to parse automatically.
 
-.. attribute:: Score.measure_numbers
+.. attribute:: Aristoxenus.Score.measure_numbers
 
-The attribute:attr:`Score.measure_numbers` is a list with the position
+The attribute:attr:`Aristoxenus.Score.measure_numbers` is a list with the position
 of the beginning of every measure in the spine. It's intended to be
-used to quickly extract measures from a score.g
+used to quickly extract measures from a aristoxenus.score.g
 
-.. autofunction:: score.make_notes
+.. autofunction:: aristoxenus.score.make_notes
 
    It's a helper function to make notes quickly:
 
@@ -88,7 +88,7 @@ used to quickly extract measures from a score.g
 The Note class
 --------------
 
-.. autoclass:: score.Note
+.. autoclass:: aristoxenus.score.Note
 
 
 .. attribute:: Note.name
@@ -134,7 +134,7 @@ probably not a good idea to modify :attr:`Note.code` and
 The Tandem class
 ----------------
 
-.. autoclass:: score.Tandem
+.. autoclass:: aristoxenus.score.Tandem
 
 The tandem class stores the kind of tandem interpretation as a string
 in :attr:`Tandem.type` and the actual value in :attr:`Tandem.data`. The
@@ -156,7 +156,7 @@ keyword          type of Tandem.data          example
 "key"            string                       "Ab"
 "expansion-list" list                         ["verse1", "verse2"]
 "label"          string                       "verse1"
-================ ============================ ======================== 
+================ ============================ ========================
 
 If the key signature is one of the standard used in western tonal
 music, a positive integer is used to indicate the number of sharps and
@@ -175,7 +175,7 @@ the humdrum manual. (See also :ref:`todo`).
 The Record class
 ----------------
 
-.. autoclass:: score.Record
+.. autoclass:: aristoxenus.score.Record
 
 Reference records are partially parsed and saved in the
 :class:`Record` class. The reference codes are saved in
@@ -190,16 +190,16 @@ that need to be done.
 Other classes
 -------------
 
-.. autoclass:: score.MultipleStop(list)
+.. autoclass:: aristoxenus.score.MultipleStop(list)
 
-   A subclass of list used to store notes (:class:`score.Note`) and
-   rests (:class:`score.Rest`). It'll look like a list, but can be
+   A subclass of list used to store notes (:class:`aristoxenus.score.Note`) and
+   rests (:class:`aristoxenus.score.Rest`). It'll look like a list, but can be
    tested with :func:`isinstance`.
 
-.. autoclass:: score.Comment
-.. autoclass:: score.Exclusive
-.. autoclass:: score.Bar
-.. autoclass:: score.Rest
-.. autoclass:: score.NullToken
-.. autoclass:: score.BlankLine
-.. autoclass:: score.Dynam
+.. autoclass:: aristoxenus.score.Comment
+.. autoclass:: aristoxenus.score.Exclusive
+.. autoclass:: aristoxenus.score.Bar
+.. autoclass:: aristoxenus.score.Rest
+.. autoclass:: aristoxenus.score.NullToken
+.. autoclass:: aristoxenus.score.BlankLine
+.. autoclass:: aristoxenus.score.Dynam
