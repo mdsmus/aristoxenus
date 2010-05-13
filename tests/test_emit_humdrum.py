@@ -30,6 +30,21 @@ def test_show_exclusive():
     exclusive = score.Exclusive("kern")
     assert emit.humdrum.show(exclusive) == "**kern"
 
+def test_show_spine_end():
+    assert emit.humdrum.show(score.SpinePath("spine-end")) == '*-'
+
+def test_show_spine_add():
+    assert emit.humdrum.show(score.SpinePath("spine-add")) == '*+'
+
+def test_show_spine_split():
+    assert emit.humdrum.show(score.SpinePath("spine-split")) == '*^'
+
+def test_show_spine_join():
+    assert emit.humdrum.show(score.SpinePath("spine-join")) == '*v'
+
+def test_show_spine_swap():
+    assert emit.humdrum.show(score.SpinePath("spine-swap")) == '*x'
+
 def test_show_note_cs(two_notes):
     note1, note2 = two_notes
     assert emit.humdrum.show(note1) == "4cccc#"
