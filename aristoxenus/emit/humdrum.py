@@ -1,8 +1,6 @@
 from __future__ import print_function
 import sys
-from aristoxenus.score import (Score, Record, Comment, Tandem, Exclusive, UnknownType,
-                   Note, MultipleStop, Bar, Rest, NullToken, BlankLine,
-                   SpinePath)
+from aristoxenus.score import *
 from aristoxenus.utils import multimethod
 from aristoxenus import music
 
@@ -137,6 +135,11 @@ def show(self):
 @multimethod(NullToken)
 def show(self):
     return "."
+
+
+@multimethod(NullInterpretation)
+def show(self):
+    return "*"
 
 
 @multimethod(UnknownType)

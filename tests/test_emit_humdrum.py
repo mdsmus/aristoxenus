@@ -2,7 +2,6 @@ from fractions import Fraction
 from aristoxenus import emit
 from aristoxenus import score
 
-
 # show
 
 def pytest_funcarg__two_notes(request):
@@ -29,6 +28,9 @@ def test_show_tandem():
 def test_show_exclusive():
     exclusive = score.Exclusive("kern")
     assert emit.humdrum.show(exclusive) == "**kern"
+
+def test_show_nullinterpretation():
+    assert emit.humdrum.show(score.NullInterpretation()) == '*'
 
 def test_show_spine_end():
     assert emit.humdrum.show(score.SpinePath("spine-end")) == '*-'

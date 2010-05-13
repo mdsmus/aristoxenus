@@ -93,6 +93,10 @@ class NullToken(object):
     pass
 
 
+class NullInterpretation(object):
+    pass
+
+
 class Dynam(object):
     def __init__(self, data):
         self.data = data
@@ -101,7 +105,7 @@ class Dynam(object):
 class UnknownType(str):
     pass
 
-    
+
 def make_notes(notes):
     """return a :class:`score.Score` with the notes written as a string."""
 

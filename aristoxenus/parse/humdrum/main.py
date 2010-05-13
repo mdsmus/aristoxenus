@@ -4,9 +4,7 @@ from itertools import izip, count
 import re
 from aristoxenus import utils
 from aristoxenus import music
-from aristoxenus.score import (Score, Record, Comment, Tandem, Exclusive, UnknownType,
-                               Note, MultipleStop, Bar, Rest, NullToken, BlankLine,
-                               SpinePath)
+from aristoxenus import score
 import kern
 
 debug = False
@@ -33,7 +31,7 @@ def parse_spine_path(item):
          '*v': "spine-join",
          '*x': "spine-swap"}
 
-    return SpinePath(d[item])
+    return score.SpinePath(d[item])
 
 
 def parse_bar(item):
@@ -44,10 +42,10 @@ def parse_bar(item):
     syntax for visual bar lines that we don't parse. See :ref:`todo`.
     """
 
-    return Bar(utils.search_string("[0-9]+([a-z]+)?", item),
-               bool(utils.search_string(":\\||:!", item)),
-               bool(utils.search_string("\\|:|!:", item)),
-               bool(utils.search_string("==", item)))
+    return score.Bar(utils.search_string("[0-9]+([a-z]+)?", item),
+                     bool(utils.search_string(":\\||:!", item)),
+                     bool(utils.search_string("\\|:|!:", item)),
+                     bool(utils.search_string("==", item)))
 
 
 def parse_clef(item):
@@ -64,11 +62,11 @@ def parse_clef(item):
            "F" : "bass",
            "G" : "treble"}
 
-    return Tandem("clef", dic[item])
+    return score.Tandem("clef", dic[item])
 
 
 def parse_expansion_list(item):
-    return Tandem("expansion-list", item[:-1].split(','))
+    return score.Tandem("expansion-list", item[:-1].split(','))
 
 
 def parse_key_signature(item):
@@ -80,46 +78,46 @@ def parse_key_signature(item):
     flats = music.accidentals_table[-size]
 
     if list_keys == sharps:
-        return Tandem("key-signature", size)
+        return score.Tandem("key-signature", size)
     elif list_keys == flats:
-        return Tandem("key-signature", -size)
+        return score.Tandem("key-signature", -size)
     else:
-        return Tandem("key-signature", list_keys)
+        return score.Tandem("key-signature", list_keys)
 
 
 def parse_key(item):
-    return Tandem("key", utils.replace_flats(item))
+    return score.Tandem("key", utils.replace_flats(item))
 
 
 def parse_tandem(item):
     if item.startswith("*clef"):
         return parse_clef(item[5:])
     elif item.startswith("*IC"):
-        return Tandem("instr-class", item[3:])
+        return score.Tandem("instr-class", item[3:])
     elif item.startswith("*IG"):
-        return Tandem("instr-group", item[3:])
+        return score.Tandem("instr-group", item[3:])
     elif item.startswith("*ITr"):
-        return Tandem("transposing", item[4:])
+        return score.Tandem("transposing", item[4:])
     elif item.startswith("*I:"):
-        return Tandem("instrument", item[3:])
+        return score.Tandem("instrument", item[3:])
     elif item.startswith("*I"):
-        return Tandem("instrument", item[2:])
+        return score.Tandem("instrument", item[2:])
     elif item.startswith("*k"):
         return parse_key_signature(item[2:])
     elif item.startswith("*MM"):
-        return Tandem("tempo", float(item[3:]))
+        return score.Tandem("tempo", float(item[3:]))
     elif item.startswith("*M"):
-        return Tandem("meter", item[2:])
+        return score.Tandem("meter", item[2:])
     elif item.startswith("*tb"):
-        return Tandem("timebase", float(item[3:]))
+        return score.Tandem("timebase", float(item[3:]))
     elif item.startswith("*>["):
         return parse_expansion_list(item[3:])
     elif item.startswith("*>"):
-        return Tandem("label", item[2:])
+        return score.Tandem("label", item[2:])
     elif item.endswith(":"):
         return parse_key(item[1:-1])
     else:
-        return Tandem(None, item[1:])
+        return score.Tandem(None, item[1:])
 
 
 def parse_data(data_type, item, lineno=1, itemno=1):
@@ -134,7 +132,7 @@ def parse_data(data_type, item, lineno=1, itemno=1):
     """
 
     def unknown_type(item, lineno=1, itemno=1):
-        return UnknownType(item)
+        return score.UnknownType(item)
 
     dispatch = {"kern": kern.parse_kern}
 
@@ -144,12 +142,12 @@ def parse_data(data_type, item, lineno=1, itemno=1):
 ## basic parser
 
 
-def parse_item(item, score, lineno=1, itemno=1):
+def parse_item(item, sco, lineno=1, itemno=1):
     """Parse each item of a humdrum spine.
 
     We can parse general items like :class:`score.Bar`,
-    :class:`score.Exclusive`, :class:`score.Tandem`,
-    :class:`score.Comment`, and :class:`score.NullToken` without
+    :class:`score.score.Exclusive`, :class:`score.Tandem`,
+    :class:`score.score.Comment`, and :class:`score.NullToken` without
     previous information since the type of data is defined in the
     string itself (e.g. the '**' in '**kern' defines it as an
     exclusive interpretation). However, we can't parse other data
@@ -160,33 +158,35 @@ def parse_item(item, score, lineno=1, itemno=1):
     """
 
     if type(item) is list:
-        return [parse_item(i, score, lineno, itemno) for i in item]
+        return [parse_item(i, sco, lineno, itemno) for i in item]
     elif item.startswith("="):
         return parse_bar(item)
+    elif item == "*":
+        return score.NullInterpretation()
     elif item.startswith("**"):
         spine_type = item[2:]
-        score.spine_types.append(spine_type)
-        return Exclusive(spine_type)
+        sco.spine_types.append(spine_type)
+        return score.Exclusive(spine_type)
     elif item in ["*-", "*+", "*^", "*v", "*x"]:
         return parse_spine_path(item)
     elif item.startswith("*"):
         if item.startswith("*I:"):
-            score.spine_names.append(item[3:])
+            sco.spine_names.append(item[3:])
         elif (item.startswith("*I") and not item.startswith("*IC")
-              and len(score.spine_names) != itemno - 1):
-            score.spine_names.append(item[2:])
+              and len(sco.spine_names) != itemno - 1):
+            sco.spine_names.append(item[2:])
 
         return parse_tandem(item)
     elif item.startswith("!"):
         return parse_comment(item)
     elif item == ".":
-        return NullToken()
+        return score.NullToken()
     else:
-        spine_type_list = score.spine_types
+        spine_type_list = sco.spine_types
         if len(spine_type_list) == 0:
             humdrum_error("Can't parse an item without knowing the spine type.")
         else:
-            data_type = score.spine_types[itemno]
+            data_type = sco.spine_types[itemno]
         return parse_data(data_type, item, lineno, itemno)
 
 
@@ -201,18 +201,18 @@ def parse_reference_record(line):
     """
 
     s = line.split(":", 1)
-    return Record(s[0][3:].strip(), s[1].strip())
+    return score.Record(s[0][3:].strip(), s[1].strip())
 
 
 def parse_comment(line):
     """Separate the actual comment from the comment character."""
 
     match = re.match("^(!+)(.*)$", line)
-    return Comment(match.group(2).strip(), len(match.group(1)))
+    return score.Comment(match.group(2).strip(), len(match.group(1)))
 
 
-def parse_line(line, score, lineno=1):
-    """Parse a line, append the parsed result into the score and return the score
+def parse_line(line, sco, lineno=1):
+    """Parse a line, append the parsed result into the sco and return the sco
 
     A line can be a BlankLine, a reference record, a comment, or have
     tabular data (spines) in which case we parse each item
@@ -227,37 +227,37 @@ def parse_line(line, score, lineno=1):
     """
 
     if utils.search_string(r"^[ \t]*$", line) is not None:
-        score.append(BlankLine())
+        sco.append(score.BlankLine())
     elif utils.search_string(r"^!{3}[a-zA-Z ]+", line):
         record = parse_reference_record(line)
         if record.name.startswith("COM"):
-            score.composer = record.data
+            sco.composer = record.data
         elif record.name.startswith("OTL"):
-            score.title = record.data
+            sco.title = record.data
 
-        score.append(record)
+        sco.append(record)
     elif utils.search_string(r"^(!{2})|(!{4,})[a-zA-Z ]+", line):
-        score.append(parse_comment(line))
+        sco.append(parse_comment(line))
     else:
         s = line.split("\t")
 
-        if score.split_spine:
-            n = score.split_spine
+        if sco.split_spine:
+            n = sco.split_spine
             s[n:n+2] = [s[n:n+2]]
 
         if "*^" in s:
-            score.split_spine = s.index("*^")
+            sco.split_spine = s.index("*^")
 
         for i in s:
             if type(i) is list:
                 if "*v" in i:
-                    score.split_spine = False
+                    sco.split_spine = False
             elif "*v" == i:
-                score.split_spine = False
+                sco.split_spine = False
 
-        parsed = [parse_item(i, score, lineno, n) for i, n in izip(s, count())]
-        score.append(parsed)
-    return score
+        parsed = [parse_item(i, sco, lineno, n) for i, n in izip(s, count())]
+        sco.append(parsed)
+    return sco
 
 
 def parse_string(string):
@@ -268,7 +268,7 @@ def parse_string(string):
     should use :func:`parse_file()` instead.
     """
 
-    s = Score()
+    s = score.Score()
     for line, lineno in izip(string.split('\n'), count(1)):
         parse_line(line, s, lineno)
     return s
@@ -278,7 +278,7 @@ def parse_file(filename):
     """Parse a humdrum file and return a :class:`score.Score`."""
 
     with open(filename) as f:
-        s = Score()
+        s = score.Score()
         for line, lineno in izip(f, count(1)):
             parse_line(line.rstrip(), s, lineno)
         return s
