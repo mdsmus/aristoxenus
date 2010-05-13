@@ -8,8 +8,10 @@ from difflib import SequenceMatcher
 from optparse import OptionParser
 from itertools import count
 
-import aristoxenus.parse as parse
-import aristoxenus.emit as emit
+from aristoxenus import parse
+from aristoxenus import emit
+from aristoxenus import music
+
 
 colors = {"black": "0;30",
           "blue": "0;34",
@@ -82,7 +84,7 @@ def run_datatest(files, opt):
                 if opt.showhumdrum:
                     print("{0}\n\n{1}".format(orig, conv))
 
-        except IndexError as strerror:
+        except (IndexError, music.MusicError) as strerror:
             color_print("[err]", "purple")
             if opt.showerror:
                 print(strerror, '\n')
@@ -99,5 +101,7 @@ if __name__ == "__main__":
                       action="store_true", dest="showerror")
     parser.add_option("-H", "--show-humdrum", help="show humdrum files",
                       action="store_true", dest="showhumdrum")
+    parser.add_option("-q", "--quiet", help="only show final stats",
+                      action="store_true", dest="quiet")
     (options, args) = parser.parse_args()
     run_datatest(args, options)
