@@ -99,7 +99,7 @@ def parse_tandem(item):
     elif item.startswith("*ITr"):
         return score.Tandem("transposing", item[4:])
     elif item.startswith("*I:"):
-        return score.Tandem("instrument", item[3:])
+        return score.Tandem("instrument-user", item[3:])
     elif item.startswith("*I"):
         return score.Tandem("instrument", item[2:])
     elif item.startswith("*k"):

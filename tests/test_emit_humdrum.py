@@ -21,8 +21,12 @@ def test_show_comment():
     comment = score.Comment("bla bla", 2)
     assert emit.humdrum.show(comment) == '!! bla bla'
 
-def test_show_tandem():
+def test_show_tandem_instrument():
     tandem = score.Tandem("instrument", "violin")
+    assert emit.humdrum.show(tandem) == '*Iviolin'
+
+def test_show_tandem_instrument_user():
+    tandem = score.Tandem("instrument-user", "violin")
     assert emit.humdrum.show(tandem) == '*I:violin'
 
 def test_show_exclusive():
