@@ -58,6 +58,31 @@ spine_table_humdrum = {
     }
 
 
+clefs = {"bass": "F4",
+         "treble": "G2",
+         "alto": "C3",
+         "tenor": "C4",
+         "tenor8": "Gv2",
+         "soprano": "C1",
+         "mezzo": "C2",
+         "perc" : "X"
+         }
+
+tandem = {'clef': "clef",
+          'instr-class': "IC",
+          'instr-group': "IG",
+          'transposing': "ITr",
+          'instrument': "I",
+          'key-signature': "k",
+          'tempo': "MM",
+          'meter': "M",
+          'timebase': "tb",
+          'expansion-list': ">[",
+          'label': ">",
+          'key': '???'
+          }
+
+
 class ConvertError(Exception):
     pass
 
@@ -86,7 +111,8 @@ def show(self):
 
 @multimethod(Tandem)
 def show(self):
-    return "*{0}{1}".format(self.type, self.data)
+    data = clefs[self.data] if self.type == "clef" else self.data
+    return "*{0}{1}".format(tandem[self.type], data)
 
 
 @multimethod(Exclusive)
@@ -113,7 +139,8 @@ def show(self):
 
 @multimethod(Bar)
 def show(self):
-    return "={0}".format(self.number)
+    n = 2 if self.double else 1
+    return "=" * n + str(self.number)
 
 
 @multimethod(SpinePath)
