@@ -77,7 +77,7 @@ def accidental(acc):
     return len(acc) * op
 
 
-def string_to_code(notename, acc, code):
+def string_to_code(notename, acc, code, octave=1):
     """
     >>> string_to_code('b', '#', 'base12')
     0
@@ -85,11 +85,17 @@ def string_to_code(notename, acc, code):
 
     notes = "c d e f g a b".split()
     dic = {'base40': ([3, 9, 15, 20, 26, 32, 38], 40),
-           'base12': ([0, 2, 4, 5, 7, 8, 11], 12)}
+           'base12': ([0, 2, 4, 5, 7, 8, 11], 12),
+           'midi': ([0, 2, 4, 5, 7, 8, 11], 12)}
 
     code_list = dic[code][0]
     n = code_list[notes.index(notename.lower())]
-    return  (n + accidental(acc)) % dic[code][1]
+    base = dic[code][1]
+
+    if code == "midi":
+        return  (n + accidental(acc)) + ((octave + 1) * base)
+    else:
+        return  ((n + accidental(acc)) + ((octave + 1) * base)) % base
 
 
 def frac_to_dur(n):

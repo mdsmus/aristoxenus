@@ -120,7 +120,7 @@ def parse_tandem(item):
         return score.Tandem(None, item[1:])
 
 
-def parse_data(data_type, item, lineno=1, itemno=1):
+def parse_data(data_type, item, note_system="base40", lineno=1, itemno=1):
     """Apply the right function to parse ``data_type``.
 
     For instance, if ``data_type`` is 'kern', then ``parse_data`` will
@@ -136,13 +136,13 @@ def parse_data(data_type, item, lineno=1, itemno=1):
 
     dispatch = {"kern": kern.parse_kern}
 
-    return dispatch.get(data_type, unknown_type)(item, lineno, itemno)
+    return dispatch.get(data_type, unknown_type)(item, note_system, lineno, itemno)
 
 
 ## basic parser
 
 
-def parse_item(item, sco, lineno=1, itemno=1):
+def parse_item(item, sco, note_system="base40", lineno=1, itemno=1):
     """Parse each item of a humdrum spine.
 
     We can parse general items like :class:`score.Bar`,
@@ -158,7 +158,7 @@ def parse_item(item, sco, lineno=1, itemno=1):
     """
 
     if type(item) is list:
-        return [parse_item(i, sco, lineno, itemno) for i in item]
+        return [parse_item(i, sco, note_system, lineno, itemno) for i in item]
     elif item.startswith("="):
         return parse_bar(item)
     elif item == "*":
@@ -187,7 +187,7 @@ def parse_item(item, sco, lineno=1, itemno=1):
             humdrum_error("Can't parse an item without knowing the spine type.")
         else:
             data_type = sco.spine_types[itemno]
-        return parse_data(data_type, item, lineno, itemno)
+        return parse_data(data_type, item, note_system, lineno, itemno)
 
 
 def parse_reference_record(line):
@@ -211,7 +211,7 @@ def parse_comment(line):
     return score.Comment(match.group(2).strip(), len(match.group(1)))
 
 
-def parse_line(line, sco, lineno=1):
+def parse_line(line, sco, note_system="base40", lineno=1):
     """Parse a line, append the parsed result into the sco and return the sco
 
     A line can be a BlankLine, a reference record, a comment, or have
@@ -255,12 +255,12 @@ def parse_line(line, sco, lineno=1):
             elif "*v" == i:
                 sco.split_spine = False
 
-        parsed = [parse_item(i, sco, lineno, n) for i, n in izip(s, count())]
+        parsed = [parse_item(i, sco, note_system, lineno, n) for i, n in izip(s, count())]
         sco.append(parsed)
     return sco
 
 
-def parse_string(string):
+def parse_string(string, note_system="base40"):
     """Parse a string with humdrum data  and return a :class:`score.Score`.
 
     This function is useful mainly for tests and to parse data
@@ -270,15 +270,15 @@ def parse_string(string):
 
     s = score.Score()
     for line, lineno in izip(string.split('\n'), count(1)):
-        parse_line(line, s, lineno)
+        parse_line(line, s, note_system, lineno)
     return s
 
 
-def parse_file(filename):
+def parse_file(filename, note_system="base40"):
     """Parse a humdrum file and return a :class:`score.Score`."""
 
     with open(filename) as f:
         s = score.Score()
         for line, lineno in izip(f, count(1)):
-            parse_line(line.rstrip(), s, lineno)
+            parse_line(line.rstrip(), s, note_system, lineno)
         return s

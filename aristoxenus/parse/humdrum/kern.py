@@ -161,7 +161,7 @@ def kern_tokenizer(item, linen=1):
     return tokens
 
 
-def parse_kern_item(item, lineno=1, itemno=1):
+def parse_kern_item(item, note_system="base40", lineno=1, itemno=1):
     tokens = kern_tokenizer(item, lineno)
 
     if (not tokens['dur']) and ((not tokens['acciac']) or (not tokens['app'])):
@@ -182,8 +182,8 @@ def parse_kern_item(item, lineno=1, itemno=1):
         note.articulations = tokens['art']
         note.beams = tokens['beam']
         note.octave = parse_kern_octave(notename, acc)
-        note.code = music.string_to_code(notename[0], acc, "base40")
-        note.system = "base40"
+        note.code = music.string_to_code(notename[0], acc, note_system, note.octave)
+        note.system = note_system
         note.type = "kern"
         return note
     elif tokens['rest']:
@@ -193,12 +193,12 @@ def parse_kern_item(item, lineno=1, itemno=1):
         kern_error("Kern data must have a note or rest.")
 
 
-def parse_kern(item, linen=1, itemno=1):
+def parse_kern(item, note_system="base40", linen=1, itemno=1):
     s = item.split(" ")
 
     if not item:
         kern_error("Kern item shouldn't be empty.")
     elif len(s) == 1:
-        return parse_kern_item(item, linen, itemno)
+        return parse_kern_item(item, note_system, linen, itemno)
     else:
-        return MultipleStop([parse_kern_item(i, linen, itemno) for i in s])
+        return MultipleStop([parse_kern_item(i, note_system, linen, itemno) for i in s])

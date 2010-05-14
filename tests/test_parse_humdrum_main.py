@@ -216,3 +216,21 @@ def test_parse_string_note(simple_score):
 
 def test_parse_string_spine_path(simple_score):
     assert isinstance(simple_score[2][0], score.SpinePath)
+
+# test parsing a string with different note systems
+
+def test_parse_string_base12(simple_score):
+    sco = main.parse_string("**kern\n4e-\n*-", note_system="base12")
+    note = sco[1][0]
+    assert note.code == 3
+
+def test_parse_string_base40(simple_score):
+    sco = main.parse_string("**kern\n4c\n*-", note_system="base40")
+    note = sco[1][0]
+    assert note.code == 3
+
+def test_parse_string_midi(simple_score):
+    sco = main.parse_string("**kern\n4e-\n*-", note_system="midi")
+    note = sco[1][0]
+    assert note.code == 63
+

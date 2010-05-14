@@ -168,3 +168,9 @@ def test_parse_kern_4c():
 
 def test_parse_kern_4r():
     assert isinstance(kern.parse_kern("4r"), score.Rest)
+
+def test_parse_kern_4c_base40():
+    assert kern.parse_kern("4c").code == 3
+
+def test_parse_kern_4c_base12():
+    assert kern.parse_kern("4c", note_system="base12").code == 0
