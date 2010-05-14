@@ -125,7 +125,8 @@ def show(self):
 def show(self):
     name = music.notename_to_humdrum(self.name, self.octave)
     dur = music.frac_to_dur(self.duration)
-    return "{1}{0}".format(name, dur)
+    articulations = [humdrum_table[a] for a in self.articulations]
+    return "{0}{1}{2}".format(dur, name, "".join(articulations))
 
 
 @multimethod(MultipleStop)
