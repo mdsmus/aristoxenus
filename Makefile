@@ -14,10 +14,8 @@ lint:
 check:
 	./tools/pep8.py $(PROJNAME)/*.py
 
-tests:
+test-unit:
 	py.test --tb=line
-
-test-all: test-compositions test-data
 
 test-compositions:
 	./humdiff compositions/*/*.krn
