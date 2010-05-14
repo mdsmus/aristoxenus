@@ -30,7 +30,7 @@ def power_two_series(n):
     """Return a list of the power of two numbers that summed will give n.
 
     The power of two series is :math:`\\sum_{i=0}^{n-1} 2^i`.
-    
+
     >>> power_two_series(7)
     [1, 2, 4]
     """
@@ -44,12 +44,12 @@ def calculate_duration(dur, dots=0):
 
     :param dur: reciprocal of usual note values (e.g. 8th note has the value of 8)
     :param dots: number of duration dots
-   
+
     The total duration of a note is :math:`\\sum_{i=0} \\frac{R}{2^i}`
     where R is the reciprocal of ``dur``. For instance, a
     note with a duration like '16..' will have a total duration of
     1/16 + 1/32 + 1/64 = 7/64.
-    
+
     >>> calculate_duration(16, 2)
     Fraction(7, 64)
     """
@@ -64,7 +64,7 @@ def calculate_duration(dur, dots=0):
         base = Fraction().from_decimal(dur) ** -1
     else:
         raise MusicError, "I don't recognize duration {0}".format(dur)
-    
+
     return sum([base / (2 ** x) for x in range(0, dots + 1)])
 
 
@@ -82,7 +82,7 @@ def string_to_code(notename, acc, code):
     >>> string_to_code('b', '#', 'base12')
     0
     """
-    
+
     notes = "c d e f g a b".split()
     dic = {'base40': ([3, 9, 15, 20, 26, 32, 38], 40),
            'base12': ([0, 2, 4, 5, 7, 8, 11], 12)}
@@ -103,7 +103,7 @@ def frac_to_dur(n):
 
     num = n.numerator
     den = n.denominator
-    
+
     if num == 1:
         return str(den)
     elif num in [3, 7, 15]:
@@ -120,7 +120,7 @@ def notename_to_humdrum(notename, octave):
     >>> note_to_humdrum('Cbb', 5)
     cc--
     """
-    
+
     note = notename[0]
     acc = notename[1:].replace("b", "-")
 
