@@ -11,13 +11,11 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
-   score.rst
-   humdrum.rst
-   music.rst
-   exporting.rst
    using.rst
+   score.rst
+   music.rst
    hacking.rst
-   todo.rst
+   humdrum.rst
 
 
 Indices and tables

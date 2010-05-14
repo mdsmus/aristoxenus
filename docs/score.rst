@@ -1,3 +1,5 @@
+.. _score:
+
 The Score data structure
 ========================
 

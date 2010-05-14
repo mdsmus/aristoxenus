@@ -1,5 +1,5 @@
-The Humdrum parser
-==================
+Appendix 1 - The Humdrum parser
+===============================
 
 Introduction
 ------------

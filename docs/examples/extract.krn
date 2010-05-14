@@ -1,0 +1,6 @@
+!! 'extract' example #1
+**ABC	**xyz	**123	**ABC	**foo
+A	x	1	a	bar
+B	y	2	b	.
+C	z	3	c	#
+*-	*-	*-	*-	*-
