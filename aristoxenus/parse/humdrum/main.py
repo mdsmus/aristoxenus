@@ -131,7 +131,7 @@ def parse_data(data_type, item, note_system="base40", lineno=1, itemno=1):
     will be returned without any parsing.
     """
 
-    def unknown_type(item, lineno=1, itemno=1):
+    def unknown_type(item, note_system, lineno=1, itemno=1):
         return score.UnknownType(item)
 
     dispatch = {"kern": kern.parse_kern}
