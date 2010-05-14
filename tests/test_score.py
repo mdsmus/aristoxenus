@@ -1,5 +1,5 @@
-import score
 from fractions import Fraction as frac
+from aristoxenus import score
 
 # Simple tests to make sure the main classes are instantiating
 # correctly and without errors. Most classes will be tested in the

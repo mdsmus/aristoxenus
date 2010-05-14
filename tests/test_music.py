@@ -1,5 +1,5 @@
 from fractions import Fraction
-import music
+from aristoxenus import music
 import py
 
 # power_two_series
