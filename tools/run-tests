@@ -1,0 +1,6 @@
+#!/bin/bash
+
+export PYTHONPATH=$(pwd)
+
+py.test --tb=line
+./humdiff data/*.krn
