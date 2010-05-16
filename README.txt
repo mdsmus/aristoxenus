@@ -22,7 +22,7 @@ Installation
 You can install this package with easy_install using:
 
     easy_install aristoxenus
-    
+
 Or if you have already downloaded the .tar.gz archive:
 
     tar xzvf aristoxenus-0.1.0.tar.gz
