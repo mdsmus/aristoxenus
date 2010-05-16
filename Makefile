@@ -40,7 +40,8 @@ callgraph:
 	pycallgraph ./run-interactive.py -i aristoxenus.* -e *.*
 
 TAGS: $(PYTHONFILES)
-	find . -name "*.py" | xargs etags --output TAGS -l python
+	ctags-exuberant -e -R --languages=python
+#	find . -name "*.py" | xargs etags --output TAGS -l python
 
 clean:
 	find -name "*.pyc" | xargs rm
