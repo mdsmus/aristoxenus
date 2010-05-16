@@ -219,18 +219,28 @@ def test_parse_string_spine_path(simple_score):
 
 # test parsing a string with different note systems
 
-def test_parse_string_base12(simple_score):
+def test_parse_string_base12():
     sco = main.parse_string("**kern\n4e-\n*-", note_system="base12")
     note = sco[1][0]
     assert note.code == 3
 
-def test_parse_string_base40(simple_score):
+def test_parse_string_base40():
     sco = main.parse_string("**kern\n4c\n*-", note_system="base40")
     note = sco[1][0]
     assert note.code == 3
 
-def test_parse_string_midi(simple_score):
+def test_parse_string_midi():
     sco = main.parse_string("**kern\n4e-\n*-", note_system="midi")
     note = sco[1][0]
     assert note.code == 63
 
+# test parsing a non-kern spine
+
+def pytest_funcarg__foo_spine(request):
+    return main.parse_string("**foo\nbar\n*-")
+
+def test_parse_non_kern_spine_name(foo_spine):
+    assert foo_spine[0][0].name == 'foo'
+
+def test_parse_non_kern_spine_value(foo_spine):
+    assert foo_spine[1][0] == 'bar'
