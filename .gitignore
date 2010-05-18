@@ -18,3 +18,4 @@ docs/_build
 MANIFEST
 dist
 test-interactive.py
+/.dir-locals.el
