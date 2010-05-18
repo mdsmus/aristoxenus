@@ -51,10 +51,13 @@ class DispatchError(TypeError):
 class signature(tuple):
     "A tuple of types that supports partial ordering."
     __slots__ = ()
+
     def __le__(self, other):
         return len(self) <= len(other) and all(imap(issubclass, other, self))
+
     def __lt__(self, other):
         return self != other and self <= other
+
     def __sub__(self, other):
         "Return relative distances, assuming self >= other."
         return [list(left.__mro__).index(right) for left, right in izip(self, other)]
