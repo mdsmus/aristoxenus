@@ -14,6 +14,9 @@ lint:
 check:
 	./tools/pep8.py $(PROJNAME)/*.py
 
+tests:
+	tools/run-tests
+
 test-unit:
 	py.test --tb=line
 
@@ -40,7 +43,7 @@ callgraph:
 	pycallgraph ./run-interactive.py -i aristoxenus.* -e *.*
 
 TAGS: $(PYTHONFILES)
-	ctags-exuberant -e -R --languages=python
+	ctags-exuberant -e -R --languages=python --exclude="__init__.py"
 #	find . -name "*.py" | xargs etags --output TAGS -l python
 
 clean:
