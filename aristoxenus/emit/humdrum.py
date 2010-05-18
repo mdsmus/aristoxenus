@@ -1,9 +1,7 @@
 from __future__ import print_function
 import sys
-from aristoxenus.score import *
-from aristoxenus.utils import multimethod
 from aristoxenus import music
-
+from aristoxenus import utils
 
 humdrum_table = {
     'natural': "n",
@@ -84,93 +82,66 @@ tandem = {'clef': "clef",
           }
 
 
-class ConvertError(Exception):
-    pass
+class PrintHumdrum(utils.Visitor):
+    def visit_Score(self, obj):
+        result = []
+        for item in obj:
+            if type(item) is list:
+                result.append("\t".join([show(x) for x in item]))
+            else:
+                result.append(show(item))
+        return "\n".join(result)
+
+    def visit_Record(self, obj):
+        return "!!! {0}: {1}".format(obj.name, obj.data)
+
+    def visit_Comment(self, obj):
+        return "{0} {1}".format(obj.level * "!", obj.data)
+
+    def visit_Tandem(self, obj):
+        data = clefs[obj.data] if obj.type == "clef" else obj.data
+        obj_type = tandem.get(obj.type, data)
+        return "*{0}{1}".format(obj_type, data)
+
+    def visit_Exclusive(self, obj):
+        return "**{0}".format(obj.name)
+
+    def visit_Note(self, obj):
+        name = music.notename_to_humdrum(obj.name, obj.octave)
+        dur = music.frac_to_dur(obj.duration)
+        articulations = [humdrum_table[a] for a in obj.articulations]
+        return "{0}{1}{2}".format(dur, name, "".join(articulations))
+
+    def visit_MultipleStop(self, obj):
+        return " ".join([show(x) for x in obj])
+
+    def visit_list(self, obj):
+        return "\t".join([show(x) for x in obj])
+
+    def visit_Bar(self, obj):
+        n = 2 if obj.double else 1
+        return "=" * n + str(obj.number)
+
+    def visit_SpinePath(self, obj):
+        return "*{0}".format(spine_table_humdrum[obj.type])
+
+    def visit_Rest(self, obj):
+        dur = music.frac_to_dur(obj.duration)
+        return "{0}r".format(dur)
+
+    def visit_BlankLine(self, obj):
+        return "\n"
+
+    def visit_NullToken(self, obj):
+        return "."
+
+    def visit_NullInterpretation(self, obj):
+        return "*"
+
+    def visit_UnknownType(self, obj):
+        return obj
 
 
-## humdrum
-@multimethod(Score)
-def show(self):
-    result = []
-    for item in self:
-        if type(item) is list:
-            result.append("\t".join([show(x) for x in item]))
-        else:
-            result.append(show(item))
-    return "\n".join(result)
-
-
-@multimethod(Record)
-def show(self):
-    return "!!! {0}: {1}".format(self.name, self.data)
-
-
-@multimethod(Comment)
-def show(self):
-    return "{0} {1}".format(self.level * "!", self.data)
-
-
-@multimethod(Tandem)
-def show(self):
-    data = clefs[self.data] if self.type == "clef" else self.data
-    return "*{0}{1}".format(tandem[self.type], data)
-
-
-@multimethod(Exclusive)
-def show(self):
-    return "**{0}".format(self.name)
-
-
-@multimethod(Note)
-def show(self):
-    name = music.notename_to_humdrum(self.name, self.octave)
-    dur = music.frac_to_dur(self.duration)
-    articulations = [humdrum_table[a] for a in self.articulations]
-    return "{0}{1}{2}".format(dur, name, "".join(articulations))
-
-
-@multimethod(MultipleStop)
-def show(self):
-    return " ".join([show(x) for x in self])
-
-
-@multimethod(list)
-def show(self):
-    return "\t".join([show(x) for x in self])
-
-
-@multimethod(Bar)
-def show(self):
-    n = 2 if self.double else 1
-    return "=" * n + str(self.number)
-
-
-@multimethod(SpinePath)
-def show(self):
-    return "*{0}".format(spine_table_humdrum[self.type])
-
-
-@multimethod(Rest)
-def show(self):
-    dur = music.frac_to_dur(self.duration)
-    return "{0}r".format(dur)
-
-
-@multimethod(BlankLine)
-def show(self):
-    return "\n"
-
-
-@multimethod(NullToken)
-def show(self):
-    return "."
-
-
-@multimethod(NullInterpretation)
-def show(self):
-    return "*"
-
-
-@multimethod(UnknownType)
-def show(self):
-    return self
+def show(obj):
+    p = PrintHumdrum()
+    return p.dispatch(obj)

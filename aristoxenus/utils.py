@@ -22,117 +22,50 @@ def flatten(listOfLists):
     return itertools.chain.from_iterable(listOfLists)
 
 
-# from http://pypi.python.org/pypi/multimethod/0.2
-# Author: Aric Coady <coady at bent-arrow com>
-
-"""
-Multiple argument dispacthing.
-
-Call multimethod on a variable number of types.
-It returns a decorator which finds the multimethod of the same name,
-creating it if necessary, and adds that function to it.  For example:
-
-    @multimethod(*types)
-    def func(*args):
-        ...
-
-'func' is now a multimethod which will delegate to the above function,
-when called with arguments of the specified types.  If an exact match
-can't be found, the next closest method will be called (and cached).
-A function can have more than one multimethod decorator.
-
-See tests for more example usage.
-"""
-
-class DispatchError(TypeError):
+class VisitorError(TypeError):
     pass
 
 
-class signature(tuple):
-    "A tuple of types that supports partial ordering."
-    __slots__ = ()
+# FIXME: add arguments and cache
+class Visitor():
+    """Very simple visitor class.
 
-    def __le__(self, other):
-        return len(self) <= len(other) and all(imap(issubclass, other, self))
+    To use it you need to subclass the Visitor class and provide
+    methods in the form visit_ClassName(self, obj). It's a good idea
+    to encapsulate the visitor class in a dispatch function that has a
+    relevant name for the application. For instance, to implement a
+    printer for the classes Foo() and Bar()::
 
-    def __lt__(self, other):
-        return self != other and self <= other
+        class PrintVisitor(Visitor):
+            def visit_Foo(self, obj):
+                print 'visiting foo'
 
-    def __sub__(self, other):
-        "Return relative distances, assuming self >= other."
-        return [list(left.__mro__).index(right) for left, right in izip(self, other)]
+            def visit_Bar(self, obj):
+                print 'visiting bar'
 
+        def show(obj):
+            p = PrintVisitor()
+            p.dispatch(obj)
 
-class multimethod(dict):
-    "A callable directed acyclic graph of methods."
+    And show() will do the right thing according to the type of object
+    it receives::
 
-    def __new__(cls, *types):
-        "Return a decorator which will add the function."
-        namespace = sys._getframe(1).f_locals
-        def decorator(func):
-            if isinstance(func, cls):
-                self, func = func, func.last
-            elif func.__name__ in namespace:
-                self = namespace[func.__name__]
-            else:
-                self = dict.__new__(cls)
-                self.__name__, self.cache = func.__name__, {}
-            self[types] = self.last = func
-            return self
-        return decorator
+        a = Foo()
+        b = Bar()
+        show(a)
+        show(b)
 
-    def parents(self, types):
-        "Find immediate parents of potential key."
-        parents, ancestors = set(), set()
-        for key, (value, superkeys) in self.items():
-            if key < types:
-                parents.add(key)
-                ancestors |= superkeys
-        return parents - ancestors
+    If an object has a type that is not handled by Visitor(), the
+    `default` method is called. You can (and should) shadow this
+    method when you subclass Visitor.
+    """
 
-    def __getitem__(self, types):
-        return dict.__getitem__(self, types)[0]
+    def dispatch(self, obj):
+        class_name = obj.__class__.__name__
+        method = getattr(self, "visit_" + class_name, self.default)
+        return method(obj)
 
-    def __setitem__(self, types, func):
-        self.cache.clear()
-        types = signature(types)
-        parents = self.parents(types)
-        for key, (value, superkeys) in self.items():
-            if types < key and (not parents or parents & superkeys):
-                superkeys -= parents
-                superkeys.add(types)
-        dict.__setitem__(self, types, (func, parents))
-
-    def __delitem__(self, types):
-        self.cache.clear()
-        dict.__delitem__(self, types)
-        for key, (value, superkeys) in self.items():
-            if types in superkeys:
-                dict.__setitem__(self, key, (value, self.parents(key)))
-
-    def super(self, *types):
-        "Return the next applicable method of given types."
-        types = signature(types)
-        keys = self.parents(types)
-        if keys:
-            return self[min(keys, key=types.__sub__)]
-        raise DispatchError("%s%s: no methods found" % (self.__name__, types))
-
-    def __call__(self, *args, **kwargs):
-        "Resolve and dispatch to best method."
-        types = tuple(imap(type, args))
-        try:
-            func = self.cache[types]
-        except KeyError:
-            func = self.cache[types] = self[types] if types in self else self.super(*types)
-        return func(*args, **kwargs)
-
-
-class strict_multimethod(multimethod):
-    "A multimethod which requires a single unambiguous best match."
-    def super(self, *types):
-        "Return the next applicable method of given types."
-        keys = self.parents(signature(types))
-        if len(keys) == 1:
-            return self[keys.pop()]
-        raise DispatchError("%s%s: %d methods found" % (self.__name__, types, len(keys)))
+    def default(self, obj):
+        objtype = type(obj).__name__
+        error_string = "No applicable method for object of type "
+        raise VisitorError(error_string + objtype)
