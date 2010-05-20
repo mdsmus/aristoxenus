@@ -10,7 +10,7 @@ but if you want to contribute with the development you may want to
 setup some tools to run the unit tests and check for code quality:
 
   sudo apt-get install python-setuptools pylint dvipng python-profiler python-dev
-  sudo easy_install py coverage sphinx
+  sudo easy_install py coverage sphinx pytest-coverage
 
 
 ## Installation ##

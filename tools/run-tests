@@ -2,5 +2,5 @@
 
 export PYTHONPATH=$(pwd)
 
-py.test --tb=line
+py.test --tb=line --cover=aristoxenus --cover-report=report
 ./humdiff data/*.krn

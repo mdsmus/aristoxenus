@@ -1,0 +1,28 @@
+#!/usr/bin/env python
+
+import cProfile
+import pstats
+
+import aristoxenus
+from aristoxenus import parse
+from aristoxenus import emit
+# from aristoxenus import score
+# from aristoxenus import music
+# from aristoxenus import utils
+
+filename = "compositions/wtc/wtc1f20.krn"
+
+def profile_parsing():
+    return parse.humdrum.parse_file(filename)
+
+def profile_emit():
+    return emit.humdrum.show(parse.humdrum.parse_file(filename))
+
+cProfile.run('profile_parsing()', filename="parsing.stats")
+cProfile.run('profile_emit()', filename="emit.stats")
+
+
+parsing = pstats.Stats("parsing.stats")
+emiting = pstats.Stats("emit.stats")
+parsing.strip_dirs().sort_stats('time').print_stats(12)
+emiting.strip_dirs().sort_stats('time').print_stats(12)

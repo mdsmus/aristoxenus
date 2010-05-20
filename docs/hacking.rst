@@ -1,6 +1,15 @@
 Helping with Aristoxenus' development
 =====================================
 
+Configuring Emacs
+-----------------
+
+Put the following the file .dir-locals.el:
+
+        ((nil . ((default-directory . "~/Documents/aristoxenus/")
+                 (py-master-file . "test-interactive.py"))))
+
+
 .. _todo:
 
 Things to do

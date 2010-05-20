@@ -19,3 +19,6 @@ MANIFEST
 dist
 test-interactive.py
 /.dir-locals.el
+metricData.csv
+metricData.sql
+*.stats
