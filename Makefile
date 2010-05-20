@@ -19,13 +19,13 @@ tests:
 	tools/run-tests
 
 test-unit:
-	py.test --tb=line --cover=aristoxenus --cover-report=report
+	py.test --tb=line --cover=aristoxenus --cover-report=report --doctest-modules tests/ aristoxenus/
 
 test-data:
 	./humdiff data/*.krn
 
 coverage-html:
-	py.test --tb=line --cover=aristoxenus --cover-report=html
+	py.test --tb=line --cover=aristoxenus --cover-report=html --doctest-modules tests/ aristoxenus/
 
 test-compositions:
 	./humdiff compositions/*/*.krn

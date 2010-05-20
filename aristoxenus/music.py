@@ -123,8 +123,8 @@ def frac_to_dur(n):
 
 def notename_to_humdrum(notename, octave):
     """
-    >>> note_to_humdrum('Cbb', 5)
-    cc--
+    >>> notename_to_humdrum('Cbb', 5)
+    'cc--'
     """
 
     note = notename[0]
@@ -138,8 +138,8 @@ def notename_to_humdrum(notename, octave):
 
 def notename_to_lily(notename, octave):
     """
-    >>> note_to_lily('Cb', 5)
-    cb''
+    >>> notename_to_lily('Cb', 5)
+    \"ces''\"
     """
 
     note = notename[0]
