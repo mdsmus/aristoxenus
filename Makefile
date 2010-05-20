@@ -6,7 +6,7 @@ LINT_ARGS = --min-public-methods=0 --include-ids=y --max-attributes=9
 
 .PHONY: docs tests coverage
 
-all: tests
+all: help
 
 lint:
 	pylint $(LINT_ARGS) $(PROJNAME)
@@ -48,7 +48,6 @@ clean:
 	rm -rf *.out parsetab.py coverage *.stats metricData.* TAGS
 
 
-h: help
 help:
 	@echo
 	@echo "tests:              run unit and integration tests"
