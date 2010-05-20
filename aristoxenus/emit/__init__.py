@@ -1,2 +1,2 @@
-import humdrum
-import lily
+import aristoxenus.emit.humdrum
+import aristoxenus.emit.lily

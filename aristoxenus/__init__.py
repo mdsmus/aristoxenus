@@ -1,10 +1,10 @@
 #from __future__ import generators
 
-import parse
-import emit
-import score
-import music
-import utils
+import aristoxenus.parse
+import aristoxenus.emit
+import aristoxenus.score
+import aristoxenus.music
+import aristoxenus.utils
 
 # Ensure the user is running the version of python we require.
 import sys

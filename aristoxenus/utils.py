@@ -1,7 +1,6 @@
 import re
 import sys
 import itertools
-from itertools import imap, izip
 
 
 def replace_flats(string):

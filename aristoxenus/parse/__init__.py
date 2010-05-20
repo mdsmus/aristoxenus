@@ -1,1 +1,1 @@
-import humdrum
+import aristoxenus.parse.humdrum

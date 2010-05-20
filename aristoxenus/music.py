@@ -63,7 +63,7 @@ def calculate_duration(dur, dots=0):
     elif isinstance(dur, int):
         base = Fraction().from_decimal(dur) ** -1
     else:
-        raise MusicError, "I don't recognize duration {0}".format(dur)
+        raise MusicError("I don't recognize duration {0}".format(dur))
 
     return sum([base / (2 ** x) for x in range(0, dots + 1)])
 
@@ -118,7 +118,7 @@ def frac_to_dur(n):
         dot = "." * int(math.log(num + 1, 2) - 1)
         return "{0}{1}".format(dur, dot)
     else:
-        raise MusicError, "I don't know how to work with duration " + str(n)
+        raise MusicError("I don't know how to work with duration " + str(n))
 
 
 def notename_to_humdrum(notename, octave):

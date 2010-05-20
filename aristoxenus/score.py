@@ -1,4 +1,4 @@
-import music
+import aristoxenus.music
 
 
 class Score(list):

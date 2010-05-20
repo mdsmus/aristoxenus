@@ -1,11 +1,13 @@
 from __future__ import print_function
 from __future__ import division
-from itertools import izip, count
+from itertools import count
 import re
+import sys
+
 from aristoxenus import utils
 from aristoxenus import music
 from aristoxenus import score
-import kern
+from aristoxenus.parse.humdrum import kern
 
 debug = False
 
@@ -255,7 +257,7 @@ def parse_line(line, sco, note_system="base40", lineno=1):
             elif "*v" == i:
                 sco.split_spine = False
 
-        parsed = [parse_item(i, sco, note_system, lineno, n) for i, n in izip(s, count())]
+        parsed = [parse_item(i, sco, note_system, lineno, n) for i, n in zip(s, count())]
         sco.append(parsed)
     return sco
 
@@ -269,7 +271,7 @@ def parse_string(string, note_system="base40"):
     """
 
     s = score.Score()
-    for line, lineno in izip(string.split('\n'), count(1)):
+    for line, lineno in zip(string.split('\n'), count(1)):
         parse_line(line, s, note_system, lineno)
     return s
 
@@ -279,6 +281,6 @@ def parse_file(filename, note_system="base40"):
 
     with open(filename) as f:
         s = score.Score()
-        for line, lineno in izip(f, count(1)):
+        for line, lineno in zip(f, count(1)):
             parse_line(line.rstrip(), s, note_system, lineno)
         return s

@@ -1,1 +1,1 @@
-from main import parse_file, parse_string
+from aristoxenus.parse.humdrum.main import parse_file, parse_string
