@@ -13,6 +13,18 @@ def pytest_funcarg__two_notes(request):
     return note1, note2
 
 
+def test_show_score(two_notes):
+    record = score.Record("COM", "J. S. Bach")
+    kern = score.Exclusive("kern")
+    note1, note2 = two_notes
+    sco = score.Score(record, kern, [note1], [note2])
+    assert emit.humdrum.show(sco) == "!!! COM: J. S. Bach\n**kern\n4cccc#\n4.C--"
+
+def test_show_list(two_notes):
+    note1, note2 = two_notes
+    alist = [note1, note2]
+    assert emit.humdrum.show(alist) == "4cccc#	4.C--"
+
 def test_show_record():
     record = score.Record("COM", "J. S. Bach")
     assert emit.humdrum.show(record) == '!!! COM: J. S. Bach'
