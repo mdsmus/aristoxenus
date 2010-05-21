@@ -68,3 +68,8 @@ def test_score_bar():
 def test_score_rest():
     rest = score.Rest(frac(1, 4))
     assert isinstance(rest, score.Rest)
+
+def test_make_notes():
+    sco = score.make_notes("c d# eb")
+    names = [note.name for note in sco]
+    assert names == ["c", "d#", "eb"]

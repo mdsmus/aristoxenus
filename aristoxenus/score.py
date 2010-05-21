@@ -94,11 +94,6 @@ class NullInterpretation(object):
     pass
 
 
-class Dynam(object):
-    def __init__(self, data):
-        self.data = data
-
-
 class UnknownType(str):
     pass
 
