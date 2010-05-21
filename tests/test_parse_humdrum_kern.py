@@ -84,13 +84,19 @@ def test_parse_kern_octave_error_empty():
 # kern_tokenizer
 
 def pytest_funcarg__token1(request):
-    return kern.kern_tokenizer("4.cc##")
+    return kern.kern_tokenizer("4.cc##Pq")
 
 def test_kern_tokenizer_note(token1):
     assert token1['note'] == ['c', 'c']
 
 def test_kern_tokenizer_acc(token1):
     assert token1['acc'] == ['#', '#']
+
+def test_kern_tokenizer_app(token1):
+    assert token1['app'] == ['P']
+
+def test_kern_tokenizer_app(token1):
+    assert token1['acciac'] == ['q']
 
 def test_kern_tokenizer_dur(token1):
     assert token1['dur'] == ['4']
@@ -161,6 +167,16 @@ def test_parse_kern_item2_articulations_beam(note2):
     assert 'beam-start', note2.beams
 
 
+def test_parse_kern_item_error_no_note_or_rest():
+    py.test.raises(kern.KernError, kern.parse_kern, "4y")
+
+def test_parse_kern_item_error_no_note_and_rest():
+    py.test.raises(kern.KernError, kern.parse_kern, "4rc")
+
+def test_parse_kern_item_error_no_duration():
+    py.test.raises(kern.KernError, kern.parse_kern, "co")
+
+
 # parse_kern
 
 def test_parse_kern_4c():
@@ -174,3 +190,9 @@ def test_parse_kern_4c_base40():
 
 def test_parse_kern_4c_base12():
     assert kern.parse_kern("4c", note_system="base12").code == 0
+
+def test_parse_kern_double_stops():
+    assert isinstance(kern.parse_kern("4c 4c"), score.MultipleStop)
+
+def test_parse_kern_empty():
+    py.test.raises(kern.KernError, kern.parse_kern, "")
