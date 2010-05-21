@@ -252,8 +252,12 @@ def parse_line(line, sco, note_system="base40", lineno=1):
                 s[n:n+2] = [s[n:n+2]]
 
         if "*^" in s:
-            sco.split_spine = [num for num, item in enumerate(s) if item == "*^"]
+            sco.split_spine += [num for num, item in enumerate(s) if item == "*^"]
 
+        # FIXME: numbers not right, run ./humdiff data/split-spine-8.krn
+        # with next line uncommented
+        # TODO: make unit-tests for split-spine
+        print(s, sco.split_spine)
         for n, i in enumerate(s):
             if "*v" in i and sco.split_spine:
                 sco.split_spine.remove(n)
