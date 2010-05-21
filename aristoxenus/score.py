@@ -16,7 +16,7 @@ class Score(list):
         self.title = ""
         self.composer = ""
         self.filename = ""
-        self.split_spine = False
+        self.split_spine = []
         self.join_spine = False
         self.spine_types = []
         self.spine_names = []
