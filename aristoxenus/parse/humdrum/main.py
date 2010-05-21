@@ -174,8 +174,9 @@ def parse_item(item, sco, note_system="base40", lineno=1, itemno=1):
     elif item.startswith("*"):
         if item.startswith("*I:"):
             sco.spine_names.append(item[3:])
-        elif (item.startswith("*I") and not item.startswith("*IC")
-              and len(sco.spine_names) != itemno - 1):
+        elif item.startswith("*I") and not item.startswith("*IC"):
+            # what is the logic in this code again?
+            # and len(sco.spine_names) != itemno - 1
             sco.spine_names.append(item[2:])
 
         return parse_tandem(item)

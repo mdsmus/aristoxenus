@@ -1,7 +1,8 @@
+from __future__ import print_function
 from aristoxenus.parse.humdrum import main
 from aristoxenus import score
 import py
-
+import tempfile
 
 # parse_bar
 
@@ -51,6 +52,9 @@ def test_parse_tandem_key_sig_sharp():
 def test_parse_tandem_key_sig_flat():
     assert main.parse_tandem("*k[B-E-]").data == -2
 
+def test_parse_tandem_key_sig_bartok():
+    assert main.parse_tandem("*k[B-F#]").data == ["bb", "f#"]
+
 def test_parse_tandem_tempo():
     assert main.parse_tandem("*MM88.97").data == 88.97
 
@@ -75,6 +79,10 @@ def test_parse_tandem_key():
 
 # parse_item
 
+def test_parse_item_list():
+    item = main.parse_item(["**kern", "**kern"], score.Score())
+    assert [x.name for x in item] == ["kern", "kern"]
+
 def test_parse_item_bar():
     item = main.parse_item("=2:||:", score.Score())
     assert isinstance(item, score.Bar)
@@ -87,9 +95,23 @@ def test_parse_item_tandem():
     item = main.parse_item("*ClefF4", score.Score())
     assert isinstance(item, score.Tandem)
 
+def test_parse_item_tandem_spine_names_from_user_instrument():
+    sco = score.Score()
+    main.parse_item("*I:violin 1", sco)
+    assert sco.spine_names == ["violin 1"]
+
+def test_parse_item_tandem_spine_names_from_instrument():
+    sco = score.Score()
+    main.parse_item("*Iviolin", sco)
+    assert sco.spine_names == ["violin"]
+
 def test_parse_item_comment():
     item = main.parse_item("! foo", score.Score())
     assert isinstance(item, score.Comment)
+
+def test_parse_item_null_interpretation():
+    item = main.parse_item("*", score.Score())
+    assert isinstance(item, score.NullInterpretation)
 
 def test_parse_item_null():
     item = main.parse_item(".", score.Score())
@@ -129,9 +151,13 @@ def test_parse_comment_with_exclamation():
 # should use parse_kern_item instead.
 
 
-def test_parse_line_record():
-    f = main.parse_line("!!!com: Pedro Kroger", score.Score())
-    assert isinstance(f[0], score.Record)
+def test_parse_line_composer():
+    f = main.parse_line("!!!COM: Pedro Kroger", score.Score())
+    assert f.composer == 'Pedro Kroger'
+
+def test_parse_line_title():
+    f = main.parse_line("!!!OTL: My Music", score.Score())
+    assert f.title == 'My Music'
 
 def test_parse_line_record():
     f = main.parse_line("!! Global comment", score.Score())
@@ -244,3 +270,16 @@ def test_parse_non_kern_spine_name(foo_spine):
 
 def test_parse_non_kern_spine_value(foo_spine):
     assert foo_spine[1][0] == 'bar'
+
+# parse file
+
+def test_parse_file():
+    temp = tempfile.NamedTemporaryFile(mode='w+t')
+
+    try:
+        temp.writelines("**kern")
+        temp.seek(0)
+        sco = main.parse_file(temp.name)
+        assert  sco[0][0].name == "kern"
+    finally:
+        temp.close()
