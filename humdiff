@@ -90,7 +90,7 @@ def run_datatest(files, opt):
                 if opt.showhumdrum:
                     print("{0}\n\n{1}".format(orig, conv))
 
-        except (IndexError, music.MusicError) as strerror:
+        except (IndexError, music.MusicError, parse.humdrum.main.HumdrumError) as strerror:
             if not opt.quiet:
                 color_print("[err]", "purple")
             if opt.showerror:
