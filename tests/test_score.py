@@ -12,6 +12,22 @@ def pytest_funcarg__item_score(request):
     return sco
 
 
+def test_score_get_spine_col1():
+    sco = score.Score([["foo"], ["bar"]])
+    assert sco.get_spine(0) == [["foo"]]
+
+def test_score_get_spine_col2():
+    sco = score.Score([["foo"], ["bar"]])
+    assert sco.get_spine(1) == [["bar"]]
+
+def test_score_get_spine_global_data():
+    sco = score.Score("comment", [["foo"], ["bar"]])
+    assert sco.get_spine(0) == ['comment', ['foo']]
+
+def test_score_get_spine_no_global_data():
+    sco = score.Score("comment", [["foo"], ["bar"]])
+    assert sco.get_spine(0, False) == [['foo']]
+
 def test_score_append(item_score):
     assert item_score == ["foo"]
 
