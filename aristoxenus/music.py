@@ -98,7 +98,7 @@ def string_to_code(notename, acc, code, octave=1):
         return  ((n + accidental(acc)) + ((octave + 1) * base)) % base
 
 
-def frac_to_dur(n):
+def frac_to_dur(n, style="humdrum"):
     """Return a string representation for a duration represented as a fraction.
 
     >>> frac_to_dur(Fraction(3, 8))
@@ -110,7 +110,9 @@ def frac_to_dur(n):
     num = n.numerator
     den = n.denominator
 
-    if num == 1:
+    if n == 2:
+        return "0" if style == "humdrum" else "breve"
+    elif num == 1:
         return str(den)
     elif num in [3, 7, 15]:
         s = power_two_series(num)

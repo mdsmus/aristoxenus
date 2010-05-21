@@ -82,6 +82,9 @@ def test_calculate_duration_error_foo_as_duration():
 
 # frac_to_dur
 
+def test_frac_to_dur_2():
+    assert music.frac_to_dur(2) == "0"
+
 def test_frac_to_dur_3_8():
     assert music.frac_to_dur(Fraction(3, 8)) == "4."
 

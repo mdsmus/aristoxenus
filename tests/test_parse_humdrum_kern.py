@@ -117,8 +117,21 @@ def pytest_funcarg__note2(request):
 def test_parse_kern_item_name(note1):
     assert note1.name == 'C'
 
-def test_parse_kern_item_duration(note1):
-    assert note1.duration == Fraction(1, 4)
+def test_parse_kern_item_duration_0():
+    note = kern.parse_kern_item("0c")
+    assert note.duration == 2
+
+def test_parse_kern_item_duration_1():
+    note = kern.parse_kern_item("1c")
+    assert note.duration == Fraction(1, 1)
+
+def test_parse_kern_item_duration_2():
+    note = kern.parse_kern_item("2c")
+    assert note.duration == Fraction(1, 2)
+
+def test_parse_kern_item_duration_4():
+    note = kern.parse_kern_item("4c")
+    assert note.duration == Fraction(1, 4)
 
 def test_parse_kern_item_octave(note1):
     assert note1.octave == 4
