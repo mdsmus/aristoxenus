@@ -17,7 +17,7 @@ with open(os.path.join(kernscoredir, "filelist")) as filelist:
         filename = os.path.join(kernscoredir, line.strip('\n'))
         try:
             parse.humdrum.parse_file(filename)
-        except (KeyError, parse.humdrum.kern.KernError, parse.humdrum.main.HumdrumError):
+        except (IndexError, ValueError, KeyError, parse.humdrum.kern.KernError, parse.humdrum.main.HumdrumError):
             print("[ERROR]", filename)
             error_files += 1
 
