@@ -189,6 +189,9 @@ def parse_item(item, sco, note_system="base40", lineno=1, itemno=1):
         if len(spine_type_list) == 0:
             humdrum_error("Can't parse an item without knowing the spine type.")
         else:
+            if itemno > len(sco.spine_types) - 1:
+                humdrum_error("Item index is greater than number of"
+                              " spines on line {0}".format(lineno))
             data_type = sco.spine_types[itemno]
         return parse_data(data_type, item, note_system, lineno, itemno)
 
