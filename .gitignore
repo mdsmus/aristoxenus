@@ -24,3 +24,4 @@ metricData.sql
 *.stats
 coverage
 .stress
+/_stress.data
