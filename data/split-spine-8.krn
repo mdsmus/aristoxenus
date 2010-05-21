@@ -1,0 +1,14 @@
+**kern	**kern	**kern
+4a	4b	4c
+*	*^	*
+4a	4b	4b	4c
+*^	*	*	*
+*	*	*v	*v	*
+4a	4a	4b	4c
+*	*	*^	*
+4a	4a	4b	4b	4c
+*	*	*v	*v	*
+4a	4a	4b	4c
+*v	*v	*	*
+4a	4b	4c
+*-	*-	*-
