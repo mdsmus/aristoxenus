@@ -217,6 +217,28 @@ def parse_comment(line):
     return score.Comment(match.group(2).strip(), len(match.group(1)))
 
 
+def split_spine(line, sco, lineno=1):
+    sline = line.split("\t")
+
+    if sco.split_spine:
+        for n in sco.split_spine:
+            sline[n:n+2] = [sline[n:n+2]]
+
+    if "*^" in sline:
+        sco.split_spine += [num for num, item in enumerate(sline) if item == "*^"]
+
+    # FIXME: numbers not right, run ./humdiff data/split-spine-8.krn
+    # with next line uncommented
+    # TODO: make unit-tests for split-spine
+    print(sline, sco.split_spine, lineno)
+
+    for n, i in enumerate(sline):
+        if "*v" in i and sco.split_spine:
+            sco.split_spine.remove(n)
+
+    return sline
+
+
 def parse_line(line, sco, note_system="base40", lineno=1):
     """Parse a line, append the parsed result into the sco and return the sco
 
@@ -245,24 +267,8 @@ def parse_line(line, sco, note_system="base40", lineno=1):
     elif utils.search_string(r"^(!{2})|(!{4,})[a-zA-Z ]+", line):
         sco.append(parse_comment(line))
     else:
-        s = line.split("\t")
-
-        if sco.split_spine:
-            for n in sco.split_spine:
-                s[n:n+2] = [s[n:n+2]]
-
-        if "*^" in s:
-            sco.split_spine += [num for num, item in enumerate(s) if item == "*^"]
-
-        # FIXME: numbers not right, run ./humdiff data/split-spine-8.krn
-        # with next line uncommented
-        # TODO: make unit-tests for split-spine
-        print(s, sco.split_spine)
-        for n, i in enumerate(s):
-            if "*v" in i and sco.split_spine:
-                sco.split_spine.remove(n)
-
-        parsed = [parse_item(i, sco, note_system, lineno, n) for i, n in zip(s, count())]
+        sline = enumerate(split_spine(line, sco, lineno))
+        parsed = [parse_item(i, sco, note_system, lineno, n) for n, i in sline]
         sco.append(parsed)
     return sco
 
