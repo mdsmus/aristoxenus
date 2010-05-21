@@ -22,3 +22,4 @@ test-interactive.py
 metricData.csv
 metricData.sql
 *.stats
+coverage
