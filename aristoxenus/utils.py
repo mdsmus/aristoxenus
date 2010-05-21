@@ -16,9 +16,25 @@ def search_string(pattern, string):
         return tmp.group()
 
 
-def flatten(listOfLists):
-    "Flatten one level of nesting"
-    return itertools.chain.from_iterable(listOfLists)
+def flatten(list_of_lists):
+    """Flatten a list of list for many levels
+
+    I got it from from http://rightfootin.blogspot.com/2006/09/more-on-python-flatten.html
+    """
+
+    ltype = type(list_of_lists)
+    l = list(list_of_lists)
+    i = 0
+    while i < len(l):
+        while isinstance(l[i], (list, tuple)):
+            if not l[i]:
+                l.pop(i)
+                i -= 1
+                break
+            else:
+                l[i:i + 1] = l[i]
+        i += 1
+    return ltype(l)
 
 
 class VisitorError(TypeError):
