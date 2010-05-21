@@ -245,18 +245,15 @@ def parse_line(line, sco, note_system="base40", lineno=1):
         s = line.split("\t")
 
         if sco.split_spine:
-            n = sco.split_spine
-            s[n:n+2] = [s[n:n+2]]
+            for n in sco.split_spine:
+                s[n:n+2] = [s[n:n+2]]
 
         if "*^" in s:
-            sco.split_spine = s.index("*^")
+            sco.split_spine = [num for num, item in enumerate(s) if item == "*^"]
 
-        for i in s:
-            if type(i) is list:
-                if "*v" in i:
-                    sco.split_spine = False
-            elif "*v" == i:
-                sco.split_spine = False
+        for n, i in enumerate(s):
+            if "*v" in i and sco.split_spine:
+                sco.split_spine.remove(n)
 
         parsed = [parse_item(i, sco, note_system, lineno, n) for i, n in zip(s, count())]
         sco.append(parsed)
